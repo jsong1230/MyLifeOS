@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from 'next/server'
 import bcrypt from 'bcryptjs'
 import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 
 const PIN_REGEX = /^\d{4,6}$/
 
@@ -89,16 +90,6 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: '사용자 정보를 조회할 수 없습니다' }, { status: 500 })
     }
 
-    // users 레코드가 없으면 upsert로 생성 후 진행
-    if (!userData) {
-      await supabase.from('users').upsert({
-        id: user.id,
-        email: user.email ?? '',
-        name: user.user_metadata?.full_name ?? user.email?.split('@')[0] ?? '',
-        created_at: new Date().toISOString(),
-      })
-    }
-
     const { pin_hash, pin_failed_count, pin_locked_until } = userData ?? {
       pin_hash: null, pin_salt: null, pin_failed_count: 0, pin_locked_until: null,
     }
@@ -146,16 +137,27 @@ export async function POST(request: NextRequest) {
     const salt = await bcrypt.genSalt(12)
     const newHash = await bcrypt.hash(pin, salt)
 
-    const { error: updateError } = await supabase
+    // service_role로 RLS 우회하여 PIN 저장
+    const adminClient = createAdminClient()
+    const upsertPayload: Record<string, unknown> = {
+      id: user.id,
+      pin_hash: newHash,
+      pin_salt: salt,
+      pin_failed_count: 0,
+      pin_locked_until: null,
+      updated_at: new Date().toISOString(),
+    }
+    // 레코드가 없는 경우 필수 필드 포함
+    if (!userData) {
+      upsertPayload.email = user.email ?? ''
+      upsertPayload.name =
+        user.user_metadata?.full_name ?? user.email?.split('@')[0] ?? ''
+      upsertPayload.created_at = new Date().toISOString()
+    }
+
+    const { error: updateError } = await adminClient
       .from('users')
-      .update({
-        pin_hash: newHash,
-        pin_salt: salt,
-        pin_failed_count: 0,
-        pin_locked_until: null,
-        updated_at: new Date().toISOString(),
-      })
-      .eq('id', user.id)
+      .upsert(upsertPayload)
 
     if (updateError) {
       return NextResponse.json({ error: 'PIN 저장에 실패했습니다' }, { status: 500 })
