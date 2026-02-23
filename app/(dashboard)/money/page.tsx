@@ -8,8 +8,10 @@ import { Separator } from '@/components/ui/separator'
 import { SummaryCards } from '@/components/money/summary-cards'
 import { ExpensePieChart } from '@/components/money/expense-pie-chart'
 import { ExpenseBarChart } from '@/components/money/expense-bar-chart'
+import { MonthlyTrendChart } from '@/components/money/monthly-trend-chart'
 import { useTransactions } from '@/hooks/use-transactions'
 import { useBudgets } from '@/hooks/use-budgets'
+import { useMonthlyStats } from '@/hooks/use-assets'
 import { cn } from '@/lib/utils'
 
 // YYYY-MM 문자열에서 { year, month } 파싱
@@ -73,6 +75,8 @@ export default function MoneyPage() {
   function handleNextMonth() {
     setCurrentMonth((prev) => shiftMonth(prev, +1))
   }
+
+  const { data: monthlyStats = [] } = useMonthlyStats(6)
 
   const isLoading = isLoadingTransactions || isLoadingBudgets
   const hasError = transactionsError ?? budgetsError
@@ -173,6 +177,10 @@ export default function MoneyPage() {
           </span>
         </div>
       )}
+
+      {/* 월별 수입/지출 추이 차트 — F-22 */}
+      <Separator />
+      <MonthlyTrendChart data={monthlyStats} />
     </div>
   )
 }

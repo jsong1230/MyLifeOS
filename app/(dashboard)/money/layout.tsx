@@ -7,6 +7,7 @@ const MONEY_NAV_ITEMS = [
   { label: '대시보드', href: '/money' },
   { label: '수입/지출', href: '/money/transactions' },
   { label: '예산', href: '/money/budget' },
+  { label: '자산', href: '/money/assets' },
   { label: '정기지출', href: '/money/recurring' },
   { label: '카테고리', href: '/money/categories' },
 ] as const
