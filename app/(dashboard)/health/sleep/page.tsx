@@ -24,26 +24,34 @@ import { SleepForm } from '@/components/health/sleep-form'
 import { useSleep, useCreateSleep, useUpdateSleep, useDeleteSleep } from '@/hooks/use-sleep'
 import type { SleepLog, CreateSleepInput } from '@/types/health'
 
-// 주 시작일(월요일)을 이전/다음 주로 이동하는 헬퍼
-function addWeeks(weekStartStr: string, weeks: number): string {
-  const date = new Date(weekStartStr)
-  date.setDate(date.getDate() + weeks * 7)
-  return date.toISOString().split('T')[0]
+// 로컬 날짜를 YYYY-MM-DD 문자열로 변환 (UTC 변환 없이 로컬 기준)
+function toLocalDateStr(date: Date): string {
+  const y = date.getFullYear()
+  const m = String(date.getMonth() + 1).padStart(2, '0')
+  const d = String(date.getDate()).padStart(2, '0')
+  return `${y}-${m}-${d}`
 }
 
-// 이번 주 월요일 계산
+// 주 시작일(월요일)을 이전/다음 주로 이동하는 헬퍼
+function addWeeks(weekStartStr: string, weeks: number): string {
+  const date = new Date(weekStartStr + 'T00:00:00')
+  date.setDate(date.getDate() + weeks * 7)
+  return toLocalDateStr(date)
+}
+
+// 이번 주 월요일 계산 (로컬 타임존 기준)
 function getCurrentWeekStart(): string {
   const today = new Date()
   const day = today.getDay() // 0=일, 1=월, ...
   const diff = day === 0 ? -6 : 1 - day
   today.setDate(today.getDate() + diff)
-  return today.toISOString().split('T')[0]
+  return toLocalDateStr(today)
 }
 
 // 주간 레이블 포맷 (예: "2025년 12월 2주")
 function formatWeekLabel(weekStart: string): string {
-  const start = new Date(weekStart)
-  const end = new Date(weekStart)
+  const start = new Date(weekStart + 'T00:00:00')
+  const end = new Date(weekStart + 'T00:00:00')
   end.setDate(end.getDate() + 6)
 
   const startLabel = `${start.getMonth() + 1}/${start.getDate()}`

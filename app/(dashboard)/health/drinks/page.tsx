@@ -32,21 +32,29 @@ import {
 } from '@/hooks/use-drinks'
 import type { DrinkLog, CreateDrinkInput, UpdateDrinkInput } from '@/types/health'
 
-// 날짜 문자열(YYYY-MM-DD)의 해당 주 월요일 반환
+// 로컬 날짜를 YYYY-MM-DD 문자열로 변환 (UTC 변환 없이 로컬 기준)
+function toLocalDateStr(date: Date): string {
+  const y = date.getFullYear()
+  const m = String(date.getMonth() + 1).padStart(2, '0')
+  const d = String(date.getDate()).padStart(2, '0')
+  return `${y}-${m}-${d}`
+}
+
+// 날짜 문자열(YYYY-MM-DD)의 해당 주 월요일 반환 (로컬 타임존 기준)
 function getWeekStart(dateStr: string): string {
   const date = new Date(dateStr + 'T00:00:00')
   const day = date.getDay() // 0=일, 1=월, ..., 6=토
   const diff = day === 0 ? -6 : 1 - day
   const monday = new Date(date)
   monday.setDate(date.getDate() + diff)
-  return monday.toISOString().split('T')[0]
+  return toLocalDateStr(monday)
 }
 
-// 주 시작일로부터 7일 더하거나 빼기
+// 주 시작일로부터 7일 더하거나 빼기 (로컬 타임존 기준)
 function shiftWeek(weekStart: string, direction: 1 | -1): string {
   const date = new Date(weekStart + 'T00:00:00')
   date.setDate(date.getDate() + direction * 7)
-  return date.toISOString().split('T')[0]
+  return toLocalDateStr(date)
 }
 
 // 'YYYY-MM-DD' → 'M월 D일' 포맷
@@ -61,13 +69,13 @@ function buildWeekLabel(weekStart: string): string {
   const endDate = new Date(weekStart + 'T00:00:00')
   endDate.setDate(startDate.getDate() + 6)
 
-  const endStr = endDate.toISOString().split('T')[0]
+  const endStr = toLocalDateStr(endDate)
   return `${formatShortDate(weekStart)} ~ ${formatShortDate(endStr)}`
 }
 
 // 이번 주 여부 판단
 function isCurrentWeek(weekStart: string): boolean {
-  const today = new Date().toISOString().split('T')[0]
+  const today = toLocalDateStr(new Date())
   return weekStart === getWeekStart(today)
 }
 
@@ -75,8 +83,7 @@ function isCurrentWeek(weekStart: string): boolean {
 export default function DrinksPage() {
   // 현재 조회 중인 주의 시작일 (월요일)
   const [currentWeekStart, setCurrentWeekStart] = useState<string>(() => {
-    const today = new Date().toISOString().split('T')[0]
-    return getWeekStart(today)
+    return getWeekStart(toLocalDateStr(new Date()))
   })
 
   // 다이얼로그 상태
@@ -108,8 +115,7 @@ export default function DrinksPage() {
 
   // 이번 주로 돌아오기
   function goToCurrentWeek() {
-    const today = new Date().toISOString().split('T')[0]
-    setCurrentWeekStart(getWeekStart(today))
+    setCurrentWeekStart(getWeekStart(toLocalDateStr(new Date())))
   }
 
   // 추가 버튼 클릭

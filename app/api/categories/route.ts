@@ -52,7 +52,16 @@ export async function GET(request: NextRequest) {
     )
   }
 
-  return NextResponse.json({ success: true, data: data as Category[] })
+  // 마이그레이션 중복 실행 등으로 같은 이름+타입 카테고리가 중복될 경우 방어
+  const seen = new Set<string>()
+  const uniqueData = (data ?? []).filter((cat) => {
+    const key = `${cat.name}:${cat.type}:${String(cat.is_system)}`
+    if (seen.has(key)) return false
+    seen.add(key)
+    return true
+  }) as Category[]
+
+  return NextResponse.json({ success: true, data: uniqueData })
 }
 
 // POST /api/categories — 커스텀 카테고리 생성
