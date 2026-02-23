@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from 'next/server'
 import bcrypt from 'bcryptjs'
 import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 
 const MAX_ATTEMPTS = 5
 const LOCK_DURATION_MS = 10 * 60 * 1000 // 10분
@@ -28,8 +29,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'PIN을 입력해주세요' }, { status: 400 })
     }
 
-    // 사용자 PIN 정보 조회
-    const { data: userData, error: fetchError } = await supabase
+    // 사용자 PIN 정보 조회 (RLS 우회)
+    const adminClient = createAdminClient()
+    const { data: userData, error: fetchError } = await adminClient
       .from('users')
       .select('pin_hash, pin_salt, pin_failed_count, pin_locked_until')
       .eq('id', user.id)
@@ -67,7 +69,7 @@ export async function POST(request: NextRequest) {
         )
       } else {
         // 잠금 만료: 자동 해제
-        await supabase
+        await adminClient
           .from('users')
           .update({ pin_failed_count: 0, pin_locked_until: null })
           .eq('id', user.id)
@@ -80,7 +82,7 @@ export async function POST(request: NextRequest) {
 
     if (match) {
       // 성공: 실패 횟수 초기화
-      await supabase
+      await adminClient
         .from('users')
         .update({ pin_failed_count: 0, pin_locked_until: null })
         .eq('id', user.id)
@@ -97,7 +99,7 @@ export async function POST(request: NextRequest) {
     if (newCount >= MAX_ATTEMPTS) {
       // 5회 도달 → 10분 잠금
       const lockedUntil = new Date(Date.now() + LOCK_DURATION_MS)
-      await supabase
+      await adminClient
         .from('users')
         .update({ pin_failed_count: newCount, pin_locked_until: lockedUntil.toISOString() })
         .eq('id', user.id)
@@ -113,7 +115,7 @@ export async function POST(request: NextRequest) {
     }
 
     // 실패 (5회 미만)
-    await supabase
+    await adminClient
       .from('users')
       .update({ pin_failed_count: newCount })
       .eq('id', user.id)

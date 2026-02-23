@@ -17,7 +17,8 @@ export async function GET() {
       return NextResponse.json({ error: '인증이 필요합니다' }, { status: 401 })
     }
 
-    const { data, error } = await supabase
+    const adminClient = createAdminClient()
+    const { data, error } = await adminClient
       .from('users')
       .select('pin_hash')
       .eq('id', user.id)
