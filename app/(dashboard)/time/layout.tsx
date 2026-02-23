@@ -8,6 +8,7 @@ const TIME_NAV_ITEMS = [
   { label: '캘린더', href: '/time/calendar' },
   { label: '루틴', href: '/time/routines' },
   { label: '타임블록', href: '/time/blocks' },
+  { label: '통계', href: '/time/stats' },
 ] as const
 
 // 시간 관리 모듈 레이아웃 — 서브 네비게이션 포함
