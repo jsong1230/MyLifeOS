@@ -19,9 +19,14 @@ function getDayIndex(dateStr: string): number {
   return day === 0 ? 6 : day - 1 // 월요일 기준으로 변환
 }
 
+// WHO 기준 주간 권장 음주 잔수
+const WHO_WEEKLY_LIMIT = 14
+const WHO_CAUTION_PCT = 0.8 // 80% 이상 시 주의
+
 // 이번 주 음주 기록 요약 카드 컴포넌트
 // - 음주 횟수 / 총 음주량(ml) / 총 잔수
 // - 요일별 음주량 막대 시각화 (div 기반)
+// - WHO 기준 초과/주의 경고 배너
 export function DrinkSummary({ logs, weekLabel }: DrinkSummaryProps) {
   // 요일별 음주량 집계 (인덱스 0=월 ~ 6=일)
   const dailyAmounts = Array.from({ length: 7 }, () => 0)
@@ -34,6 +39,11 @@ export function DrinkSummary({ logs, weekLabel }: DrinkSummaryProps) {
 
   // 총 잔수 집계
   const totalCount = logs.reduce((acc, log) => acc + (Number(log.drink_count) || 0), 0)
+
+  // WHO 경고 상태
+  const hasCountData = logs.some((l) => l.drink_count != null && Number(l.drink_count) > 0)
+  const isOverLimit = hasCountData && totalCount >= WHO_WEEKLY_LIMIT
+  const isNearLimit = hasCountData && !isOverLimit && totalCount >= WHO_WEEKLY_LIMIT * WHO_CAUTION_PCT
 
   // 총 음주량 집계
   const totalMl = logs.reduce((acc, log) => acc + Number(log.amount_ml), 0)
@@ -73,6 +83,26 @@ export function DrinkSummary({ logs, weekLabel }: DrinkSummaryProps) {
             <p className="text-xs text-muted-foreground">{totalCount > 0 ? '잔' : ''}</p>
           </div>
         </div>
+
+        {/* WHO 기준 경고/주의 배너 */}
+        {isOverLimit && (
+          <div className={cn(
+            'rounded-lg px-3 py-2 text-sm font-medium',
+            'bg-red-50 text-red-700 border border-red-200',
+            'dark:bg-red-900/20 dark:text-red-400 dark:border-red-800'
+          )}>
+            ⚠️ WHO 주간 권장량({WHO_WEEKLY_LIMIT}잔) 초과 — 현재 {totalCount}잔 섭취
+          </div>
+        )}
+        {isNearLimit && (
+          <div className={cn(
+            'rounded-lg px-3 py-2 text-sm font-medium',
+            'bg-yellow-50 text-yellow-700 border border-yellow-200',
+            'dark:bg-yellow-900/20 dark:text-yellow-400 dark:border-yellow-800'
+          )}>
+            ⚡ WHO 주간 권장량 80% 근접 — 현재 {totalCount}잔 / 기준 {WHO_WEEKLY_LIMIT}잔
+          </div>
+        )}
 
         {/* 요일별 음주량 막대 그래프 (div 기반) */}
         <div>

@@ -11,9 +11,9 @@ import {
 import { Badge } from '@/components/ui/badge'
 
 // WHO 기준 주간 권장 음주 횟수 (단위: 잔)
-// 남성: 14잔/주, 여성: 7잔/주 — 성별 미구분으로 보수적 기준(7잔) 사용 시 경고 표시
-// 단, 경고는 데이터 있을 때만 표시하는 옵션 사항
+// 남성: 14잔/주, 여성: 7잔/주 — 성별 미구분으로 보수적 기준 적용
 const WHO_WEEKLY_LIMIT_DRINKS = 14 // 남성 기준
+const WHO_CAUTION_THRESHOLD = WHO_WEEKLY_LIMIT_DRINKS * 0.8 // 11.2잔 (80%) 주의 기준
 
 interface DrinkSummary {
   count: number       // 음주 일수
@@ -39,9 +39,13 @@ function formatVolume(ml: number): string {
 export function DrinkWeeklyCard({ summary, weekLabel, totalDrinkCount }: DrinkWeeklyCardProps) {
   const hasNoDrinks = summary.count === 0
 
-  // WHO 기준 초과 여부 — 잔 수 데이터가 있을 때만 판단
+  // WHO 기준 초과/주의 여부 — 잔 수 데이터가 있을 때만 판단
   const isOverWhoLimit =
-    totalDrinkCount !== undefined && totalDrinkCount > WHO_WEEKLY_LIMIT_DRINKS
+    totalDrinkCount !== undefined && totalDrinkCount >= WHO_WEEKLY_LIMIT_DRINKS
+  const isNearWhoLimit =
+    totalDrinkCount !== undefined &&
+    !isOverWhoLimit &&
+    totalDrinkCount >= WHO_CAUTION_THRESHOLD
 
   return (
     <Card>
@@ -90,17 +94,26 @@ export function DrinkWeeklyCard({ summary, weekLabel, totalDrinkCount }: DrinkWe
               </div>
             </div>
 
-            {/* WHO 기준 경고 — 잔 수 데이터 있을 때만 표시 */}
+            {/* WHO 기준 경고/주의 — 잔 수 데이터 있을 때만 표시 */}
             {totalDrinkCount !== undefined && (
               <div className="flex items-center gap-2">
                 {isOverWhoLimit ? (
                   <Badge
                     className={cn(
-                      'border-transparent bg-orange-100 text-orange-700',
-                      'dark:bg-orange-900/30 dark:text-orange-400'
+                      'border-transparent bg-red-100 text-red-700',
+                      'dark:bg-red-900/30 dark:text-red-400'
                     )}
                   >
-                    WHO 권장량 초과 ({totalDrinkCount}잔 / 주 {WHO_WEEKLY_LIMIT_DRINKS}잔 기준)
+                    ⚠️ WHO 권장량 초과 ({totalDrinkCount}잔 / 기준 {WHO_WEEKLY_LIMIT_DRINKS}잔)
+                  </Badge>
+                ) : isNearWhoLimit ? (
+                  <Badge
+                    className={cn(
+                      'border-transparent bg-yellow-100 text-yellow-700',
+                      'dark:bg-yellow-900/30 dark:text-yellow-400'
+                    )}
+                  >
+                    ⚡ 권장량 80% 근접 ({totalDrinkCount}잔 / 기준 {WHO_WEEKLY_LIMIT_DRINKS}잔)
                   </Badge>
                 ) : (
                   <Badge
@@ -109,7 +122,7 @@ export function DrinkWeeklyCard({ summary, weekLabel, totalDrinkCount }: DrinkWe
                       'dark:bg-green-900/30 dark:text-green-400'
                     )}
                   >
-                    권장량 이내 ({totalDrinkCount}잔)
+                    권장량 이내 ({totalDrinkCount}잔 / 기준 {WHO_WEEKLY_LIMIT_DRINKS}잔)
                   </Badge>
                 )}
               </div>
