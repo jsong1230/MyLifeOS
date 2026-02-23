@@ -39,13 +39,9 @@ export function PinGuard({ children }: PinGuardProps) {
     async function checkPinStatus() {
       setLoading(true)
       try {
-        const res = await fetch('/api/users/pin/verify', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ pin: '__check__' }),
-        })
-        // 404 = PIN 미설정, 그 외 = 설정됨
-        setIsPinSet(res.status !== 404)
+        const res = await fetch('/api/users/pin')
+        const json = await res.json()
+        setIsPinSet(res.ok ? Boolean(json.data?.pinSet) : true)
       } catch {
         // 네트워크 오류 시 설정됨으로 간주 (보안 우선)
         setIsPinSet(true)

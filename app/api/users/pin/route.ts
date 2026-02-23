@@ -5,6 +5,37 @@ import { createClient } from '@/lib/supabase/server'
 const PIN_REGEX = /^\d{4,6}$/
 
 /**
+ * GET /api/users/pin
+ * PIN 설정 여부만 확인 (pin_hash 존재 여부).
+ */
+export async function GET() {
+  try {
+    const supabase = await createClient()
+    const { data: { user }, error: authError } = await supabase.auth.getUser()
+    if (authError || !user) {
+      return NextResponse.json({ error: '인증이 필요합니다' }, { status: 401 })
+    }
+
+    const { data, error } = await supabase
+      .from('users')
+      .select('pin_hash')
+      .eq('id', user.id)
+      .single()
+
+    if (error || !data) {
+      return NextResponse.json({ error: '사용자 정보를 조회할 수 없습니다' }, { status: 500 })
+    }
+
+    return NextResponse.json({
+      success: true,
+      data: { pinSet: Boolean(data.pin_hash) },
+    })
+  } catch {
+    return NextResponse.json({ error: '서버 오류가 발생했습니다' }, { status: 500 })
+  }
+}
+
+/**
  * POST /api/users/pin
  * PIN 최초 설정 및 변경 처리.
  *
