@@ -1,8 +1,8 @@
 import { type NextRequest } from 'next/server'
 import { updateSession } from '@/lib/supabase/middleware'
 
-// Next.js 16+ proxy 컨벤션 (구 middleware.ts 대체)
-export async function proxy(request: NextRequest) {
+// Next.js 미들웨어 — 세션 갱신 및 인증 기반 라우트 보호
+export async function middleware(request: NextRequest) {
   return await updateSession(request)
 }
 
