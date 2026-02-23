@@ -50,7 +50,11 @@
   - app/(dashboard)/settings/page.tsx, PinGuard로 대시보드 전체 보호
 - ✅ 완료: F-02 메인 대시보드 (AppShell 레이아웃, 4개 요약 카드, FAB, 모듈 placeholder — 2026-02-23)
 - ✅ 완료: F-04 PWA 지원 (manifest.json, Apple 메타태그, 아이콘 404 해결 — 2026-02-23)
-- ⏭️ 다음: Phase 2 (F-05 할일 관리, F-06 캘린더 뷰, F-07 루틴)
+- ✅ 완료: F-21 자산 현황 (자산 CRUD + PieChart + 월별 추이 LineChart — 2026-02-23)
+- ✅ 완료: F-22 월별 지출 추이 (최근 6개월 수입/지출 BarChart — 2026-02-23)
+- ✅ 완료: F-23 체중/체성분 기록 (body_logs CRUD + 추이 LineChart — 2026-02-23)
+- ✅ 완료: F-24 운동 기록 (exercise_logs CRUD + 주간 뷰 + 요약 — 2026-02-23)
+- ⏭️ 다음: F-25 음주 경고, F-26 일기 검색, F-27 인간관계 메모
 
 ## 중요 결정사항
 - `middleware.ts` (루트) 사용 — Next.js가 자동 인식하는 파일명 (proxy.ts는 내부 명명 의도였음)
