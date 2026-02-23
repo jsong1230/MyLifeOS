@@ -144,7 +144,7 @@ export default function PrivateLayout({ children }: { children: React.ReactNode 
           </div>
           <div>
             <h2 className="text-xl font-semibold">사적 기록</h2>
-            <p className="text-sm text-muted-foreground mt-1">PIN을 입력해 잠금을 해제하세요</p>
+            <p className="text-sm text-muted-foreground mt-1">PIN을 입력하여 잠금을 해제하세요</p>
           </div>
           <form onSubmit={handleVerify} className="space-y-3">
             <Input
