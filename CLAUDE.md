@@ -48,7 +48,9 @@
   - components/auth: PinPad, PinSetup, PinLockScreen, PinChange, PinGuard
   - app/api/users/pin (설정/변경), app/api/users/pin/verify (검증 + 잠금)
   - app/(dashboard)/settings/page.tsx, PinGuard로 대시보드 전체 보호
-- ⏭️ 다음: 다음 기능 (PG-0A 이후 기능)
+- ✅ 완료: F-02 메인 대시보드 (AppShell 레이아웃, 4개 요약 카드, FAB, 모듈 placeholder — 2026-02-23)
+- ✅ 완료: F-04 PWA 지원 (manifest.json, Apple 메타태그, 아이콘 404 해결 — 2026-02-23)
+- ⏭️ 다음: Phase 2 (F-05 할일 관리, F-06 캘린더 뷰, F-07 루틴)
 
 ## 중요 결정사항
 - `middleware.ts` (루트) 사용 — Next.js가 자동 인식하는 파일명 (proxy.ts는 내부 명명 의도였음)
