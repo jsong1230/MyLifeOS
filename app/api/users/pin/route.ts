@@ -20,18 +20,22 @@ export async function GET() {
       .from('users')
       .select('pin_hash')
       .eq('id', user.id)
-      .single()
+      .maybeSingle()
 
-    if (error || !data) {
+    if (error) {
       return NextResponse.json({ error: '사용자 정보를 조회할 수 없습니다' }, { status: 500 })
     }
 
+    // 레코드 없으면 PIN 미설정으로 간주
     return NextResponse.json({
       success: true,
-      data: { pinSet: Boolean(data.pin_hash) },
+      data: { pinSet: Boolean(data?.pin_hash) },
     })
   } catch {
-    return NextResponse.json({ error: '서버 오류가 발생했습니다' }, { status: 500 })
+    return NextResponse.json(
+      { error: '서버 오류가 발생했습니다' },
+      { status: 500 },
+    )
   }
 }
 
@@ -79,13 +83,25 @@ export async function POST(request: NextRequest) {
       .from('users')
       .select('pin_hash, pin_salt, pin_failed_count, pin_locked_until')
       .eq('id', user.id)
-      .single()
+      .maybeSingle()
 
-    if (fetchError || !userData) {
+    if (fetchError) {
       return NextResponse.json({ error: '사용자 정보를 조회할 수 없습니다' }, { status: 500 })
     }
 
-    const { pin_hash, pin_failed_count, pin_locked_until } = userData
+    // users 레코드가 없으면 upsert로 생성 후 진행
+    if (!userData) {
+      await supabase.from('users').upsert({
+        id: user.id,
+        email: user.email ?? '',
+        name: user.user_metadata?.full_name ?? user.email?.split('@')[0] ?? '',
+        created_at: new Date().toISOString(),
+      })
+    }
+
+    const { pin_hash, pin_failed_count, pin_locked_until } = userData ?? {
+      pin_hash: null, pin_salt: null, pin_failed_count: 0, pin_locked_until: null,
+    }
 
     // 잠금 상태 확인
     if (pin_locked_until) {

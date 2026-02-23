@@ -33,17 +33,19 @@ export async function POST(request: NextRequest) {
       .from('users')
       .select('pin_hash, pin_salt, pin_failed_count, pin_locked_until')
       .eq('id', user.id)
-      .single()
+      .maybeSingle()
 
-    if (fetchError || !userData) {
+    if (fetchError) {
       return NextResponse.json({ error: '사용자 정보를 조회할 수 없습니다' }, { status: 500 })
     }
 
-    const { pin_hash, pin_salt, pin_locked_until } = userData
-    let { pin_failed_count } = userData
+    const { pin_hash, pin_salt, pin_locked_until } = userData ?? {
+      pin_hash: null, pin_salt: null, pin_failed_count: 0, pin_locked_until: null,
+    }
+    let { pin_failed_count } = userData ?? { pin_failed_count: 0 }
 
-    // PIN 미설정 확인
-    if (!pin_hash || !pin_salt) {
+    // PIN 미설정 확인 (users 레코드 없음 포함)
+    if (!userData || !pin_hash || !pin_salt) {
       return NextResponse.json(
         { success: false, data: { verified: false, pinSet: false } },
         { status: 404 },
