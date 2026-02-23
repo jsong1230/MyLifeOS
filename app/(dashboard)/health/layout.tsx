@@ -8,6 +8,8 @@ const HEALTH_NAV_ITEMS = [
   { label: '식사', href: '/health/meals' },
   { label: '음주', href: '/health/drinks' },
   { label: '수면', href: '/health/sleep' },
+  { label: '체중', href: '/health/body' },
+  { label: '운동', href: '/health/exercise' },
   { label: '목표', href: '/health/diet-goal' },
 ] as const
 

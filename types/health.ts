@@ -106,3 +106,72 @@ export interface UpdateSleepInput {
   date?: string
   note?: string | null
 }
+
+// ─── 체중/체성분 기록 (body_logs) ────────────────────────────
+export interface BodyLog {
+  id: string
+  user_id: string
+  weight?: number | null      // 체중(kg)
+  body_fat?: number | null    // 체지방률(%)
+  muscle_mass?: number | null // 근육량(kg)
+  date: string                // YYYY-MM-DD
+  note?: string | null
+  created_at: string
+  updated_at: string
+}
+
+export interface CreateBodyLogInput {
+  weight?: number
+  body_fat?: number
+  muscle_mass?: number
+  date?: string
+  note?: string
+}
+
+export interface UpdateBodyLogInput {
+  weight?: number | null
+  body_fat?: number | null
+  muscle_mass?: number | null
+  date?: string
+  note?: string | null
+}
+
+// ─── 운동 기록 (exercise_logs) ───────────────────────────────
+export type ExerciseIntensity = 'light' | 'moderate' | 'intense'
+
+export const EXERCISE_INTENSITY_LABEL: Record<ExerciseIntensity, string> = {
+  light: '가벼움',
+  moderate: '보통',
+  intense: '격렬',
+}
+
+export interface ExerciseLog {
+  id: string
+  user_id: string
+  exercise_type: string       // 운동 종류 (자유 입력)
+  duration_min: number        // 운동 시간(분)
+  intensity: ExerciseIntensity
+  calories_burned?: number | null
+  date: string                // YYYY-MM-DD
+  note?: string | null
+  created_at: string
+  updated_at: string
+}
+
+export interface CreateExerciseInput {
+  exercise_type: string
+  duration_min: number
+  intensity: ExerciseIntensity
+  calories_burned?: number
+  date?: string
+  note?: string
+}
+
+export interface UpdateExerciseInput {
+  exercise_type?: string
+  duration_min?: number
+  intensity?: ExerciseIntensity
+  calories_burned?: number | null
+  date?: string
+  note?: string | null
+}
