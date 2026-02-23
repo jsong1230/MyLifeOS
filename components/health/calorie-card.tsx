@@ -1,0 +1,126 @@
+'use client'
+
+import { cn } from '@/lib/utils'
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+} from '@/components/ui/card'
+import type { MealLog, MealType } from '@/types/health'
+
+// 식사 유형 한국어 레이블
+const MEAL_TYPE_LABELS: Record<MealType, string> = {
+  breakfast: '아침',
+  lunch: '점심',
+  dinner: '저녁',
+  snack: '간식',
+}
+
+// 식사 유형별 색상 (div 기반 미니 바)
+const MEAL_TYPE_COLORS: Record<MealType, string> = {
+  breakfast: 'bg-blue-400',
+  lunch: 'bg-green-400',
+  dinner: 'bg-orange-400',
+  snack: 'bg-purple-400',
+}
+
+// 식사 유형 순서
+const MEAL_TYPE_ORDER: MealType[] = ['breakfast', 'lunch', 'dinner', 'snack']
+
+interface CalorieCardProps {
+  meals: MealLog[]
+  date: string
+}
+
+// 오늘 총 칼로리 섭취량 카드
+export function CalorieCard({ meals, date }: CalorieCardProps) {
+  // 총 칼로리 합산
+  const totalCalories = meals.reduce((sum, meal) => sum + (meal.calories ?? 0), 0)
+
+  // 식사 유형별 칼로리 합산
+  const caloriesByType = MEAL_TYPE_ORDER.reduce<Record<MealType, number>>(
+    (acc, type) => {
+      acc[type] = meals
+        .filter((meal) => meal.meal_type === type)
+        .reduce((sum, meal) => sum + (meal.calories ?? 0), 0)
+      return acc
+    },
+    { breakfast: 0, lunch: 0, dinner: 0, snack: 0 }
+  )
+
+  // 날짜 포맷 (YYYY-MM-DD → MM월 DD일)
+  const [, month, day] = date.split('-')
+  const dateLabel = `${parseInt(month)}월 ${parseInt(day)}일`
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="text-base flex items-center gap-2">
+          {/* 칼로리 아이콘 */}
+          <span className="text-lg">🍽️</span>
+          오늘 칼로리 섭취
+        </CardTitle>
+        <CardDescription>{dateLabel} 기준</CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        {meals.length === 0 ? (
+          // 데이터 없음 상태
+          <p className="text-sm text-muted-foreground text-center py-4">
+            오늘 식사 기록이 없습니다
+          </p>
+        ) : (
+          <>
+            {/* 총 칼로리 */}
+            <div className="flex items-baseline gap-1">
+              <span className="text-3xl font-bold">
+                {totalCalories.toLocaleString()}
+              </span>
+              <span className="text-sm text-muted-foreground">kcal</span>
+            </div>
+
+            {/* 식사 유형별 미니 바 시각화 */}
+            <div className="space-y-2">
+              {MEAL_TYPE_ORDER.map((type) => {
+                const calories = caloriesByType[type]
+                if (calories === 0) return null
+
+                // 전체 대비 비율 계산 (최소 4% 보장으로 바 가시성 확보)
+                const percentage =
+                  totalCalories > 0
+                    ? Math.max(4, Math.round((calories / totalCalories) * 100))
+                    : 0
+
+                return (
+                  <div key={type} className="space-y-1">
+                    <div className="flex justify-between text-xs text-muted-foreground">
+                      <span>{MEAL_TYPE_LABELS[type]}</span>
+                      <span>{calories.toLocaleString()} kcal</span>
+                    </div>
+                    {/* div 기반 바 */}
+                    <div className="h-2 w-full bg-muted rounded-full overflow-hidden">
+                      <div
+                        className={cn('h-full rounded-full transition-all', MEAL_TYPE_COLORS[type])}
+                        style={{ width: `${percentage}%` }}
+                        role="progressbar"
+                        aria-valuenow={calories}
+                        aria-valuemax={totalCalories}
+                        aria-label={`${MEAL_TYPE_LABELS[type]} ${calories}kcal`}
+                      />
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+
+            {/* 식사 횟수 */}
+            <p className="text-xs text-muted-foreground">
+              총 {meals.length}건의 식사 기록
+            </p>
+          </>
+        )}
+      </CardContent>
+    </Card>
+  )
+}

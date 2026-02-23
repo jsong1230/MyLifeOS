@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Home, Clock, Wallet, Heart, BookOpen, Settings } from 'lucide-react'
+import { Home, Clock, Wallet, Heart, BookOpen, Settings, BarChart2 } from 'lucide-react'
 
 const NAV_ITEMS = [
   { label: '홈', icon: Home, href: '/' },
@@ -10,6 +10,7 @@ const NAV_ITEMS = [
   { label: '금전 관리', icon: Wallet, href: '/money' },
   { label: '건강 관리', icon: Heart, href: '/health' },
   { label: '사적 기록', icon: BookOpen, href: '/private' },
+  { label: '리포트', icon: BarChart2, href: '/reports' },
 ] as const
 
 // 데스크탑 사이드바

@@ -1,0 +1,247 @@
+'use client'
+
+import { useState, useEffect } from 'react'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+import { cn } from '@/lib/utils'
+import type { Routine, CreateRoutineInput, UpdateRoutineInput, RoutineFrequency } from '@/types/routine'
+
+// 요일 레이블 (0=일, 1=월, ..., 6=토)
+const DAY_LABELS = ['일', '월', '화', '수', '목', '금', '토'] as const
+
+interface RoutineFormProps {
+  routine?: Routine
+  onSubmit: (data: CreateRoutineInput | UpdateRoutineInput) => void
+  onCancel?: () => void
+  isLoading?: boolean
+}
+
+/**
+ * 루틴 생성/수정 폼 컴포넌트
+ */
+export function RoutineForm({
+  routine,
+  onSubmit,
+  onCancel,
+  isLoading = false,
+}: RoutineFormProps) {
+  const [title, setTitle] = useState(routine?.title ?? '')
+  const [description, setDescription] = useState(routine?.description ?? '')
+  const [frequency, setFrequency] = useState<RoutineFrequency>(
+    routine?.frequency ?? 'daily'
+  )
+  const [daysOfWeek, setDaysOfWeek] = useState<number[]>(
+    routine?.days_of_week ?? []
+  )
+  const [intervalDays, setIntervalDays] = useState<string>(
+    routine?.interval_days?.toString() ?? '2'
+  )
+  const [timeOfDay, setTimeOfDay] = useState(routine?.time_of_day ?? '')
+  const [errors, setErrors] = useState<Record<string, string>>({})
+
+  // 루틴 prop 변경 시 폼 초기화
+  useEffect(() => {
+    setTitle(routine?.title ?? '')
+    setDescription(routine?.description ?? '')
+    setFrequency(routine?.frequency ?? 'daily')
+    setDaysOfWeek(routine?.days_of_week ?? [])
+    setIntervalDays(routine?.interval_days?.toString() ?? '2')
+    setTimeOfDay(routine?.time_of_day ?? '')
+    setErrors({})
+  }, [routine])
+
+  // 요일 토글
+  function toggleDay(day: number) {
+    setDaysOfWeek((prev) =>
+      prev.includes(day) ? prev.filter((d) => d !== day) : [...prev, day].sort()
+    )
+  }
+
+  // 폼 유효성 검사
+  function validate(): boolean {
+    const newErrors: Record<string, string> = {}
+
+    if (!title.trim()) {
+      newErrors.title = '루틴 제목을 입력해주세요'
+    }
+
+    if (frequency === 'weekly' && daysOfWeek.length === 0) {
+      newErrors.daysOfWeek = '요일을 1개 이상 선택해주세요'
+    }
+
+    if (frequency === 'custom') {
+      const days = parseInt(intervalDays, 10)
+      if (isNaN(days) || days < 1) {
+        newErrors.intervalDays = '1 이상의 숫자를 입력해주세요'
+      }
+    }
+
+    setErrors(newErrors)
+    return Object.keys(newErrors).length === 0
+  }
+
+  // 폼 제출 처리
+  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault()
+
+    if (!validate()) return
+
+    const data: CreateRoutineInput | UpdateRoutineInput = {
+      title: title.trim(),
+      description: description.trim() || undefined,
+      frequency,
+      days_of_week: frequency === 'weekly' ? daysOfWeek : undefined,
+      interval_days: frequency === 'custom' ? parseInt(intervalDays, 10) : undefined,
+      time_of_day: timeOfDay || undefined,
+    }
+
+    onSubmit(data)
+  }
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-4">
+      {/* 제목 */}
+      <div className="space-y-1.5">
+        <Label htmlFor="routine-title">
+          제목 <span className="text-destructive">*</span>
+        </Label>
+        <Input
+          id="routine-title"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          placeholder="루틴 제목 입력"
+          disabled={isLoading}
+          aria-invalid={Boolean(errors.title)}
+        />
+        {errors.title && (
+          <p className="text-destructive text-xs">{errors.title}</p>
+        )}
+      </div>
+
+      {/* 반복 주기 */}
+      <div className="space-y-1.5">
+        <Label htmlFor="routine-frequency">
+          반복 주기 <span className="text-destructive">*</span>
+        </Label>
+        <Select
+          value={frequency}
+          onValueChange={(val) => setFrequency(val as RoutineFrequency)}
+          disabled={isLoading}
+        >
+          <SelectTrigger id="routine-frequency">
+            <SelectValue placeholder="반복 주기 선택" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="daily">매일</SelectItem>
+            <SelectItem value="weekly">특정 요일</SelectItem>
+            <SelectItem value="custom">N일 간격</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
+      {/* 요일 선택 (weekly인 경우) */}
+      {frequency === 'weekly' && (
+        <div className="space-y-1.5">
+          <Label>요일 선택 <span className="text-destructive">*</span></Label>
+          <div className="flex gap-1.5 flex-wrap">
+            {DAY_LABELS.map((label, idx) => (
+              <button
+                key={idx}
+                type="button"
+                onClick={() => toggleDay(idx)}
+                disabled={isLoading}
+                className={cn(
+                  'w-9 h-9 rounded-full text-sm font-medium border transition-colors',
+                  daysOfWeek.includes(idx)
+                    ? 'bg-primary text-primary-foreground border-primary'
+                    : 'bg-background text-foreground border-input hover:bg-accent'
+                )}
+                aria-pressed={daysOfWeek.includes(idx)}
+                aria-label={`${label}요일`}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+          {errors.daysOfWeek && (
+            <p className="text-destructive text-xs">{errors.daysOfWeek}</p>
+          )}
+        </div>
+      )}
+
+      {/* 간격 일수 (custom인 경우) */}
+      {frequency === 'custom' && (
+        <div className="space-y-1.5">
+          <Label htmlFor="routine-interval">
+            반복 간격 (일) <span className="text-destructive">*</span>
+          </Label>
+          <div className="flex items-center gap-2">
+            <Input
+              id="routine-interval"
+              type="number"
+              min={1}
+              value={intervalDays}
+              onChange={(e) => setIntervalDays(e.target.value)}
+              className="w-24"
+              disabled={isLoading}
+              aria-invalid={Boolean(errors.intervalDays)}
+            />
+            <span className="text-sm text-muted-foreground">일마다</span>
+          </div>
+          {errors.intervalDays && (
+            <p className="text-destructive text-xs">{errors.intervalDays}</p>
+          )}
+        </div>
+      )}
+
+      {/* 실행 시간 (선택) */}
+      <div className="space-y-1.5">
+        <Label htmlFor="routine-time">실행 시간 (선택)</Label>
+        <Input
+          id="routine-time"
+          type="time"
+          value={timeOfDay}
+          onChange={(e) => setTimeOfDay(e.target.value)}
+          disabled={isLoading}
+        />
+      </div>
+
+      {/* 설명 (선택) */}
+      <div className="space-y-1.5">
+        <Label htmlFor="routine-description">설명 (선택)</Label>
+        <Input
+          id="routine-description"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          placeholder="루틴 설명 입력"
+          disabled={isLoading}
+        />
+      </div>
+
+      {/* 버튼 */}
+      <div className="flex justify-end gap-2 pt-2">
+        {onCancel && (
+          <Button
+            type="button"
+            variant="outline"
+            onClick={onCancel}
+            disabled={isLoading}
+          >
+            취소
+          </Button>
+        )}
+        <Button type="submit" disabled={isLoading}>
+          {isLoading ? '저장 중...' : routine ? '수정' : '추가'}
+        </Button>
+      </div>
+    </form>
+  )
+}

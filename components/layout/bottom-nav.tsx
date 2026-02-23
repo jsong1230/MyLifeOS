@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Home, Clock, Wallet, Heart, BookOpen } from 'lucide-react'
+import { Home, Clock, Wallet, Heart, BookOpen, BarChart2 } from 'lucide-react'
 
 const NAV_ITEMS = [
   { label: '홈', icon: Home, href: '/' },
@@ -10,6 +10,7 @@ const NAV_ITEMS = [
   { label: '금전', icon: Wallet, href: '/money' },
   { label: '건강', icon: Heart, href: '/health' },
   { label: '기록', icon: BookOpen, href: '/private' },
+  { label: '리포트', icon: BarChart2, href: '/reports' },
 ] as const
 
 // 모바일 하단 네비게이션 바
