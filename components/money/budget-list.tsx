@@ -1,5 +1,6 @@
 'use client'
 
+import { useTranslations, useLocale } from 'next-intl'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
@@ -32,10 +33,17 @@ export function BudgetList({
   onDelete,
   onAdd,
 }: BudgetListProps) {
-  // month(YYYY-MM)를 표시용 문자열로 변환
+  const t = useTranslations('money.budget')
+  const tCommon = useTranslations('common')
+  const tFilter = useTranslations('money.transactions.filter')
+  const locale = useLocale()
+
+  // month(YYYY-MM)를 로케일 기반 표시용 문자열로 변환
   function formatMonthLabel(yearMonth: string): string {
-    const [year, mon] = yearMonth.split('-')
-    return `${year}년 ${parseInt(mon, 10)}월`
+    const [year, mon] = yearMonth.split('-').map(Number)
+    return new Intl.DateTimeFormat(locale, { year: 'numeric', month: 'long' }).format(
+      new Date(year, mon - 1, 1)
+    )
   }
 
   // 이전/다음 달 계산
@@ -68,7 +76,7 @@ export function BudgetList({
           variant="ghost"
           size="icon"
           onClick={() => onMonthChange(getAdjacentMonth('prev'))}
-          aria-label="이전 달"
+          aria-label={tFilter('prevMonth')}
         >
           <ChevronLeftIcon className="size-4" />
         </Button>
@@ -77,7 +85,7 @@ export function BudgetList({
           variant="ghost"
           size="icon"
           onClick={() => onMonthChange(getAdjacentMonth('next'))}
-          aria-label="다음 달"
+          aria-label={tFilter('nextMonth')}
         >
           <ChevronRightIcon className="size-4" />
         </Button>
@@ -88,7 +96,7 @@ export function BudgetList({
         <Card>
           <CardHeader className="pb-1 pt-3 px-3">
             <CardTitle className="text-xs text-muted-foreground font-normal">
-              총 예산
+              {t('total')}
             </CardTitle>
           </CardHeader>
           <CardContent className="pb-3 px-3">
@@ -98,7 +106,7 @@ export function BudgetList({
         <Card>
           <CardHeader className="pb-1 pt-3 px-3">
             <CardTitle className="text-xs text-muted-foreground font-normal">
-              총 지출
+              {t('totalSpent')}
             </CardTitle>
           </CardHeader>
           <CardContent className="pb-3 px-3">
@@ -108,7 +116,7 @@ export function BudgetList({
         <Card>
           <CardHeader className="pb-1 pt-3 px-3">
             <CardTitle className="text-xs text-muted-foreground font-normal">
-              잔여
+              {t('totalRemaining')}
             </CardTitle>
           </CardHeader>
           <CardContent className="pb-3 px-3">
@@ -129,10 +137,10 @@ export function BudgetList({
       {budgets.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-12 text-center">
           <p className="text-muted-foreground text-sm">
-            이 달에 설정된 예산이 없습니다.
+            {t('noData')}
           </p>
           <p className="text-muted-foreground text-xs mt-1">
-            + 예산 추가 버튼을 눌러 예산을 설정해보세요
+            {t('noDataHint')}
           </p>
         </div>
       ) : (
@@ -149,7 +157,7 @@ export function BudgetList({
                     onClick={() => onEdit(budget)}
                     className="text-xs h-7 px-2"
                   >
-                    수정
+                    {tCommon('edit')}
                   </Button>
                   <Button
                     variant="ghost"
@@ -157,7 +165,7 @@ export function BudgetList({
                     onClick={() => onDelete(budget.id)}
                     className="text-xs h-7 px-2 text-destructive hover:text-destructive"
                   >
-                    삭제
+                    {tCommon('delete')}
                   </Button>
                 </div>
               </CardContent>
@@ -173,7 +181,7 @@ export function BudgetList({
         onClick={onAdd}
       >
         <PlusIcon className="size-4" />
-        예산 추가
+        {t('add')}
       </Button>
     </div>
   )

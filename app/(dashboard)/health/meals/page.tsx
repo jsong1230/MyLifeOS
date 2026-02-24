@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useLocale } from 'next-intl'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -32,10 +33,10 @@ function addDays(dateStr: string, days: number): string {
   return date.toISOString().split('T')[0]
 }
 
-// 날짜를 한국어로 표시하는 헬퍼
-function formatDisplayDate(dateStr: string): string {
+// 날짜를 로케일에 맞게 표시하는 헬퍼
+function formatDisplayDate(dateStr: string, locale: string): string {
   const date = new Date(dateStr + 'T00:00:00')
-  return date.toLocaleDateString('ko-KR', {
+  return date.toLocaleDateString(locale, {
     year: 'numeric',
     month: 'long',
     day: 'numeric',
@@ -50,6 +51,7 @@ function isToday(dateStr: string): boolean {
 
 // 식사 기록 페이지
 export default function MealsPage() {
+  const locale = useLocale()
   const [selectedDate, setSelectedDate] = useState<string>(
     new Date().toISOString().split('T')[0]
   )
@@ -162,7 +164,7 @@ export default function MealsPage() {
           </Button>
 
           <div className="text-center">
-            <p className="text-sm font-semibold">{formatDisplayDate(selectedDate)}</p>
+            <p className="text-sm font-semibold">{formatDisplayDate(selectedDate, locale)}</p>
             {isToday(selectedDate) && (
               <p className="text-xs text-primary">오늘</p>
             )}

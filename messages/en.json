@@ -250,7 +250,10 @@
         "favorites": "Favorites",
         "prevMonth": "Previous month",
         "nextMonth": "Next month",
-        "allCategories": "All categories"
+        "allCategories": "All categories",
+        "prevMonthAriaLabel": "Previous month",
+        "nextMonthAriaLabel": "Next month",
+        "monthDisplay": "{month}/{year}"
       },
       "currency": "Currency",
       "quickSelect": "Quick select from favorites",
@@ -268,6 +271,7 @@
       "remaining": "Remaining",
       "exceeded": "Exceeded",
       "noData": "No budgets set",
+      "noDataHint": "Tap the + Add Budget button to set a budget",
       "total": "Total budget",
       "totalSpent": "Total spent",
       "totalRemaining": "Total remaining",
@@ -317,7 +321,10 @@
       "billingDay": "Billing Day",
       "cycle": "Billing Cycle",
       "nameRequired": "Please enter a name",
+      "namePlaceholder": "e.g. Netflix, Gym membership",
       "amountRequired": "Please enter an amount greater than 0",
+      "amountPlaceholder": "e.g. 13900",
+      "categoryPlaceholder": "Select category (optional)",
       "billingDayInvalid": "Billing day must be between 1 and 31",
       "monthlyTotal": "Monthly total",
       "yearlyTotal": "Yearly total",
@@ -347,7 +354,12 @@
       "iconLabel": "Icon (Emoji)",
       "colorLabel": "Color",
       "editAriaLabel": "Edit {name} category",
-      "deleteAriaLabel": "Delete {name} category"
+      "deleteAriaLabel": "Delete {name} category",
+      "iconPlaceholder": "Enter emoji (e.g. 🍚)",
+      "colorPickerAriaLabel": "Select color",
+      "colorHexAriaLabel": "HEX color code",
+      "colorPresetAriaLabel": "Color presets",
+      "colorSwatchAriaLabel": "Color {color}"
     },
     "charts": {
       "income": "Income",
@@ -357,7 +369,11 @@
       "monthlyTrend": "Monthly income/expense trend",
       "expenseByCategory": "Expense by category",
       "assetTrend": "Asset trend",
-      "noData": "No transactions found"
+      "noData": "No transactions found",
+      "noExpenseData": "No expense records this month",
+      "unitMan": "K",
+      "unitChonMan": "10K",
+      "unitEok": "100K"
     },
     "report": {
       "monthly": "Monthly report",
@@ -680,7 +696,10 @@
       "amountRequired": "Please enter the amount (ml)",
       "amountPositive": "Amount must be greater than 0",
       "alcoholInvalid": "Alcohol percentage must be between 0 and 100",
-      "drinkCountInvalid": "Drink count must be 0 or greater"
+      "drinkCountInvalid": "Drink count must be 0 or greater",
+      "amountMlPlaceholder": "e.g. 355",
+      "alcoholPctPlaceholder": "e.g. 5.0",
+      "drinkCountPlaceholder": "e.g. 2"
     }
   },
   "private": {
@@ -708,7 +727,8 @@
       "enterKeyword": "Enter a keyword or select an emotion tag",
       "pinExpired": "Please re-enter your PIN. The encryption key has expired.",
       "contentRequired": "Please enter diary content",
-      "emotionRequired": "Please select at least one emotion tag"
+      "emotionRequired": "Please select at least one emotion tag",
+      "dateFormat": "{month}/{day}/{year}"
     },
     "emotions": {
       "title": "Emotions",
@@ -830,6 +850,7 @@
   },
   "settings": {
     "title": "Settings",
+    "toggleTheme": "Toggle theme",
     "theme": "Theme",
     "themeDescription": "Set the app color theme",
     "darkMode": "Dark mode",

@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useCallback, useMemo } from 'react'
+import { useLocale } from 'next-intl'
 
 // 캘린더 뷰 타입
 export type CalendarView = 'month' | 'week' | 'day'
@@ -170,8 +171,11 @@ export function useCalendar() {
     [selectedDate, currentMonth.year, currentMonth.month]
   )
 
-  // 현재 월 표시 문자열 (예: "2026년 2월")
-  const monthLabel = `${currentMonth.year}년 ${currentMonth.month}월`
+  // 현재 월 표시 문자열 (로케일에 따라 자동 포맷)
+  const locale = useLocale()
+  const monthLabel = new Intl.DateTimeFormat(locale, { year: 'numeric', month: 'long' }).format(
+    new Date(currentMonth.year, currentMonth.month - 1, 1)
+  )
 
   // 현재 달의 YYYY-MM 문자열
   const monthQuery = `${currentMonth.year}-${String(currentMonth.month).padStart(2, '0')}`

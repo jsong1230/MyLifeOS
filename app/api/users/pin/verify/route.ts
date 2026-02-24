@@ -49,10 +49,7 @@ export async function POST(request: NextRequest) {
 
     // PIN 미설정 확인 (users 레코드 없음 포함)
     if (!userData || !pin_hash || !pin_salt) {
-      return NextResponse.json(
-        { success: false, data: { verified: false, pinSet: false } },
-        { status: 404 },
-      )
+      return apiError('NOT_FOUND', { verified: false, pinSet: false })
     }
 
     // 잠금 상태 확인 (만료된 경우 자동 해제)
@@ -60,14 +57,7 @@ export async function POST(request: NextRequest) {
       const lockedUntilMs = new Date(pin_locked_until).getTime()
       if (lockedUntilMs > Date.now()) {
         const remainingSeconds = Math.ceil((lockedUntilMs - Date.now()) / 1000)
-        return NextResponse.json(
-          {
-            error: '앱이 잠금 상태입니다',
-            lockedUntil: lockedUntilMs,
-            remainingSeconds,
-          },
-          { status: 423 },
-        )
+        return apiError('LOCKED', { lockedUntil: lockedUntilMs, remainingSeconds })
       } else {
         // 잠금 만료: 자동 해제
         await adminClient
@@ -105,14 +95,10 @@ export async function POST(request: NextRequest) {
         .update({ pin_failed_count: newCount, pin_locked_until: lockedUntil.toISOString() })
         .eq('id', user.id)
 
-      return NextResponse.json(
-        {
-          error: '앱이 잠금 상태입니다',
-          lockedUntil: lockedUntil.getTime(),
-          remainingSeconds: Math.ceil(LOCK_DURATION_MS / 1000),
-        },
-        { status: 423 },
-      )
+      return apiError('LOCKED', {
+        lockedUntil: lockedUntil.getTime(),
+        remainingSeconds: Math.ceil(LOCK_DURATION_MS / 1000),
+      })
     }
 
     // 실패 (5회 미만)

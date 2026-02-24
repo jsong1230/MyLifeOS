@@ -69,10 +69,7 @@ export async function POST(request: NextRequest) {
       return apiError('VALIDATION_ERROR')
     }
     if (!PIN_REGEX.test(pin)) {
-      return NextResponse.json(
-        { error: 'PIN은 4~6자리 숫자만 사용 가능합니다' },
-        { status: 400 },
-      )
+      return apiError('VALIDATION_ERROR')
     }
     if (pin !== confirmPin) {
       return apiError('VALIDATION_ERROR')
@@ -97,11 +94,7 @@ export async function POST(request: NextRequest) {
     if (pin_locked_until) {
       const lockedUntil = new Date(pin_locked_until).getTime()
       if (lockedUntil > Date.now()) {
-        const remainingSeconds = Math.ceil((lockedUntil - Date.now()) / 1000)
-        return NextResponse.json(
-          { error: '앱이 잠금 상태입니다', lockedUntil, remainingSeconds },
-          { status: 423 },
-        )
+        return apiError('LOCKED')
       }
     }
 
@@ -111,18 +104,12 @@ export async function POST(request: NextRequest) {
     if (!isChange) {
       // 최초 설정: 이미 PIN이 있으면 409
       if (pin_hash) {
-        return NextResponse.json(
-          { error: 'PIN이 이미 설정되어 있습니다. 변경 기능을 사용해주세요' },
-          { status: 409 },
-        )
+        return apiError('CONFLICT')
       }
     } else {
       // 변경: 기존 PIN 검증
       if (!pin_hash) {
-        return NextResponse.json(
-          { error: '설정된 PIN이 없습니다. 먼저 PIN을 설정해주세요' },
-          { status: 404 },
-        )
+        return apiError('NOT_FOUND')
       }
 
       // 잠금 임박 시에도 현재 PIN 확인 허용

@@ -2,6 +2,7 @@
 
 import { useState, useCallback } from 'react'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { useLocale } from 'next-intl'
 import { useWeeklyReport, useMonthlyReport } from '@/hooks/use-reports'
 import { WeeklyReportView } from '@/components/reports/weekly-report'
 import { MonthlyReportView } from '@/components/reports/monthly-report'
@@ -23,27 +24,28 @@ function addDays(dateStr: string, days: number): string {
   return date.toISOString().split('T')[0]
 }
 
-// YYYY-MM-DD 형식의 주 시작일을 한국어 주 범위 문자열로 변환
-function formatWeekLabel(weekStart: string): string {
+// YYYY-MM-DD 형식의 주 시작일을 로케일 기반 주 범위 문자열로 변환
+function formatWeekLabel(weekStart: string, locale: string): string {
   const start = new Date(weekStart)
   const end = new Date(weekStart)
   end.setDate(start.getDate() + 6)
 
-  const fmt = (d: Date) =>
-    `${d.getMonth() + 1}월 ${d.getDate()}일`
-
-  return `${fmt(start)} ~ ${fmt(end)}`
+  const fmt = new Intl.DateTimeFormat(locale, { month: 'long', day: 'numeric' })
+  return `${fmt.format(start)} ~ ${fmt.format(end)}`
 }
 
-// 연/월 한국어 포맷 (예: 2026년 2월)
-function formatMonthLabel(year: number, month: number): string {
-  return `${year}년 ${month}월`
+// 연/월 로케일 기반 포맷
+function formatMonthLabel(year: number, month: number, locale: string): string {
+  return new Intl.DateTimeFormat(locale, { year: 'numeric', month: 'long' }).format(
+    new Date(year, month - 1, 1)
+  )
 }
 
 // 탭 타입
 type TabType = 'weekly' | 'monthly'
 
 export default function ReportsPage() {
+  const locale = useLocale()
   const [activeTab, setActiveTab] = useState<TabType>('weekly')
 
   // 주간 — 현재 주 시작일 상태
@@ -134,7 +136,7 @@ export default function ReportsPage() {
             >
               <ChevronLeft className="w-5 h-5" aria-hidden="true" />
             </button>
-            <span className="text-sm font-medium">{formatWeekLabel(weekStart)}</span>
+            <span className="text-sm font-medium">{formatWeekLabel(weekStart, locale)}</span>
             <button
               type="button"
               onClick={goToNextWeek}
@@ -173,7 +175,7 @@ export default function ReportsPage() {
             >
               <ChevronLeft className="w-5 h-5" aria-hidden="true" />
             </button>
-            <span className="text-sm font-medium">{formatMonthLabel(year, month)}</span>
+            <span className="text-sm font-medium">{formatMonthLabel(year, month, locale)}</span>
             <button
               type="button"
               onClick={goToNextMonth}

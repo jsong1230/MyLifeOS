@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useLocale } from 'next-intl'
 import { ChevronLeft, ChevronRight, Plus } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
@@ -35,10 +36,10 @@ function getTodayString(): string {
   return new Date().toISOString().split('T')[0]
 }
 
-// 날짜 문자열을 한국어 표기로 변환 (예: 2026년 2월 23일 (월))
-function formatDateKo(dateStr: string): string {
+// 날짜 문자열을 로케일에 맞게 변환
+function formatDateLocale(dateStr: string, locale: string): string {
   const date = new Date(dateStr + 'T00:00:00')
-  return date.toLocaleDateString('ko-KR', {
+  return date.toLocaleDateString(locale, {
     year: 'numeric',
     month: 'long',
     day: 'numeric',
@@ -55,6 +56,7 @@ function addDays(dateStr: string, days: number): string {
 
 // 타임블록 페이지
 export default function TimeBlocksPage() {
+  const locale = useLocale()
   const [selectedDate, setSelectedDate] = useState<string>(getTodayString())
 
   // 다이얼로그 상태
@@ -166,7 +168,7 @@ export default function TimeBlocksPage() {
 
           <div className="flex items-center gap-2">
             <span className="text-sm font-medium min-w-[180px] text-center">
-              {formatDateKo(selectedDate)}
+              {formatDateLocale(selectedDate, locale)}
             </span>
             {!isToday && (
               <Button

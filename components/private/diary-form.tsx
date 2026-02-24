@@ -17,12 +17,6 @@ interface DiaryFormProps {
   isLoading?: boolean
 }
 
-// 날짜를 한국어 형식으로 포맷 (YYYY-MM-DD → YYYY년 M월 D일)
-function formatDateKr(dateStr: string): string {
-  const [year, month, day] = dateStr.split('-').map(Number)
-  return `${year}년 ${month}월 ${day}일`
-}
-
 // 일기 작성/수정 폼 컴포넌트
 // - 감정 태그 선택 그리드 (10개 버튼, 다중 선택 가능)
 // - textarea로 일기 내용 작성
@@ -31,6 +25,12 @@ function formatDateKr(dateStr: string): string {
 export function DiaryForm({ diary, date, onSubmit, onCancel, isLoading = false }: DiaryFormProps) {
   const t = useTranslations('private.diary')
   const tCommon = useTranslations('common')
+
+  // 날짜를 로케일에 맞는 형식으로 포맷 (YYYY-MM-DD → 번역 키 dateFormat 사용)
+  function formatDate(dateStr: string): string {
+    const [year, month, day] = dateStr.split('-').map(Number)
+    return t('dateFormat', { year, month, day })
+  }
 
   const [content, setContent] = useState(diary?.content ?? '')
   const [emotionTags, setEmotionTags] = useState<EmotionType[]>(
@@ -68,7 +68,7 @@ export function DiaryForm({ diary, date, onSubmit, onCancel, isLoading = false }
     <form onSubmit={handleSubmit} className="space-y-5">
       {/* 날짜 표시 (읽기 전용) */}
       <div className="text-sm font-medium text-muted-foreground">
-        {formatDateKr(date)}
+        {formatDate(date)}
       </div>
 
       {/* 감정 태그 선택 */}

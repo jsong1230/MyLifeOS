@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useLocale } from 'next-intl'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
@@ -57,16 +58,19 @@ function addMonths(month: string, n: number): string {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`
 }
 
-function formatWeekLabel(weekStart: string): string {
+function formatWeekLabel(weekStart: string, locale: string): string {
   const start = new Date(weekStart + 'T00:00:00')
   const end = new Date(start)
   end.setDate(end.getDate() + 6)
-  return `${start.getMonth() + 1}월 ${start.getDate()}일 ~ ${end.getMonth() + 1}월 ${end.getDate()}일`
+  const fmt = new Intl.DateTimeFormat(locale, { month: 'long', day: 'numeric' })
+  return `${fmt.format(start)} ~ ${fmt.format(end)}`
 }
 
-function formatMonthLabel(month: string): string {
+function formatMonthLabel(month: string, locale: string): string {
   const [y, m] = month.split('-').map(Number)
-  return `${y}년 ${m}월`
+  return new Intl.DateTimeFormat(locale, { year: 'numeric', month: 'long' }).format(
+    new Date(y, m - 1, 1)
+  )
 }
 
 // ──────────────────────────────────────────────
@@ -99,6 +103,7 @@ function RateGauge({ rate, label }: { rate: number; label: string }) {
 type TabType = 'weekly' | 'monthly'
 
 export default function StatsPage() {
+  const locale = useLocale()
   const [tab, setTab] = useState<TabType>('weekly')
   const [weekStart, setWeekStart] = useState(getCurrentWeekStart)
   const [month, setMonth] = useState(getCurrentMonth)
@@ -171,7 +176,7 @@ export default function StatsPage() {
         </Button>
         <div className="text-center">
           <p className="text-sm font-semibold">
-            {tab === 'weekly' ? formatWeekLabel(weekStart) : formatMonthLabel(month)}
+            {tab === 'weekly' ? formatWeekLabel(weekStart, locale) : formatMonthLabel(month, locale)}
           </p>
           {(tab === 'weekly' ? isCurrentWeek : isCurrentMonth) && (
             <p className="text-xs text-primary">{tab === 'weekly' ? '이번 주' : '이번 달'}</p>

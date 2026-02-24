@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useLocale } from 'next-intl'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import {
@@ -45,14 +46,17 @@ function shiftMonth(ym: string, delta: number): string {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`
 }
 
-// YYYY-MM → YYYY년 M월
-function formatMonthLabel(ym: string): string {
+// YYYY-MM → 로케일 기반 연/월 표시
+function formatMonthLabel(ym: string, locale: string): string {
   const [y, m] = ym.split('-').map(Number)
-  return `${y}년 ${m}월`
+  return new Intl.DateTimeFormat(locale, { year: 'numeric', month: 'long' }).format(
+    new Date(y, m - 1, 1)
+  )
 }
 
 // 자산 현황 페이지 — F-21
 export default function AssetsPage() {
+  const locale = useLocale()
   const [month, setMonth] = useState(getCurrentMonth)
   const isCurrentMonth = month === getCurrentMonth()
 
@@ -123,7 +127,7 @@ export default function AssetsPage() {
           <ChevronLeft className="h-5 w-5" />
         </Button>
         <div className="text-center">
-          <p className="text-sm font-semibold">{formatMonthLabel(month)}</p>
+          <p className="text-sm font-semibold">{formatMonthLabel(month, locale)}</p>
           {!isCurrentMonth && (
             <button
               type="button"
@@ -176,7 +180,7 @@ export default function AssetsPage() {
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="text-sm font-semibold">
-                    {asset.amount.toLocaleString('ko-KR')}원
+                    {asset.amount.toLocaleString(locale)}
                   </span>
                   <Button
                     variant="ghost"

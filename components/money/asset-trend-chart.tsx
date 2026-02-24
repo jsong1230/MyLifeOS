@@ -9,7 +9,7 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from 'recharts'
-import { useTranslations } from 'next-intl'
+import { useTranslations, useLocale } from 'next-intl'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { formatCurrency } from '@/lib/currency'
 import type { AssetMonthlyTotal } from '@/types/asset'
@@ -18,21 +18,28 @@ interface AssetTrendChartProps {
   data: AssetMonthlyTotal[]
 }
 
-// YYYY-MM → M월
-function formatMonth(month: string): string {
-  const [, m] = month.split('-')
-  return `${parseInt(m)}월`
-}
-
-// 금액 축 포맷 (만원 단위)
-function formatYAxis(value: number): string {
-  if (value >= 100_000_000) return `${(value / 100_000_000).toFixed(0)}억`
-  if (value >= 10_000) return `${Math.floor(value / 10_000)}만`
-  return `${value}`
-}
-
 export function AssetTrendChart({ data }: AssetTrendChartProps) {
   const t = useTranslations('money.assets')
+  const tc = useTranslations('money.charts')
+  const locale = useLocale()
+
+  // 로케일 기반 월 표시 (ko: "1월", en: "Jan")
+  function formatMonth(month: string): string {
+    const date = new Date(month + '-01T00:00:00')
+    return new Intl.DateTimeFormat(locale === 'ko' ? 'ko-KR' : 'en-US', { month: 'short' }).format(date)
+  }
+
+  // 금액 축 포맷 (로케일 기반 단위)
+  function formatYAxis(value: number): string {
+    if (locale === 'ko') {
+      if (value >= 100_000_000) return `${(value / 100_000_000).toFixed(0)}${tc('unitEok')}`
+      if (value >= 10_000) return `${Math.floor(value / 10_000)}${tc('unitMan')}`
+      return `${value}`
+    }
+    if (value >= 1_000_000) return `${(value / 1_000_000).toFixed(0)}M`
+    if (value >= 1_000) return `${Math.floor(value / 1_000)}K`
+    return `${value}`
+  }
 
   if (data.length === 0) {
     return (

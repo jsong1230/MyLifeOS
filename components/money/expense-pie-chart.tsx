@@ -13,6 +13,8 @@ import { cn } from '@/lib/utils'
 import { formatCurrency } from '@/lib/currency'
 import type { Transaction } from '@/types/transaction'
 
+// ExpensePieChart는 'money.charts' 번역 네임스페이스를 사용
+
 interface ExpensePieChartProps {
   transactions: Transaction[]
 }
@@ -104,6 +106,7 @@ function CustomTooltip({
 // 카테고리별 지출 비율 파이 차트
 export function ExpensePieChart({ transactions }: ExpensePieChartProps) {
   const tt = useTranslations('money.transactions')
+  const tc = useTranslations('money.charts')
 
   // 지출 타입 거래만 카테고리별 집계
   const expenseByCategory = transactions
@@ -135,7 +138,7 @@ export function ExpensePieChart({ transactions }: ExpensePieChartProps) {
           'text-sm text-muted-foreground'
         )}
       >
-        이번달 지출 내역이 없습니다
+        {tc('noExpenseData')}
       </div>
     )
   }

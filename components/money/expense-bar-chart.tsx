@@ -12,7 +12,7 @@ import {
   ReferenceLine,
   Cell,
 } from 'recharts'
-import { useTranslations } from 'next-intl'
+import { useTranslations, useLocale } from 'next-intl'
 import { cn } from '@/lib/utils'
 import { formatCurrency } from '@/lib/currency'
 import type { BudgetStatus } from '@/types/budget'
@@ -37,13 +37,7 @@ interface ChartDataItem {
   percentage: number
 }
 
-// 금액 축 포맷터 — 큰 숫자를 '만원' 단위로 축약
-function formatYAxis(value: number): string {
-  if (value >= 10000) {
-    return `${(value / 10000).toFixed(0)}만`
-  }
-  return value.toLocaleString('ko-KR')
-}
+// CustomTooltip은 모듈 레벨에 유지 (locale은 컴포넌트 내부에서 처리)
 
 // 툴팁 커스터마이징
 function CustomTooltip({
@@ -74,6 +68,18 @@ function CustomTooltip({
 export function ExpenseBarChart({ budgets }: ExpenseBarChartProps) {
   const t = useTranslations('money.charts')
   const tb = useTranslations('money.budget')
+  const locale = useLocale()
+
+  // 금액 축 포맷터 — 로케일 기반 단위로 축약
+  function formatYAxis(value: number): string {
+    if (locale === 'ko') {
+      if (value >= 10_000) return `${(value / 10_000).toFixed(0)}만`
+      return value.toLocaleString(locale)
+    }
+    if (value >= 1_000_000) return `${(value / 1_000_000).toFixed(0)}M`
+    if (value >= 1_000) return `${Math.floor(value / 1_000)}K`
+    return value.toLocaleString(locale)
+  }
 
   // 설정된 예산이 없을 경우 빈 상태 메시지 표시
   if (budgets.length === 0) {

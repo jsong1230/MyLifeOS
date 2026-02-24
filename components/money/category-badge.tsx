@@ -1,6 +1,7 @@
 'use client'
 
 import { cn } from '@/lib/utils'
+import { useTranslations } from 'next-intl'
 import type { Category } from '@/types/category'
 
 interface CategoryBadgeProps {
@@ -12,6 +13,7 @@ interface CategoryBadgeProps {
 // 카테고리 배지 컴포넌트 — 이모지 아이콘 + 이름 표시
 // category가 없으면 '미분류' 표시
 export function CategoryBadge({ category, size = 'md', className }: CategoryBadgeProps) {
+  const t = useTranslations('money.transactions')
   const isSmall = size === 'sm'
 
   // 카테고리 없을 때 미분류 배지
@@ -26,7 +28,7 @@ export function CategoryBadge({ category, size = 'md', className }: CategoryBadg
         )}
       >
         <span aria-hidden="true">📂</span>
-        <span>미분류</span>
+        <span>{t('uncategorized')}</span>
       </span>
     )
   }

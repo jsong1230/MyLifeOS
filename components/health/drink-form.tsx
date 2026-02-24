@@ -184,7 +184,7 @@ export function DrinkForm({ drink, onSubmit, onCancel, isLoading = false }: Drin
           step="0.1"
           value={amountMl}
           onChange={(e) => setAmountMl(e.target.value)}
-          placeholder="예: 355"
+          placeholder={t('amountMlPlaceholder')}
           disabled={isLoading}
         />
         {errors.amountMl && (
@@ -205,7 +205,7 @@ export function DrinkForm({ drink, onSubmit, onCancel, isLoading = false }: Drin
             step="0.1"
             value={alcoholPct}
             onChange={(e) => setAlcoholPct(e.target.value)}
-            placeholder="예: 5.0"
+            placeholder={t('alcoholPctPlaceholder')}
             disabled={isLoading}
           />
           {errors.alcoholPct && (
@@ -223,7 +223,7 @@ export function DrinkForm({ drink, onSubmit, onCancel, isLoading = false }: Drin
             step="0.5"
             value={drinkCount}
             onChange={(e) => setDrinkCount(e.target.value)}
-            placeholder="예: 2"
+            placeholder={t('drinkCountPlaceholder')}
             disabled={isLoading}
           />
           {errors.drinkCount && (

@@ -3,6 +3,7 @@
 import { useTheme } from 'next-themes'
 import { Moon, Sun } from 'lucide-react'
 import { useEffect, useState } from 'react'
+import { useTranslations } from 'next-intl'
 
 /**
  * 다크/라이트 모드 전환 토글 버튼
@@ -11,6 +12,7 @@ import { useEffect, useState } from 'react'
  */
 export function ThemeToggle() {
   const { theme, setTheme } = useTheme()
+  const t = useTranslations('settings')
   // next-themes 하이드레이션 불일치 방지: 마운트 전에는 렌더링하지 않음
   const [mounted, setMounted] = useState(false)
 
@@ -33,7 +35,7 @@ export function ThemeToggle() {
     <button
       type="button"
       onClick={handleToggle}
-      aria-label="테마 전환"
+      aria-label={t('toggleTheme')}
       className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-input bg-background text-foreground shadow-sm transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
     >
       {isDark ? (

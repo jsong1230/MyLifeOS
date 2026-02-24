@@ -163,14 +163,7 @@ export async function DELETE(
 
   // 사용 중인 카테고리 삭제 시 409 Conflict
   if (count !== null && count > 0) {
-    return NextResponse.json(
-      {
-        success: false,
-        error: `이 카테고리는 ${count}개의 거래에서 사용 중입니다. 삭제하면 해당 거래의 카테고리가 해제됩니다.`,
-        data: { usageCount: count },
-      },
-      { status: 409 }
-    )
+    return apiError('CONFLICT', { usageCount: count })
   }
 
   const { error } = await supabase

@@ -2,7 +2,7 @@
 
 import { useCallback } from 'react'
 import { ChevronLeft, ChevronRight, Plus, Calendar } from 'lucide-react'
-import { useTranslations } from 'next-intl'
+import { useTranslations, useLocale } from 'next-intl'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
@@ -346,12 +346,16 @@ interface DayViewProps {
 function DayView({ date, todos, onAddTodo }: DayViewProps) {
   const t = useTranslations('time.calendar')
   const tTodos = useTranslations('time.todos')
-  const dayKeys = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'] as const
 
-  // 날짜 표시 포맷 (예: 2026년 2월 23일 월요일)
+  // 날짜 표시 포맷 (로케일에 따라 자동 포맷)
+  const locale = useLocale()
   const dateObj = new Date(date + 'T00:00:00')
-  const dayLabel = t(`weekdays.${dayKeys[dateObj.getDay()]}`)
-  const dateLabel = `${dateObj.getFullYear()}년 ${dateObj.getMonth() + 1}월 ${dateObj.getDate()}일 ${dayLabel}요일`
+  const dateLabel = new Intl.DateTimeFormat(locale, {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    weekday: 'long',
+  }).format(dateObj)
 
   return (
     <div className="p-4 flex flex-col gap-4">

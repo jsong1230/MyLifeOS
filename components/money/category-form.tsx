@@ -173,7 +173,7 @@ export function CategoryForm({ category, onSubmit, onCancel, isLoading = false }
             id="category-icon"
             value={icon}
             onChange={(e) => setIcon(e.target.value)}
-            placeholder="이모지 입력 (예: 🍚)"
+            placeholder={t('iconPlaceholder')}
             disabled={isSystemCategory || isLoading}
             maxLength={8}
           />
@@ -196,7 +196,7 @@ export function CategoryForm({ category, onSubmit, onCancel, isLoading = false }
                 'h-9 w-12 cursor-pointer rounded-md border border-input p-1',
                 (isSystemCategory || isLoading) && 'cursor-not-allowed opacity-50'
               )}
-              aria-label="색상 선택"
+              aria-label={t('colorPickerAriaLabel')}
             />
             <Input
               value={color}
@@ -206,13 +206,13 @@ export function CategoryForm({ category, onSubmit, onCancel, isLoading = false }
               pattern="^#[0-9A-Fa-f]{6}$"
               maxLength={7}
               className="font-mono"
-              aria-label="HEX 색상 코드"
+              aria-label={t('colorHexAriaLabel')}
             />
           </div>
 
           {/* 프리셋 색상 팔레트 */}
           {!isSystemCategory && (
-            <div className="flex flex-wrap gap-1.5" role="group" aria-label="색상 프리셋">
+            <div className="flex flex-wrap gap-1.5" role="group" aria-label={t('colorPresetAriaLabel')}>
               {PRESET_COLORS.map((presetColor) => (
                 <button
                   key={presetColor}
@@ -224,7 +224,7 @@ export function CategoryForm({ category, onSubmit, onCancel, isLoading = false }
                   style={{ backgroundColor: presetColor }}
                   onClick={() => setColor(presetColor)}
                   disabled={isLoading}
-                  aria-label={`색상 ${presetColor}`}
+                  aria-label={t('colorSwatchAriaLabel', { color: presetColor })}
                   aria-pressed={color === presetColor}
                 />
               ))}

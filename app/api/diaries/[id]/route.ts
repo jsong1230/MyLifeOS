@@ -53,10 +53,7 @@ export async function PATCH(
     const emotionTags = body.emotion_tags as EmotionType[]
     const invalidTags = emotionTags.filter((tag) => !VALID_EMOTION_TYPES.includes(tag))
     if (invalidTags.length > 0) {
-      return NextResponse.json(
-        { success: false, error: `유효하지 않은 감정 태그: ${invalidTags.join(', ')}` },
-        { status: 400 }
-      )
+      return apiError('VALIDATION_ERROR')
     }
   }
 

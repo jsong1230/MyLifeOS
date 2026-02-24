@@ -7,11 +7,20 @@ export const API_ERROR_CODES = {
   VALIDATION_ERROR: { status: 400, message: 'VALIDATION_ERROR' },
   SERVER_ERROR: { status: 500, message: 'SERVER_ERROR' },
   INVALID_REQUEST: { status: 400, message: 'INVALID_REQUEST' },
+  CONFLICT: { status: 409, message: 'CONFLICT' },
+  LOCKED: { status: 423, message: 'LOCKED' },
 } as const
 
 export type ApiErrorCode = keyof typeof API_ERROR_CODES
 
-export function apiError(code: ApiErrorCode) {
+export function apiError(code: ApiErrorCode, data?: Record<string, unknown>) {
   const { status, message } = API_ERROR_CODES[code]
-  return NextResponse.json({ success: false, error: message }, { status })
+  const body: { success: false; error: string; data?: Record<string, unknown> } = {
+    success: false,
+    error: message,
+  }
+  if (data !== undefined) {
+    body.data = data
+  }
+  return NextResponse.json(body, { status })
 }

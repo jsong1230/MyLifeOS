@@ -250,7 +250,10 @@
         "favorites": "즐겨찾기",
         "prevMonth": "이전 달",
         "nextMonth": "다음 달",
-        "allCategories": "모든 카테고리"
+        "allCategories": "모든 카테고리",
+        "prevMonthAriaLabel": "이전 달",
+        "nextMonthAriaLabel": "다음 달",
+        "monthDisplay": "{year}년 {month}월"
       },
       "currency": "통화",
       "quickSelect": "즐겨찾기에서 빠른 선택",
@@ -268,6 +271,7 @@
       "remaining": "남은 금액",
       "exceeded": "초과",
       "noData": "설정된 예산이 없습니다",
+      "noDataHint": "+ 예산 추가 버튼을 눌러 예산을 설정해보세요",
       "total": "총 예산",
       "totalSpent": "총 지출",
       "totalRemaining": "총 남은 금액",
@@ -317,7 +321,10 @@
       "billingDay": "결제일",
       "cycle": "주기",
       "nameRequired": "이름을 입력해주세요",
+      "namePlaceholder": "예: 넷플릭스, 헬스장 회비",
       "amountRequired": "0보다 큰 금액을 입력해주세요",
+      "amountPlaceholder": "예: 13900",
+      "categoryPlaceholder": "카테고리 선택 (선택사항)",
       "billingDayInvalid": "결제일은 1에서 31 사이의 값이어야 합니다",
       "monthlyTotal": "월 합계",
       "yearlyTotal": "연 합계",
@@ -347,7 +354,12 @@
       "iconLabel": "아이콘 (이모지)",
       "colorLabel": "색상",
       "editAriaLabel": "{name} 카테고리 수정",
-      "deleteAriaLabel": "{name} 카테고리 삭제"
+      "deleteAriaLabel": "{name} 카테고리 삭제",
+      "iconPlaceholder": "이모지 입력 (예: 🍚)",
+      "colorPickerAriaLabel": "색상 선택",
+      "colorHexAriaLabel": "HEX 색상 코드",
+      "colorPresetAriaLabel": "색상 프리셋",
+      "colorSwatchAriaLabel": "색상 {color}"
     },
     "charts": {
       "income": "수입",
@@ -357,7 +369,11 @@
       "monthlyTrend": "월별 수입/지출 추이",
       "expenseByCategory": "카테고리별 지출",
       "assetTrend": "자산 추이",
-      "noData": "거래 내역이 없습니다"
+      "noData": "거래 내역이 없습니다",
+      "noExpenseData": "이번달 지출 내역이 없습니다",
+      "unitMan": "만",
+      "unitChonMan": "천만",
+      "unitEok": "억"
     },
     "report": {
       "monthly": "월별 리포트",
@@ -680,7 +696,10 @@
       "amountRequired": "음주량(ml)을 입력하세요",
       "amountPositive": "음주량은 0보다 커야 합니다",
       "alcoholInvalid": "도수는 0~100 사이여야 합니다",
-      "drinkCountInvalid": "잔 수는 0 이상이어야 합니다"
+      "drinkCountInvalid": "잔 수는 0 이상이어야 합니다",
+      "amountMlPlaceholder": "예: 355",
+      "alcoholPctPlaceholder": "예: 5.0",
+      "drinkCountPlaceholder": "예: 2"
     }
   },
   "private": {
@@ -708,7 +727,8 @@
       "enterKeyword": "키워드를 입력하거나 감정 태그를 선택하세요",
       "pinExpired": "PIN을 다시 입력해주세요. 암호화 키가 만료되었습니다.",
       "contentRequired": "일기 내용을 입력해주세요",
-      "emotionRequired": "감정 태그를 1개 이상 선택해주세요"
+      "emotionRequired": "감정 태그를 1개 이상 선택해주세요",
+      "dateFormat": "{year}년 {month}월 {day}일"
     },
     "emotions": {
       "title": "감정",
@@ -830,6 +850,7 @@
   },
   "settings": {
     "title": "설정",
+    "toggleTheme": "테마 전환",
     "theme": "테마",
     "themeDescription": "앱의 색상 테마를 설정합니다",
     "darkMode": "다크 모드",

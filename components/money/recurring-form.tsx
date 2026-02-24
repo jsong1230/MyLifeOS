@@ -117,7 +117,7 @@ export function RecurringForm({
           type="text"
           value={name}
           onChange={(e) => setName(e.target.value)}
-          placeholder="예: 넷플릭스, 헬스장 회비"
+          placeholder={t('namePlaceholder')}
           disabled={isLoading}
           aria-invalid={Boolean(errors.name)}
         />
@@ -138,7 +138,7 @@ export function RecurringForm({
           step={100}
           value={amount}
           onChange={(e) => setAmount(e.target.value)}
-          placeholder="예: 13900"
+          placeholder={t('amountPlaceholder')}
           disabled={isLoading}
           aria-invalid={Boolean(errors.amount)}
         />
@@ -213,7 +213,7 @@ export function RecurringForm({
           disabled={isLoading || isCategoriesLoading}
         >
           <SelectTrigger id="recurring-category">
-            <SelectValue placeholder="카테고리 선택 (선택사항)" />
+            <SelectValue placeholder={t('categoryPlaceholder')} />
           </SelectTrigger>
           <SelectContent>
             {(categories ?? []).map((cat) => (

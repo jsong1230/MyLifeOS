@@ -18,12 +18,6 @@ interface TransactionFilterProps {
   onChange: (filter: TransactionFilter) => void
 }
 
-// YYYY-MM 형식의 월 문자열을 표시용 텍스트로 변환
-function formatMonthDisplay(month: string): string {
-  const [year, monthNum] = month.split('-')
-  return `${year}년 ${parseInt(monthNum, 10)}월`
-}
-
 // 현재 월을 YYYY-MM 형식으로 반환
 function getCurrentMonth(): string {
   const now = new Date()
@@ -45,8 +39,13 @@ type TypeTab = 'all' | 'income' | 'expense'
 
 export function TransactionFilterBar({ filter, onChange }: TransactionFilterProps) {
   const t = useTranslations('money.transactions.filter')
-  const tc = useTranslations('common')
   const currentMonth = filter.month ?? getCurrentMonth()
+
+  // YYYY-MM 형식의 월 문자열을 로케일에 맞는 표시용 텍스트로 변환
+  function formatMonthDisplay(month: string): string {
+    const [year, monthNum] = month.split('-')
+    return t('monthDisplay', { year, month: parseInt(monthNum, 10) })
+  }
   const currentType: TypeTab = filter.type ?? 'all'
 
   const TYPE_TABS: { value: TypeTab; label: string }[] = [
@@ -105,7 +104,7 @@ export function TransactionFilterBar({ filter, onChange }: TransactionFilterProp
           size="sm"
           onClick={handlePrevMonth}
           className="h-8 px-2"
-          aria-label="이전 달"
+          aria-label={t('prevMonthAriaLabel')}
         >
           &lt;
         </Button>
@@ -118,7 +117,7 @@ export function TransactionFilterBar({ filter, onChange }: TransactionFilterProp
           onClick={handleNextMonth}
           disabled={isNextMonthDisabled}
           className="h-8 px-2"
-          aria-label="다음 달"
+          aria-label={t('nextMonthAriaLabel')}
         >
           &gt;
         </Button>
@@ -150,10 +149,10 @@ export function TransactionFilterBar({ filter, onChange }: TransactionFilterProp
           onValueChange={handleCategoryChange}
         >
           <SelectTrigger className="h-8 text-sm">
-            <SelectValue placeholder="모든 카테고리" />
+            <SelectValue placeholder={t('allCategories')} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="_all">모든 카테고리</SelectItem>
+            <SelectItem value="_all">{t('allCategories')}</SelectItem>
             {filteredCategories.map((cat) => (
               <SelectItem key={cat.id} value={cat.id}>
                 <span className="flex items-center gap-2">

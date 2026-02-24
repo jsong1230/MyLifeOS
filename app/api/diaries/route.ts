@@ -80,10 +80,7 @@ export async function POST(request: NextRequest) {
   const emotionTags = body.emotion_tags as EmotionType[]
   const invalidTags = emotionTags.filter((tag) => !VALID_EMOTION_TYPES.includes(tag))
   if (invalidTags.length > 0) {
-    return NextResponse.json(
-      { success: false, error: `유효하지 않은 감정 태그: ${invalidTags.join(', ')}` },
-      { status: 400 }
-    )
+    return apiError('VALIDATION_ERROR')
   }
 
   // 날짜 처리 (기본값: 오늘)
@@ -101,10 +98,7 @@ export async function POST(request: NextRequest) {
     .maybeSingle()
 
   if (existing) {
-    return NextResponse.json(
-      { success: false, error: '해당 날짜에 이미 일기가 있습니다' },
-      { status: 409 }
-    )
+    return apiError('CONFLICT')
   }
 
   // 일기 생성

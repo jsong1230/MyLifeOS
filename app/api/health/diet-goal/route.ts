@@ -63,10 +63,7 @@ export async function POST(request: NextRequest) {
     const value = body[field]
     if (value !== undefined && value !== null) {
       if (typeof value !== 'number' || value < 0 || !Number.isFinite(value)) {
-        return NextResponse.json(
-          { success: false, error: `${field}은(는) 0 이상의 숫자여야 합니다` },
-          { status: 400 }
-        )
+        return apiError('VALIDATION_ERROR')
       }
     }
   }

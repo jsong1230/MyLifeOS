@@ -24,13 +24,6 @@ interface MonthlyTrendChartProps {
   data: MonthlyData[]
 }
 
-// 금액 축 포맷 (만원 단위)
-function formatYAxis(value: number): string {
-  if (value >= 10_000_000) return `${(value / 10_000_000).toFixed(0)}천만`
-  if (value >= 10_000) return `${Math.floor(value / 10_000)}만`
-  return `${value}`
-}
-
 export function MonthlyTrendChart({ data }: MonthlyTrendChartProps) {
   const t = useTranslations('money.charts')
   const locale = useLocale()
@@ -39,6 +32,18 @@ export function MonthlyTrendChart({ data }: MonthlyTrendChartProps) {
   function formatMonthLabel(month: string): string {
     const date = new Date(month + '-01T00:00:00')
     return new Intl.DateTimeFormat(locale === 'ko' ? 'ko-KR' : 'en-US', { month: 'short' }).format(date)
+  }
+
+  // 금액 축 포맷 (로케일 기반 단위)
+  function formatYAxis(value: number): string {
+    if (locale === 'ko') {
+      if (value >= 10_000_000) return `${(value / 10_000_000).toFixed(0)}${t('unitChonMan')}`
+      if (value >= 10_000) return `${Math.floor(value / 10_000)}${t('unitMan')}`
+      return `${value}`
+    }
+    if (value >= 1_000_000) return `${(value / 1_000_000).toFixed(0)}M`
+    if (value >= 1_000) return `${Math.floor(value / 1_000)}K`
+    return `${value}`
   }
 
   if (data.every((d) => d.income === 0 && d.expense === 0)) {

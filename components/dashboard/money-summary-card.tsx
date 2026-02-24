@@ -2,7 +2,7 @@
 
 import { useQuery } from '@tanstack/react-query'
 import Link from 'next/link'
-import { useTranslations } from 'next-intl'
+import { useTranslations, useLocale } from 'next-intl'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { EmptyState } from '@/components/dashboard/empty-state'
 import { Wallet, ChevronRight, TrendingUp, TrendingDown } from 'lucide-react'
@@ -27,6 +27,7 @@ export function MoneySummaryCard() {
   const t = useTranslations('dashboard')
   const commonT = useTranslations('common')
   const te = useTranslations('exchangeRates')
+  const locale = useLocale()
 
   // 설정에서 기본 통화 가져오기 (없으면 KRW)
   const defaultCurrency = useSettingsStore((s) => s.defaultCurrency) ?? 'KRW'
@@ -142,7 +143,7 @@ export function MoneySummaryCard() {
                       const displayRate = toRate / fromRate
                       const rateText =
                         defaultCurrency === 'KRW'
-                          ? Math.round(displayRate).toLocaleString('ko-KR')
+                          ? Math.round(displayRate).toLocaleString(locale)
                           : displayRate.toFixed(4)
                       return (
                         <p key={fromCurrency} className="text-xs text-muted-foreground">
