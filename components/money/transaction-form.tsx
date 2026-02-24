@@ -127,7 +127,7 @@ export function TransactionForm({
       {/* 즐겨찾기 빠른 선택 */}
       {favoriteTransactions.length > 0 && (
         <div className="space-y-2">
-          <Label className="text-xs text-muted-foreground">즐겨찾기에서 빠른 선택</Label>
+          <Label className="text-xs text-muted-foreground">{t('quickSelect')}</Label>
           <div className="flex flex-wrap gap-2">
             {favoriteTransactions.map((fav) => (
               <button
@@ -164,7 +164,7 @@ export function TransactionForm({
               : 'bg-background text-muted-foreground border-border hover:border-red-300'
           )}
         >
-          지출
+          {t('expense')}
         </button>
         <button
           type="button"
@@ -176,14 +176,14 @@ export function TransactionForm({
               : 'bg-background text-muted-foreground border-border hover:border-green-300'
           )}
         >
-          수입
+          {t('income')}
         </button>
       </div>
 
       {/* 금액 + 통화 입력 */}
       <div className="space-y-1.5">
         <Label htmlFor="amount">
-          금액 <span className="text-destructive">*</span>
+          {tc('amount')} <span className="text-destructive">*</span>
         </Label>
         <div className="flex gap-2">
           <Select value={currency} onValueChange={(v) => setCurrency(v as CurrencyCode)}>
@@ -215,7 +215,7 @@ export function TransactionForm({
 
       {/* 날짜 입력 */}
       <div className="space-y-1.5">
-        <Label htmlFor="date">날짜</Label>
+        <Label htmlFor="date">{tc('date')}</Label>
         <Input
           id="date"
           type="date"
@@ -226,16 +226,16 @@ export function TransactionForm({
 
       {/* 카테고리 선택 */}
       <div className="space-y-1.5">
-        <Label htmlFor="category">카테고리</Label>
+        <Label htmlFor="category">{tc('category')}</Label>
         <Select
           value={categoryId}
           onValueChange={(val) => setCategoryId(val === '_none' ? '' : val)}
         >
           <SelectTrigger id="category">
-            <SelectValue placeholder="카테고리 선택 (선택사항)" />
+            <SelectValue placeholder={t('categoryPlaceholder')} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="_none">선택 안함</SelectItem>
+            <SelectItem value="_none">{t('categoryNone')}</SelectItem>
             {filteredCategories.map((cat) => (
               <SelectItem key={cat.id} value={cat.id}>
                 <span className="flex items-center gap-2">
@@ -250,11 +250,11 @@ export function TransactionForm({
 
       {/* 메모 입력 */}
       <div className="space-y-1.5">
-        <Label htmlFor="memo">메모</Label>
+        <Label htmlFor="memo">{tc('memo')}</Label>
         <Input
           id="memo"
           type="text"
-          placeholder="메모 입력 (선택사항)"
+          placeholder={t('memoPlaceholder')}
           value={memo}
           onChange={(e) => setMemo(e.target.value)}
           maxLength={200}
@@ -269,7 +269,7 @@ export function TransactionForm({
           onCheckedChange={(checked) => setIsFavorite(checked === true)}
         />
         <Label htmlFor="is_favorite" className="cursor-pointer font-normal">
-          즐겨찾기에 추가 (자주 사용하는 항목)
+          {t('favoriteLabel')}
         </Label>
       </div>
 
@@ -283,7 +283,7 @@ export function TransactionForm({
             disabled={isLoading}
             className="flex-1"
           >
-            취소
+            {tc('cancel')}
           </Button>
         )}
         <Button

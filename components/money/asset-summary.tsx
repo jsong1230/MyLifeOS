@@ -1,6 +1,7 @@
 'use client'
 
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend } from 'recharts'
+import { useTranslations } from 'next-intl'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { formatCurrency, formatCurrencyCompact } from '@/lib/currency'
 import { ASSET_TYPE_LABEL, type Asset, type AssetType } from '@/types/asset'
@@ -17,6 +18,8 @@ const ASSET_COLORS: Record<AssetType, string> = {
 }
 
 export function AssetSummary({ assets }: AssetSummaryProps) {
+  const t = useTranslations('money.assets')
+
   // 유형별 합계
   const byType = assets.reduce<Record<AssetType, number>>(
     (acc, a) => {
@@ -40,7 +43,7 @@ export function AssetSummary({ assets }: AssetSummaryProps) {
     return (
       <Card>
         <CardContent className="py-8 text-center text-sm text-muted-foreground">
-          이번 달 자산 기록이 없습니다
+          {t('noThisMonth')}
         </CardContent>
       </Card>
     )

@@ -1,19 +1,16 @@
 'use client'
 
+import { useTranslations } from 'next-intl'
 import { EMOTION_ICONS, EMOTION_LABELS, type EmotionType } from '@/types/diary'
+import { formatCurrency } from '@/lib/currency'
 import type { WeeklyReport } from '@/types/report'
 
 interface WeeklyReportProps {
   report: WeeklyReport
 }
 
-// 금액 한국어 포맷 (예: 1,234,567원)
-function formatKRW(amount: number): string {
-  return amount.toLocaleString('ko-KR') + '원'
-}
-
 // 원형 진행바 CSS 구현 (SVG 기반)
-function CircularProgress({ rate }: { rate: number }) {
+function CircularProgress({ rate, ariaLabel }: { rate: number; ariaLabel: string }) {
   const radius = 36
   const circumference = 2 * Math.PI * radius
   // rate 0~100 → strokeDashoffset 계산
@@ -25,7 +22,7 @@ function CircularProgress({ rate }: { rate: number }) {
         width="96"
         height="96"
         viewBox="0 0 96 96"
-        aria-label={`완료율 ${rate}%`}
+        aria-label={ariaLabel}
         role="img"
       >
         {/* 배경 원 */}
@@ -61,6 +58,7 @@ function CircularProgress({ rate }: { rate: number }) {
 
 // 주간 리포트 컴포넌트
 export function WeeklyReportView({ report }: WeeklyReportProps) {
+  const t = useTranslations('reports')
   const { todos, spending, health, emotions } = report
 
   // 감정 분포: 횟수 내림차순 정렬
@@ -84,16 +82,16 @@ export function WeeklyReportView({ report }: WeeklyReportProps) {
           id="weekly-todos-heading"
           className="text-sm font-semibold text-muted-foreground mb-3"
         >
-          할일 완료율
+          {t('todoCompletion')}
         </h3>
         <div className="bg-card border rounded-xl p-4 flex items-center gap-6">
-          <CircularProgress rate={todos.rate} />
+          <CircularProgress rate={todos.rate} ariaLabel={t('circularProgressLabel', { rate: todos.rate })} />
           <div className="space-y-1">
             <p className="text-sm text-muted-foreground">
-              전체 <span className="font-semibold text-foreground">{todos.total}개</span>
+              {t('todoTotal')} <span className="font-semibold text-foreground">{t('todoCountSuffix', { count: todos.total })}</span>
             </p>
             <p className="text-sm text-muted-foreground">
-              완료 <span className="font-semibold text-primary">{todos.completed}개</span>
+              {t('todoCompleted')} <span className="font-semibold text-primary">{t('todoCountSuffix', { count: todos.completed })}</span>
             </p>
           </div>
         </div>
@@ -105,19 +103,19 @@ export function WeeklyReportView({ report }: WeeklyReportProps) {
           id="weekly-spending-heading"
           className="text-sm font-semibold text-muted-foreground mb-3"
         >
-          수입 / 지출
+          {t('incomeExpense')}
         </h3>
         <div className="bg-card border rounded-xl p-4 grid grid-cols-2 gap-4">
           <div>
-            <p className="text-xs text-muted-foreground mb-1">수입</p>
+            <p className="text-xs text-muted-foreground mb-1">{t('income')}</p>
             <p className="text-base font-bold text-emerald-600 dark:text-emerald-400">
-              +{formatKRW(spending.income)}
+              +{formatCurrency(spending.income, 'KRW')}
             </p>
           </div>
           <div>
-            <p className="text-xs text-muted-foreground mb-1">지출</p>
+            <p className="text-xs text-muted-foreground mb-1">{t('expense')}</p>
             <p className="text-base font-bold text-red-500">
-              -{formatKRW(spending.expense)}
+              -{formatCurrency(spending.expense, 'KRW')}
             </p>
           </div>
         </div>
@@ -129,18 +127,18 @@ export function WeeklyReportView({ report }: WeeklyReportProps) {
           id="weekly-health-heading"
           className="text-sm font-semibold text-muted-foreground mb-3"
         >
-          건강 지표
+          {t('healthMetrics')}
         </h3>
         <div className="bg-card border rounded-xl p-4 grid grid-cols-2 gap-4">
           <div>
-            <p className="text-xs text-muted-foreground mb-1">평균 수면</p>
+            <p className="text-xs text-muted-foreground mb-1">{t('avgSleepWeekly')}</p>
             <p className="text-base font-bold">
-              {health.avg_sleep > 0 ? `${health.avg_sleep}시간` : '기록 없음'}
+              {health.avg_sleep > 0 ? t('sleepHours', { hours: health.avg_sleep }) : t('noRecord')}
             </p>
           </div>
           <div>
-            <p className="text-xs text-muted-foreground mb-1">음주 일수</p>
-            <p className="text-base font-bold">{health.drink_days}일</p>
+            <p className="text-xs text-muted-foreground mb-1">{t('drinkDays')}</p>
+            <p className="text-base font-bold">{t('daysUnit', { days: health.drink_days })}</p>
           </div>
         </div>
       </section>
@@ -151,11 +149,11 @@ export function WeeklyReportView({ report }: WeeklyReportProps) {
           id="weekly-emotions-heading"
           className="text-sm font-semibold text-muted-foreground mb-3"
         >
-          감정 분포
+          {t('emotionDist')}
         </h3>
         {sortedEmotions.length === 0 ? (
           <div className="bg-card border rounded-xl p-4 text-center text-sm text-muted-foreground">
-            이번 주 일기 기록이 없습니다
+            {t('noDiaryWeek')}
           </div>
         ) : (
           <div className="bg-card border rounded-xl p-4">

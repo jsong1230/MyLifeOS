@@ -59,17 +59,17 @@ export function PinForm({ hasPinAlready, onComplete }: PinFormProps) {
       const json = await res.json() as { success?: boolean; error?: string }
 
       if (!res.ok) {
-        setError(json.error ?? '오류가 발생했습니다. 다시 시도해주세요')
+        setError(json.error ?? t('generalError'))
         return
       }
 
-      setSuccess(hasPinAlready ? 'PIN이 변경되었습니다' : 'PIN이 설정되었습니다')
+      setSuccess(hasPinAlready ? t('pinChanged') : t('pinSet'))
       setCurrentPin('')
       setNewPin('')
       setConfirmPin('')
       onComplete()
     } catch {
-      setError('네트워크 오류가 발생했습니다. 다시 시도해주세요')
+      setError(t('networkError'))
     } finally {
       setLoading(false)
     }
@@ -80,14 +80,14 @@ export function PinForm({ hasPinAlready, onComplete }: PinFormProps) {
       {/* PIN이 이미 설정된 경우 현재 PIN 입력 필드 표시 */}
       {hasPinAlready && (
         <div className="space-y-1.5">
-          <Label htmlFor="current-pin">현재 PIN</Label>
+          <Label htmlFor="current-pin">{t('currentPinLabel')}</Label>
           <Input
             id="current-pin"
             type="password"
             inputMode="numeric"
             pattern="\d{4,6}"
             maxLength={6}
-            placeholder="현재 PIN (4~6자리)"
+            placeholder={t('currentPinPlaceholder')}
             value={currentPin}
             onChange={(e) => setCurrentPin(e.target.value)}
             autoComplete="current-password"
@@ -98,14 +98,14 @@ export function PinForm({ hasPinAlready, onComplete }: PinFormProps) {
 
       {/* 새 PIN 입력 */}
       <div className="space-y-1.5">
-        <Label htmlFor="new-pin">{hasPinAlready ? '새 PIN' : 'PIN'}</Label>
+        <Label htmlFor="new-pin">{hasPinAlready ? t('newPinLabel') : t('pinLabel')}</Label>
         <Input
           id="new-pin"
           type="password"
           inputMode="numeric"
           pattern="\d{4,6}"
           maxLength={6}
-          placeholder="4~6자리 숫자"
+          placeholder={t('pinPlaceholder')}
           value={newPin}
           onChange={(e) => setNewPin(e.target.value)}
           autoComplete="new-password"
@@ -115,14 +115,14 @@ export function PinForm({ hasPinAlready, onComplete }: PinFormProps) {
 
       {/* 새 PIN 확인 */}
       <div className="space-y-1.5">
-        <Label htmlFor="confirm-pin">{hasPinAlready ? '새 PIN 확인' : 'PIN 확인'}</Label>
+        <Label htmlFor="confirm-pin">{hasPinAlready ? t('newPinConfirmLabel') : t('pinConfirmLabel')}</Label>
         <Input
           id="confirm-pin"
           type="password"
           inputMode="numeric"
           pattern="\d{4,6}"
           maxLength={6}
-          placeholder="PIN 재입력"
+          placeholder={t('pinConfirmPlaceholder')}
           value={confirmPin}
           onChange={(e) => setConfirmPin(e.target.value)}
           autoComplete="new-password"

@@ -58,7 +58,8 @@
     "processing": "Processing...",
     "saving": "Saving...",
     "profile": "Profile",
-    "user": "User"
+    "user": "User",
+    "comingSoon": "Coming soon"
   },
   "nav": {
     "home": "Home",
@@ -246,9 +247,17 @@
         "all": "All",
         "income": "Income",
         "expense": "Expense",
-        "favorites": "Favorites"
+        "favorites": "Favorites",
+        "prevMonth": "Previous month",
+        "nextMonth": "Next month",
+        "allCategories": "All categories"
       },
-      "currency": "Currency"
+      "currency": "Currency",
+      "quickSelect": "Quick select from favorites",
+      "categoryPlaceholder": "Select category (optional)",
+      "categoryNone": "None",
+      "memoPlaceholder": "Enter memo (optional)",
+      "favoriteLabel": "Add to favorites (for frequent transactions)"
     },
     "budget": {
       "title": "Budget",
@@ -289,7 +298,9 @@
       "trendTitle": "Monthly Asset Trend",
       "noTrend": "No asset trend data",
       "amountError": "Please enter a valid amount",
-      "distribution": "Asset distribution"
+      "distribution": "Asset distribution",
+      "noThisMonth": "No asset records this month",
+      "byTypeRatio": "By type"
     },
     "recurring": {
       "title": "Recurring",
@@ -313,7 +324,12 @@
       "yearlyEquivalent": "Annual equivalent",
       "noData": "No recurring expenses",
       "yearlyItems": "{count} yearly items included",
-      "annualTotal": "Annual total"
+      "annualTotal": "Annual total",
+      "monthlyTotalTitle": "Monthly recurring total",
+      "perMonthSuffix": "/mo",
+      "yearlyEquivalentLabel": "Annual equiv. ~{amount}",
+      "activeItems": "Active",
+      "yearlyNoteWithTotal": "* Includes {count} annual item(s) — Annual total {amount}"
     },
     "categories": {
       "title": "Categories",
@@ -340,7 +356,8 @@
       "spent": "Spent",
       "monthlyTrend": "Monthly income/expense trend",
       "expenseByCategory": "Expense by category",
-      "assetTrend": "Asset trend"
+      "assetTrend": "Asset trend",
+      "noData": "No transactions found"
     },
     "report": {
       "monthly": "Monthly report",
@@ -758,7 +775,19 @@
       "pinFormValidation": "PIN must be 4–6 digits",
       "newPinMismatch": "New PIN does not match",
       "changePinTitle": "Change PIN",
-      "setPinTitle": "Set PIN"
+      "setPinTitle": "Set PIN",
+      "currentPinLabel": "Current PIN",
+      "currentPinPlaceholder": "Current PIN (4–6 digits)",
+      "newPinLabel": "New PIN",
+      "pinLabel": "PIN",
+      "newPinConfirmLabel": "Confirm new PIN",
+      "pinConfirmLabel": "Confirm PIN",
+      "pinPlaceholder": "4–6 digit number",
+      "pinConfirmPlaceholder": "Re-enter PIN",
+      "generalError": "An error occurred. Please try again",
+      "networkError": "Network error. Please try again",
+      "pinChanged": "PIN has been changed",
+      "pinSet": "PIN has been set"
     }
   },
   "reports": {
@@ -774,7 +803,30 @@
     "expense": "Expense",
     "balance": "Balance",
     "topCategories": "Top categories",
-    "comparison": "vs last month"
+    "comparison": "vs last month",
+    "todoCompletion": "Todo completion",
+    "completionRate": "Completion rate",
+    "todoTotal": "Total",
+    "todoCompleted": "Completed",
+    "todoCountSuffix": "{count}",
+    "daysUnit": "{days} day(s)",
+    "sleepHours": "{hours} hr",
+    "noRecord": "No records",
+    "sameAsPrev": "Same as last month",
+    "vsLastMonth": "vs last month",
+    "spendingTitle": "Spending",
+    "thisMonthExpense": "This month's expense",
+    "prevMonthExpense": "Last month's expense",
+    "healthSummary": "Health summary",
+    "avgSleepMonthly": "Monthly avg sleep",
+    "avgSleepWeekly": "Avg sleep",
+    "drinkDays": "Drink days",
+    "emotionDist": "Emotion distribution",
+    "noDiaryMonth": "No diary entries this month",
+    "incomeExpense": "Income / Expense",
+    "healthMetrics": "Health metrics",
+    "noDiaryWeek": "No diary entries this week",
+    "circularProgressLabel": "Completion rate {rate}%"
   },
   "settings": {
     "title": "Settings",
@@ -791,7 +843,26 @@
     "dataExport": "Export data",
     "dataExportDescription": "Download module or full data as CSV/JSON",
     "backButton": "← Back",
-    "saved": "Saved"
+    "saved": "Saved",
+    "export": {
+      "todos": "Todos",
+      "routines": "Routines",
+      "transactions": "Transactions",
+      "mealLogs": "Meal logs",
+      "drinkLogs": "Drink logs",
+      "healthLogs": "Health logs",
+      "diaries": "Diaries",
+      "relations": "Relation notes",
+      "all": "All data",
+      "exportFailed": "Export failed",
+      "exportError": "An error occurred during export",
+      "formatLabel": "Format:",
+      "exportAll": "Export all data",
+      "exporting": "Exporting...",
+      "exportingAll": "Exporting all...",
+      "encrypted": "(encrypted)",
+      "encryptedHint": "Diaries and relation notes will be decrypted if PIN is authenticated. Otherwise, encrypted data will be exported."
+    }
   },
   "currency": {
     "KRW": "Korean Won",

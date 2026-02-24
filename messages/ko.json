@@ -58,7 +58,8 @@
     "processing": "처리 중...",
     "saving": "저장 중...",
     "profile": "프로필",
-    "user": "사용자"
+    "user": "사용자",
+    "comingSoon": "준비 중입니다"
   },
   "nav": {
     "home": "홈",
@@ -246,9 +247,17 @@
         "all": "전체",
         "income": "수입",
         "expense": "지출",
-        "favorites": "즐겨찾기"
+        "favorites": "즐겨찾기",
+        "prevMonth": "이전 달",
+        "nextMonth": "다음 달",
+        "allCategories": "모든 카테고리"
       },
-      "currency": "통화"
+      "currency": "통화",
+      "quickSelect": "즐겨찾기에서 빠른 선택",
+      "categoryPlaceholder": "카테고리 선택 (선택사항)",
+      "categoryNone": "선택 안함",
+      "memoPlaceholder": "메모 입력 (선택사항)",
+      "favoriteLabel": "즐겨찾기에 추가 (자주 사용하는 항목)"
     },
     "budget": {
       "title": "예산",
@@ -289,7 +298,9 @@
       "trendTitle": "월별 자산 추이",
       "noTrend": "자산 추이 데이터가 없습니다",
       "amountError": "금액을 올바르게 입력해주세요",
-      "distribution": "자산 분포"
+      "distribution": "자산 분포",
+      "noThisMonth": "이번 달 자산 기록이 없습니다",
+      "byTypeRatio": "유형별 비율"
     },
     "recurring": {
       "title": "정기 지출",
@@ -313,7 +324,12 @@
       "yearlyEquivalent": "연간 환산",
       "noData": "등록된 정기 지출이 없습니다",
       "yearlyItems": "연간 항목 {count}건 포함",
-      "annualTotal": "연 총액"
+      "annualTotal": "연 총액",
+      "monthlyTotalTitle": "월간 정기 지출 총액",
+      "perMonthSuffix": "/월",
+      "yearlyEquivalentLabel": "연간 환산 약 {amount}",
+      "activeItems": "활성 항목",
+      "yearlyNoteWithTotal": "* 연간 항목 {count}건 포함 — 연 총액 {amount}"
     },
     "categories": {
       "title": "카테고리",
@@ -340,7 +356,8 @@
       "spent": "지출",
       "monthlyTrend": "월별 수입/지출 추이",
       "expenseByCategory": "카테고리별 지출",
-      "assetTrend": "자산 추이"
+      "assetTrend": "자산 추이",
+      "noData": "거래 내역이 없습니다"
     },
     "report": {
       "monthly": "월별 리포트",
@@ -758,7 +775,19 @@
       "pinFormValidation": "PIN은 4~6자리 숫자만 사용 가능합니다",
       "newPinMismatch": "새 PIN이 일치하지 않습니다",
       "changePinTitle": "PIN 변경",
-      "setPinTitle": "PIN 설정"
+      "setPinTitle": "PIN 설정",
+      "currentPinLabel": "현재 PIN",
+      "currentPinPlaceholder": "현재 PIN (4~6자리)",
+      "newPinLabel": "새 PIN",
+      "pinLabel": "PIN",
+      "newPinConfirmLabel": "새 PIN 확인",
+      "pinConfirmLabel": "PIN 확인",
+      "pinPlaceholder": "4~6자리 숫자",
+      "pinConfirmPlaceholder": "PIN 재입력",
+      "generalError": "오류가 발생했습니다. 다시 시도해주세요",
+      "networkError": "네트워크 오류가 발생했습니다. 다시 시도해주세요",
+      "pinChanged": "PIN이 변경되었습니다",
+      "pinSet": "PIN이 설정되었습니다"
     }
   },
   "reports": {
@@ -774,7 +803,30 @@
     "expense": "지출",
     "balance": "잔액",
     "topCategories": "주요 카테고리",
-    "comparison": "전월 대비"
+    "comparison": "전월 대비",
+    "todoCompletion": "할일 완료율",
+    "completionRate": "완료율",
+    "todoTotal": "전체",
+    "todoCompleted": "완료",
+    "todoCountSuffix": "{count}개",
+    "daysUnit": "{days}일",
+    "sleepHours": "{hours}시간",
+    "noRecord": "기록 없음",
+    "sameAsPrev": "전월과 동일",
+    "vsLastMonth": "전월 대비",
+    "spendingTitle": "지출 현황",
+    "thisMonthExpense": "이번달 지출",
+    "prevMonthExpense": "전월 지출",
+    "healthSummary": "건강 요약",
+    "avgSleepMonthly": "월간 평균 수면",
+    "avgSleepWeekly": "평균 수면",
+    "drinkDays": "음주 일수",
+    "emotionDist": "감정 분포",
+    "noDiaryMonth": "이번달 일기 기록이 없습니다",
+    "incomeExpense": "수입 / 지출",
+    "healthMetrics": "건강 지표",
+    "noDiaryWeek": "이번 주 일기 기록이 없습니다",
+    "circularProgressLabel": "완료율 {rate}%"
   },
   "settings": {
     "title": "설정",
@@ -791,7 +843,26 @@
     "dataExport": "데이터 내보내기",
     "dataExportDescription": "모듈별 또는 전체 데이터를 CSV/JSON 형식으로 다운로드합니다",
     "backButton": "← 뒤로",
-    "saved": "저장되었습니다"
+    "saved": "저장되었습니다",
+    "export": {
+      "todos": "할일",
+      "routines": "루틴",
+      "transactions": "수입/지출",
+      "mealLogs": "식사기록",
+      "drinkLogs": "음주기록",
+      "healthLogs": "수면기록",
+      "diaries": "일기",
+      "relations": "인간관계 메모",
+      "all": "전체 데이터",
+      "exportFailed": "데이터 내보내기에 실패했습니다",
+      "exportError": "데이터 내보내기 중 오류가 발생했습니다",
+      "formatLabel": "형식:",
+      "exportAll": "전체 데이터 내보내기",
+      "exporting": "내보내는 중...",
+      "exportingAll": "전체 내보내는 중...",
+      "encrypted": "(암호화)",
+      "encryptedHint": "일기 및 인간관계 메모는 PIN 인증이 완료된 경우 복호화하여 내보냅니다. PIN 미인증 상태에서는 암호화된 데이터로 내보내집니다."
+    }
   },
   "currency": {
     "KRW": "한국 원",

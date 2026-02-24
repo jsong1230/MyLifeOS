@@ -10,7 +10,7 @@ import {
   Legend,
   ResponsiveContainer,
 } from 'recharts'
-import { useTranslations } from 'next-intl'
+import { useTranslations, useLocale } from 'next-intl'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { formatCurrency } from '@/lib/currency'
 
@@ -24,12 +24,6 @@ interface MonthlyTrendChartProps {
   data: MonthlyData[]
 }
 
-// YYYY-MM → M월
-function formatMonth(month: string): string {
-  const [, m] = month.split('-')
-  return `${parseInt(m)}월`
-}
-
 // 금액 축 포맷 (만원 단위)
 function formatYAxis(value: number): string {
   if (value >= 10_000_000) return `${(value / 10_000_000).toFixed(0)}천만`
@@ -39,19 +33,26 @@ function formatYAxis(value: number): string {
 
 export function MonthlyTrendChart({ data }: MonthlyTrendChartProps) {
   const t = useTranslations('money.charts')
+  const locale = useLocale()
+
+  // 로케일 기반 월 표시 (ko: "1월", en: "Jan")
+  function formatMonthLabel(month: string): string {
+    const date = new Date(month + '-01T00:00:00')
+    return new Intl.DateTimeFormat(locale === 'ko' ? 'ko-KR' : 'en-US', { month: 'short' }).format(date)
+  }
 
   if (data.every((d) => d.income === 0 && d.expense === 0)) {
     return (
       <Card>
         <CardContent className="py-8 text-center text-sm text-muted-foreground">
-          거래 내역이 없습니다
+          {t('noData')}
         </CardContent>
       </Card>
     )
   }
 
   const chartData = data.map((d) => ({
-    month: formatMonth(d.month),
+    month: formatMonthLabel(d.month),
     income: d.income,
     expense: d.expense,
   }))
@@ -59,7 +60,7 @@ export function MonthlyTrendChart({ data }: MonthlyTrendChartProps) {
   return (
     <Card>
       <CardHeader className="pb-2">
-        <CardTitle className="text-sm font-medium">월별 수입/지출 추이</CardTitle>
+        <CardTitle className="text-sm font-medium">{t('monthlyTrend')}</CardTitle>
       </CardHeader>
       <CardContent>
         <ResponsiveContainer width="100%" height={200}>

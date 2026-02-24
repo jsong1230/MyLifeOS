@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button'
 import { decrypt } from '@/lib/crypto/encryption'
 
@@ -19,20 +20,17 @@ type ExportModule =
 // 내보내기 형식
 type ExportFormat = 'csv' | 'json'
 
-// 모듈별 레이블 및 파일명 설정
-const MODULE_CONFIG: Record<
-  ExportModule,
-  { label: string; filename: string }
-> = {
-  todos: { label: '할일', filename: 'todos' },
-  routines: { label: '루틴', filename: 'routines' },
-  transactions: { label: '수입/지출', filename: 'transactions' },
-  meal_logs: { label: '식사기록', filename: 'meal_logs' },
-  drink_logs: { label: '음주기록', filename: 'drink_logs' },
-  health_logs: { label: '수면기록', filename: 'health_logs' },
-  diaries: { label: '일기', filename: 'diaries' },
-  relations: { label: '인간관계 메모', filename: 'relations' },
-  all: { label: '전체 데이터', filename: 'mylifeos_all' },
+// 모듈별 파일명 설정 (레이블은 컴포넌트 내에서 번역)
+const MODULE_FILENAME: Record<ExportModule, string> = {
+  todos: 'todos',
+  routines: 'routines',
+  transactions: 'transactions',
+  meal_logs: 'meal_logs',
+  drink_logs: 'drink_logs',
+  health_logs: 'health_logs',
+  diaries: 'diaries',
+  relations: 'relations',
+  all: 'mylifeos_all',
 }
 
 // 개별 모듈 버튼 목록 (all 은 별도 배치)
@@ -133,6 +131,21 @@ function decryptRelations(
  * - 암호화 데이터(일기, 인간관계 메모)는 sessionStorage enc_key로 복호화 후 내보내기
  */
 export function DataExport() {
+  const t = useTranslations('settings.export')
+
+  // 모듈별 레이블 (번역 기반)
+  const MODULE_LABEL: Record<ExportModule, string> = {
+    todos: t('todos'),
+    routines: t('routines'),
+    transactions: t('transactions'),
+    meal_logs: t('mealLogs'),
+    drink_logs: t('drinkLogs'),
+    health_logs: t('healthLogs'),
+    diaries: t('diaries'),
+    relations: t('relations'),
+    all: t('all'),
+  }
+
   const [format, setFormat] = useState<ExportFormat>('csv')
   // 로딩 중인 모듈 추적 (동시 여러 요청 방지)
   const [loadingModule, setLoadingModule] = useState<ExportModule | null>(null)
@@ -161,7 +174,7 @@ export function DataExport() {
       }
 
       if (!res.ok || !json.success) {
-        setErrorMessage(json.error ?? '데이터 내보내기에 실패했습니다')
+        setErrorMessage(json.error ?? t('exportFailed'))
         return
       }
 
@@ -183,9 +196,9 @@ export function DataExport() {
             processedData = decryptRelations(moduleData, encKey)
           }
 
-          const moduleLabel =
-            MODULE_CONFIG[key as ExportModule]?.filename ?? key
-          const filename = `${moduleLabel}_${timestamp}.${format}`
+          const moduleFilename =
+            MODULE_FILENAME[key as ExportModule] ?? key
+          const filename = `${moduleFilename}_${timestamp}.${format}`
 
           if (format === 'json') {
             downloadFile(
@@ -211,8 +224,7 @@ export function DataExport() {
           data = decryptRelations(data, encKey)
         }
 
-        const config = MODULE_CONFIG[module]
-        const filename = `${config.filename}_${timestamp}.${format}`
+        const filename = `${MODULE_FILENAME[module]}_${timestamp}.${format}`
 
         if (format === 'json') {
           downloadFile(
@@ -225,7 +237,7 @@ export function DataExport() {
         }
       }
     } catch {
-      setErrorMessage('데이터 내보내기 중 오류가 발생했습니다')
+      setErrorMessage(t('exportError'))
     } finally {
       setLoadingModule(null)
     }
@@ -235,7 +247,7 @@ export function DataExport() {
     <div className="space-y-4">
       {/* 형식 선택 토글 */}
       <div className="flex items-center gap-2">
-        <span className="text-sm font-medium">형식:</span>
+        <span className="text-sm font-medium">{t('formatLabel')}</span>
         <div className="flex rounded-md border overflow-hidden">
           <button
             type="button"
@@ -269,8 +281,7 @@ export function DataExport() {
 
       {/* 암호화 데이터 안내 */}
       <p className="text-xs text-muted-foreground">
-        일기 및 인간관계 메모는 PIN 인증이 완료된 경우 복호화하여 내보냅니다.
-        PIN 미인증 상태에서는 암호화된 데이터로 내보내집니다.
+        {t('encryptedHint')}
       </p>
 
       {/* 모듈별 내보내기 버튼 */}
@@ -290,14 +301,14 @@ export function DataExport() {
               {isLoading ? (
                 <span className="flex items-center gap-1.5">
                   <span className="h-3 w-3 border-2 border-current border-t-transparent rounded-full animate-spin" />
-                  내보내는 중...
+                  {t('exporting')}
                 </span>
               ) : (
                 <span>
-                  {MODULE_CONFIG[module].label}
+                  {MODULE_LABEL[module]}
                   {isEncrypted && (
                     <span className="ml-1 text-xs text-muted-foreground">
-                      (암호화)
+                      {t('encrypted')}
                     </span>
                   )}
                 </span>
@@ -318,10 +329,10 @@ export function DataExport() {
         {loadingModule === 'all' ? (
           <span className="flex items-center gap-1.5">
             <span className="h-3 w-3 border-2 border-current border-t-transparent rounded-full animate-spin" />
-            전체 내보내는 중...
+            {t('exportingAll')}
           </span>
         ) : (
-          '전체 데이터 내보내기'
+          t('exportAll')
         )}
       </Button>
     </div>

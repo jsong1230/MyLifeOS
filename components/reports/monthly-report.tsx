@@ -1,24 +1,21 @@
 'use client'
 
 import { TrendingUp, TrendingDown, Minus } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import { EMOTION_ICONS, EMOTION_LABELS, type EmotionType } from '@/types/diary'
+import { formatCurrency } from '@/lib/currency'
 import type { MonthlyReport } from '@/types/report'
 
 interface MonthlyReportProps {
   report: MonthlyReport
 }
 
-// 금액 한국어 포맷
-function formatKRW(amount: number): string {
-  return amount.toLocaleString('ko-KR') + '원'
-}
-
 // 할일 완료율 바 컴포넌트 (선형 프로그레스)
-function LinearProgress({ rate }: { rate: number }) {
+function LinearProgress({ rate, completionLabel, ariaLabel }: { rate: number; completionLabel: string; ariaLabel: string }) {
   return (
     <div className="space-y-1.5">
       <div className="flex justify-between text-sm">
-        <span className="text-muted-foreground">완료율</span>
+        <span className="text-muted-foreground">{completionLabel}</span>
         <span className="font-semibold text-primary">{rate}%</span>
       </div>
       <div
@@ -27,7 +24,7 @@ function LinearProgress({ rate }: { rate: number }) {
         aria-valuenow={rate}
         aria-valuemin={0}
         aria-valuemax={100}
-        aria-label={`할일 완료율 ${rate}%`}
+        aria-label={ariaLabel}
       >
         <div
           className="h-full bg-primary rounded-full transition-all duration-500"
@@ -39,12 +36,12 @@ function LinearProgress({ rate }: { rate: number }) {
 }
 
 // 전월 대비 증감 표시 컴포넌트
-function SpendingTrend({ changePct }: { changePct: number }) {
+function SpendingTrend({ changePct, sameLabel, vsLabel }: { changePct: number; sameLabel: string; vsLabel: string }) {
   if (changePct === 0) {
     return (
       <div className="flex items-center gap-1 text-muted-foreground">
         <Minus className="w-4 h-4" aria-hidden="true" />
-        <span className="text-sm font-medium">전월과 동일</span>
+        <span className="text-sm font-medium">{sameLabel}</span>
       </div>
     )
   }
@@ -62,13 +59,14 @@ function SpendingTrend({ changePct }: { changePct: number }) {
       <span className="text-sm font-semibold">
         {isUp ? '+' : ''}{changePct}%
       </span>
-      <span className="text-xs text-muted-foreground">전월 대비</span>
+      <span className="text-xs text-muted-foreground">{vsLabel}</span>
     </div>
   )
 }
 
 // 월간 리포트 컴포넌트
 export function MonthlyReportView({ report }: MonthlyReportProps) {
+  const t = useTranslations('reports')
   const { todos, spending, health, emotions } = report
 
   // 감정 분포: 횟수 내림차순 정렬
@@ -82,16 +80,20 @@ export function MonthlyReportView({ report }: MonthlyReportProps) {
           id="monthly-todos-heading"
           className="text-sm font-semibold text-muted-foreground mb-3"
         >
-          할일 완료율
+          {t('todoCompletion')}
         </h3>
         <div className="bg-card border rounded-xl p-4 space-y-3">
-          <LinearProgress rate={todos.rate} />
+          <LinearProgress
+            rate={todos.rate}
+            completionLabel={t('completionRate')}
+            ariaLabel={t('circularProgressLabel', { rate: todos.rate })}
+          />
           <div className="flex gap-4 text-sm text-muted-foreground">
             <span>
-              전체 <span className="font-semibold text-foreground">{todos.total}개</span>
+              {t('todoTotal')} <span className="font-semibold text-foreground">{t('todoCountSuffix', { count: todos.total })}</span>
             </span>
             <span>
-              완료 <span className="font-semibold text-primary">{todos.completed}개</span>
+              {t('todoCompleted')} <span className="font-semibold text-primary">{t('todoCountSuffix', { count: todos.completed })}</span>
             </span>
           </div>
         </div>
@@ -103,29 +105,29 @@ export function MonthlyReportView({ report }: MonthlyReportProps) {
           id="monthly-spending-heading"
           className="text-sm font-semibold text-muted-foreground mb-3"
         >
-          지출 현황
+          {t('spendingTitle')}
         </h3>
         <div className="bg-card border rounded-xl p-4 space-y-3">
           <div className="flex items-start justify-between">
             <div>
-              <p className="text-xs text-muted-foreground mb-0.5">이번달 지출</p>
+              <p className="text-xs text-muted-foreground mb-0.5">{t('thisMonthExpense')}</p>
               <p className="text-xl font-bold text-red-500">
-                {formatKRW(spending.expense)}
+                {formatCurrency(spending.expense, 'KRW')}
               </p>
             </div>
-            <SpendingTrend changePct={spending.change_pct} />
+            <SpendingTrend changePct={spending.change_pct} sameLabel={t('sameAsPrev')} vsLabel={t('vsLastMonth')} />
           </div>
           <div className="grid grid-cols-2 gap-3 pt-2 border-t">
             <div>
-              <p className="text-xs text-muted-foreground mb-0.5">수입</p>
+              <p className="text-xs text-muted-foreground mb-0.5">{t('income')}</p>
               <p className="text-sm font-semibold text-emerald-600 dark:text-emerald-400">
-                +{formatKRW(spending.income)}
+                +{formatCurrency(spending.income, 'KRW')}
               </p>
             </div>
             <div>
-              <p className="text-xs text-muted-foreground mb-0.5">전월 지출</p>
+              <p className="text-xs text-muted-foreground mb-0.5">{t('prevMonthExpense')}</p>
               <p className="text-sm font-semibold text-muted-foreground">
-                {formatKRW(spending.prev_expense)}
+                {formatCurrency(spending.prev_expense, 'KRW')}
               </p>
             </div>
           </div>
@@ -138,18 +140,18 @@ export function MonthlyReportView({ report }: MonthlyReportProps) {
           id="monthly-health-heading"
           className="text-sm font-semibold text-muted-foreground mb-3"
         >
-          건강 요약
+          {t('healthSummary')}
         </h3>
         <div className="bg-card border rounded-xl p-4 grid grid-cols-2 gap-4">
           <div>
-            <p className="text-xs text-muted-foreground mb-1">월간 평균 수면</p>
+            <p className="text-xs text-muted-foreground mb-1">{t('avgSleepMonthly')}</p>
             <p className="text-base font-bold">
-              {health.avg_sleep > 0 ? `${health.avg_sleep}시간` : '기록 없음'}
+              {health.avg_sleep > 0 ? t('sleepHours', { hours: health.avg_sleep }) : t('noRecord')}
             </p>
           </div>
           <div>
-            <p className="text-xs text-muted-foreground mb-1">음주 일수</p>
-            <p className="text-base font-bold">{health.drink_days}일</p>
+            <p className="text-xs text-muted-foreground mb-1">{t('drinkDays')}</p>
+            <p className="text-base font-bold">{t('daysUnit', { days: health.drink_days })}</p>
           </div>
         </div>
       </section>
@@ -160,11 +162,11 @@ export function MonthlyReportView({ report }: MonthlyReportProps) {
           id="monthly-emotions-heading"
           className="text-sm font-semibold text-muted-foreground mb-3"
         >
-          감정 분포
+          {t('emotionDist')}
         </h3>
         {sortedEmotions.length === 0 ? (
           <div className="bg-card border rounded-xl p-4 text-center text-sm text-muted-foreground">
-            이번달 일기 기록이 없습니다
+            {t('noDiaryMonth')}
           </div>
         ) : (
           <div className="bg-card border rounded-xl p-4">
