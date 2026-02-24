@@ -1,4 +1,5 @@
 import { NextResponse, type NextRequest } from 'next/server'
+import { apiError } from '@/lib/api-errors'
 import { createClient } from '@/lib/supabase/server'
 import type { UpdateBudgetInput } from '@/types/budget'
 
@@ -19,44 +20,29 @@ export async function PATCH(
       error: authError,
     } = await supabase.auth.getUser()
     if (authError || !user) {
-      return NextResponse.json(
-        { success: false, error: '인증이 필요합니다' },
-        { status: 401 }
-      )
+      return apiError('AUTH_REQUIRED')
     }
 
     const { id } = await params
 
     if (!id) {
-      return NextResponse.json(
-        { success: false, error: '유효하지 않은 ID입니다' },
-        { status: 400 }
-      )
+      return apiError('VALIDATION_ERROR')
     }
 
     let body: UpdateBudgetInput
     try {
       body = (await request.json()) as UpdateBudgetInput
     } catch {
-      return NextResponse.json(
-        { success: false, error: '잘못된 요청 형식입니다' },
-        { status: 400 }
-      )
+      return apiError('VALIDATION_ERROR')
     }
 
     // 금액 검증
     if (body.amount === undefined || body.amount === null) {
-      return NextResponse.json(
-        { success: false, error: '예산 금액은 필수입니다' },
-        { status: 400 }
-      )
+      return apiError('VALIDATION_ERROR')
     }
 
     if (typeof body.amount !== 'number' || body.amount <= 0) {
-      return NextResponse.json(
-        { success: false, error: '예산 금액은 0보다 큰 숫자여야 합니다' },
-        { status: 400 }
-      )
+      return apiError('VALIDATION_ERROR')
     }
 
     // 해당 예산이 현재 사용자 소유인지 확인
@@ -68,10 +54,7 @@ export async function PATCH(
       .maybeSingle()
 
     if (!existing) {
-      return NextResponse.json(
-        { success: false, error: '예산을 찾을 수 없습니다' },
-        { status: 404 }
-      )
+      return apiError('NOT_FOUND')
     }
 
     // 금액 업데이트
@@ -89,10 +72,7 @@ export async function PATCH(
       .maybeSingle()
 
     if (updateError || !updated) {
-      return NextResponse.json(
-        { success: false, error: '예산 수정에 실패했습니다' },
-        { status: 500 }
-      )
+      return apiError('SERVER_ERROR')
     }
 
     const normalizedBudget = {
@@ -105,10 +85,7 @@ export async function PATCH(
 
     return NextResponse.json({ success: true, data: normalizedBudget })
   } catch {
-    return NextResponse.json(
-      { success: false, error: '서버 오류가 발생했습니다' },
-      { status: 500 }
-    )
+    return apiError('SERVER_ERROR')
   }
 }
 
@@ -129,19 +106,13 @@ export async function DELETE(
       error: authError,
     } = await supabase.auth.getUser()
     if (authError || !user) {
-      return NextResponse.json(
-        { success: false, error: '인증이 필요합니다' },
-        { status: 401 }
-      )
+      return apiError('AUTH_REQUIRED')
     }
 
     const { id } = await params
 
     if (!id) {
-      return NextResponse.json(
-        { success: false, error: '유효하지 않은 ID입니다' },
-        { status: 400 }
-      )
+      return apiError('VALIDATION_ERROR')
     }
 
     // 해당 예산이 현재 사용자 소유인지 확인
@@ -153,10 +124,7 @@ export async function DELETE(
       .maybeSingle()
 
     if (!existing) {
-      return NextResponse.json(
-        { success: false, error: '예산을 찾을 수 없습니다' },
-        { status: 404 }
-      )
+      return apiError('NOT_FOUND')
     }
 
     const { error: deleteError } = await supabase
@@ -166,17 +134,11 @@ export async function DELETE(
       .eq('user_id', user.id)
 
     if (deleteError) {
-      return NextResponse.json(
-        { success: false, error: '예산 삭제에 실패했습니다' },
-        { status: 500 }
-      )
+      return apiError('SERVER_ERROR')
     }
 
     return NextResponse.json({ success: true, data: null })
   } catch {
-    return NextResponse.json(
-      { success: false, error: '서버 오류가 발생했습니다' },
-      { status: 500 }
-    )
+    return apiError('SERVER_ERROR')
   }
 }

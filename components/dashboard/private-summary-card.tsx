@@ -2,6 +2,7 @@
 
 import { useQuery } from '@tanstack/react-query'
 import Link from 'next/link'
+import { useTranslations } from 'next-intl'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { EmptyState } from '@/components/dashboard/empty-state'
 import { BookOpen, ChevronRight } from 'lucide-react'
@@ -15,6 +16,8 @@ function getToday(): string {
 // 사적 기록 요약 카드 — 오늘 일기 감정 태그 표시
 export function PrivateSummaryCard() {
   const today = getToday()
+  const t = useTranslations('dashboard')
+  const commonT = useTranslations('common')
 
   const { data: diary, isLoading } = useQuery<DiaryEntry | null>({
     queryKey: ['diary', today],
@@ -32,16 +35,16 @@ export function PrivateSummaryCard() {
         <CardHeader className="flex flex-row items-center justify-between pb-2">
           <div className="flex items-center gap-2">
             <BookOpen className="w-4 h-4 text-primary" />
-            <span className="text-sm font-medium">사적 기록</span>
+            <span className="text-sm font-medium">{t('privateSummary')}</span>
           </div>
           <ChevronRight className="w-4 h-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
           {isLoading ? (
-            <p className="text-xs text-muted-foreground">불러오는 중...</p>
+            <p className="text-xs text-muted-foreground">{commonT('loading')}</p>
           ) : diary ? (
             <div className="space-y-2">
-              <p className="text-xs text-muted-foreground">오늘 일기 작성됨</p>
+              <p className="text-xs text-muted-foreground">{t('diaryWritten')}</p>
               <div className="flex flex-wrap gap-1">
                 {diary.emotion_tags.slice(0, 3).map((tag) => (
                   <span key={tag} className="text-xs bg-muted px-2 py-0.5 rounded-full">
@@ -53,8 +56,8 @@ export function PrivateSummaryCard() {
           ) : (
             <EmptyState
               icon={<BookOpen />}
-              title="아직 일기가 없어요"
-              description="오늘의 감정과 이야기를 기록해보세요"
+              title={t('noDiaryYet')}
+              description={t('noDiaryDesc')}
             />
           )}
         </CardContent>

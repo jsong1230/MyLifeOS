@@ -1,4 +1,5 @@
 import { NextResponse, type NextRequest } from 'next/server'
+import { apiError } from '@/lib/api-errors'
 import { createClient } from '@/lib/supabase/server'
 import type { CreateBudgetInput, BudgetStatus } from '@/types/budget'
 
@@ -39,10 +40,7 @@ export async function GET(request: NextRequest) {
       error: authError,
     } = await supabase.auth.getUser()
     if (authError || !user) {
-      return NextResponse.json(
-        { success: false, error: '인증이 필요합니다' },
-        { status: 401 }
-      )
+      return apiError('AUTH_REQUIRED')
     }
 
     // month 파라미터 처리 (기본값: 현재 월)
@@ -55,27 +53,21 @@ export async function GET(request: NextRequest) {
     // YYYY-MM 형식 검증
     const monthRange = getMonthRange(targetMonth)
     if (!monthRange) {
-      return NextResponse.json(
-        { success: false, error: '유효하지 않은 월 형식입니다 (YYYY-MM)' },
-        { status: 400 }
-      )
+      return apiError('VALIDATION_ERROR')
     }
 
     // 해당 월 예산 목록 조회 (카테고리 조인)
     const { data: budgets, error: budgetsError } = await supabase
       .from('budgets')
       .select(
-        'id, user_id, category_id, amount, year_month, created_at, updated_at, category:categories(id, name, icon, color, type, is_system, sort_order, created_at)'
+        'id, user_id, category_id, amount, year_month, currency, created_at, updated_at, category:categories(id, name, icon, color, type, is_system, sort_order, created_at)'
       )
       .eq('user_id', user.id)
       .eq('year_month', targetMonth)
       .order('created_at', { ascending: true })
 
     if (budgetsError) {
-      return NextResponse.json(
-        { success: false, error: '예산 목록을 조회할 수 없습니다' },
-        { status: 500 }
-      )
+      return apiError('SERVER_ERROR')
     }
 
     if (!budgets || budgets.length === 0) {
@@ -99,10 +91,7 @@ export async function GET(request: NextRequest) {
       .in('category_id', categoryIds.length > 0 ? categoryIds : [''])
 
     if (spentError) {
-      return NextResponse.json(
-        { success: false, error: '지출 데이터를 조회할 수 없습니다' },
-        { status: 500 }
-      )
+      return apiError('SERVER_ERROR')
     }
 
     // 카테고리 ID → 지출 합계 매핑
@@ -131,6 +120,7 @@ export async function GET(request: NextRequest) {
           : (budget.category ?? null),
         amount,
         year_month: budget.year_month,
+        currency: (budget.currency as import('@/lib/currency').CurrencyCode) ?? 'KRW',
         created_at: budget.created_at,
         updated_at: budget.updated_at,
         spent,
@@ -141,10 +131,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ success: true, data: result })
   } catch {
-    return NextResponse.json(
-      { success: false, error: '서버 오류가 발생했습니다' },
-      { status: 500 }
-    )
+    return apiError('SERVER_ERROR')
   }
 }
 
@@ -162,50 +149,32 @@ export async function POST(request: NextRequest) {
       error: authError,
     } = await supabase.auth.getUser()
     if (authError || !user) {
-      return NextResponse.json(
-        { success: false, error: '인증이 필요합니다' },
-        { status: 401 }
-      )
+      return apiError('AUTH_REQUIRED')
     }
 
     let body: CreateBudgetInput
     try {
       body = (await request.json()) as CreateBudgetInput
     } catch {
-      return NextResponse.json(
-        { success: false, error: '잘못된 요청 형식입니다' },
-        { status: 400 }
-      )
+      return apiError('VALIDATION_ERROR')
     }
 
     // 필수 입력값 검증
     if (body.amount === undefined || body.amount === null) {
-      return NextResponse.json(
-        { success: false, error: '예산 금액은 필수입니다' },
-        { status: 400 }
-      )
+      return apiError('VALIDATION_ERROR')
     }
 
     if (typeof body.amount !== 'number' || body.amount <= 0) {
-      return NextResponse.json(
-        { success: false, error: '예산 금액은 0보다 큰 숫자여야 합니다' },
-        { status: 400 }
-      )
+      return apiError('VALIDATION_ERROR')
     }
 
     if (!body.year_month) {
-      return NextResponse.json(
-        { success: false, error: '예산 월은 필수입니다' },
-        { status: 400 }
-      )
+      return apiError('VALIDATION_ERROR')
     }
 
     const monthRange = getMonthRange(body.year_month)
     if (!monthRange) {
-      return NextResponse.json(
-        { success: false, error: '유효하지 않은 월 형식입니다 (YYYY-MM)' },
-        { status: 400 }
-      )
+      return apiError('VALIDATION_ERROR')
     }
 
     // upsert: user_id + category_id + year_month 복합 유니크 조건으로 충돌 시 업데이트
@@ -217,6 +186,7 @@ export async function POST(request: NextRequest) {
           category_id: body.category_id ?? null,
           amount: body.amount,
           year_month: body.year_month,
+          currency: body.currency ?? 'KRW',
           updated_at: new Date().toISOString(),
         },
         {
@@ -225,15 +195,12 @@ export async function POST(request: NextRequest) {
         }
       )
       .select(
-        'id, user_id, category_id, amount, year_month, created_at, updated_at, category:categories(id, name, icon, color, type, is_system, sort_order, created_at)'
+        'id, user_id, category_id, amount, year_month, currency, created_at, updated_at, category:categories(id, name, icon, color, type, is_system, sort_order, created_at)'
       )
       .maybeSingle()
 
     if (upsertError || !budget) {
-      return NextResponse.json(
-        { success: false, error: '예산 저장에 실패했습니다' },
-        { status: 500 }
-      )
+      return apiError('SERVER_ERROR')
     }
 
     const normalizedBudget = {
@@ -249,9 +216,6 @@ export async function POST(request: NextRequest) {
       { status: 201 }
     )
   } catch {
-    return NextResponse.json(
-      { success: false, error: '서버 오류가 발생했습니다' },
-      { status: 500 }
-    )
+    return apiError('SERVER_ERROR')
   }
 }

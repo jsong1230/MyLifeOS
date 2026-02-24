@@ -1,4 +1,5 @@
 import { NextResponse, type NextRequest } from 'next/server'
+import { apiError } from '@/lib/api-errors'
 import { createClient } from '@/lib/supabase/server'
 import type { Asset, UpdateAssetInput } from '@/types/asset'
 
@@ -11,22 +12,22 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
   const { data: { user }, error: authError } = await supabase.auth.getUser()
 
   if (authError || !user) {
-    return NextResponse.json({ success: false, error: '인증이 필요합니다' }, { status: 401 })
+    return apiError('AUTH_REQUIRED')
   }
 
   let body: UpdateAssetInput
   try {
     body = await request.json() as UpdateAssetInput
   } catch {
-    return NextResponse.json({ success: false, error: '잘못된 요청 형식입니다' }, { status: 400 })
+    return apiError('VALIDATION_ERROR')
   }
 
   if (body.asset_type !== undefined && !VALID_ASSET_TYPES.includes(body.asset_type)) {
-    return NextResponse.json({ success: false, error: '유효하지 않은 자산 유형입니다' }, { status: 400 })
+    return apiError('VALIDATION_ERROR')
   }
 
   if (body.amount !== undefined && (isNaN(Number(body.amount)) || Number(body.amount) < 0)) {
-    return NextResponse.json({ success: false, error: '금액은 0 이상이어야 합니다' }, { status: 400 })
+    return apiError('VALIDATION_ERROR')
   }
 
   const updateData: Record<string, unknown> = {}
@@ -43,10 +44,10 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     .single()
 
   if (error) {
-    return NextResponse.json({ success: false, error: '자산 수정에 실패했습니다' }, { status: 500 })
+    return apiError('SERVER_ERROR')
   }
   if (!data) {
-    return NextResponse.json({ success: false, error: '자산을 찾을 수 없습니다' }, { status: 404 })
+    return apiError('NOT_FOUND')
   }
 
   return NextResponse.json({ success: true, data: data as Asset })
@@ -59,7 +60,7 @@ export async function DELETE(_request: NextRequest, { params }: { params: Promis
   const { data: { user }, error: authError } = await supabase.auth.getUser()
 
   if (authError || !user) {
-    return NextResponse.json({ success: false, error: '인증이 필요합니다' }, { status: 401 })
+    return apiError('AUTH_REQUIRED')
   }
 
   const { error } = await supabase
@@ -69,7 +70,7 @@ export async function DELETE(_request: NextRequest, { params }: { params: Promis
     .eq('user_id', user.id)
 
   if (error) {
-    return NextResponse.json({ success: false, error: '자산 삭제에 실패했습니다' }, { status: 500 })
+    return apiError('SERVER_ERROR')
   }
 
   return NextResponse.json({ success: true, data: null })

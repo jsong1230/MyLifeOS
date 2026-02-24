@@ -1,4 +1,5 @@
 import { NextResponse, type NextRequest } from 'next/server'
+import { apiError } from '@/lib/api-errors'
 import { createClient } from '@/lib/supabase/server'
 import type { CreateMealInput, MealLog } from '@/types/health'
 
@@ -15,10 +16,7 @@ export async function GET(request: NextRequest) {
   } = await supabase.auth.getUser()
 
   if (authError || !user) {
-    return NextResponse.json(
-      { success: false, error: '인증이 필요합니다' },
-      { status: 401 }
-    )
+    return apiError('AUTH_REQUIRED')
   }
 
   const { searchParams } = new URL(request.url)
@@ -30,10 +28,7 @@ export async function GET(request: NextRequest) {
 
   if (rawDate) {
     if (!datePattern.test(rawDate)) {
-      return NextResponse.json(
-        { success: false, error: '날짜 형식이 올바르지 않습니다 (YYYY-MM-DD)' },
-        { status: 400 }
-      )
+      return apiError('VALIDATION_ERROR')
     }
     targetDate = rawDate
   } else {
@@ -49,10 +44,7 @@ export async function GET(request: NextRequest) {
     .order('created_at', { ascending: true })
 
   if (error) {
-    return NextResponse.json(
-      { success: false, error: '식사 목록 조회에 실패했습니다' },
-      { status: 500 }
-    )
+    return apiError('SERVER_ERROR')
   }
 
   // 식사 유형별 순서로 정렬 (breakfast → lunch → dinner → snack)
@@ -74,56 +66,38 @@ export async function POST(request: NextRequest) {
   } = await supabase.auth.getUser()
 
   if (authError || !user) {
-    return NextResponse.json(
-      { success: false, error: '인증이 필요합니다' },
-      { status: 401 }
-    )
+    return apiError('AUTH_REQUIRED')
   }
 
   let body: CreateMealInput
   try {
     body = await request.json() as CreateMealInput
   } catch {
-    return NextResponse.json(
-      { success: false, error: '잘못된 요청 형식입니다' },
-      { status: 400 }
-    )
+    return apiError('VALIDATION_ERROR')
   }
 
   // 식사 유형 필수 검증
   const validMealTypes = ['breakfast', 'lunch', 'dinner', 'snack']
   if (!body.meal_type || !validMealTypes.includes(body.meal_type)) {
-    return NextResponse.json(
-      { success: false, error: '유효하지 않은 식사 유형입니다 (breakfast/lunch/dinner/snack)' },
-      { status: 400 }
-    )
+    return apiError('VALIDATION_ERROR')
   }
 
   // 음식명 필수 검증
   if (!body.food_name || typeof body.food_name !== 'string' || body.food_name.trim() === '') {
-    return NextResponse.json(
-      { success: false, error: '음식명은 필수입니다' },
-      { status: 400 }
-    )
+    return apiError('VALIDATION_ERROR')
   }
 
   // 칼로리 검증 (입력된 경우)
   if (body.calories !== undefined && body.calories !== null) {
     if (typeof body.calories !== 'number' || body.calories < 0) {
-      return NextResponse.json(
-        { success: false, error: '칼로리는 0 이상의 숫자여야 합니다' },
-        { status: 400 }
-      )
+      return apiError('VALIDATION_ERROR')
     }
   }
 
   // 날짜 형식 검증
   const datePattern = /^\d{4}-\d{2}-\d{2}$/
   if (body.date && !datePattern.test(body.date)) {
-    return NextResponse.json(
-      { success: false, error: '날짜 형식이 올바르지 않습니다 (YYYY-MM-DD)' },
-      { status: 400 }
-    )
+    return apiError('VALIDATION_ERROR')
   }
 
   const insertData = {
@@ -144,10 +118,7 @@ export async function POST(request: NextRequest) {
     .maybeSingle()
 
   if (error) {
-    return NextResponse.json(
-      { success: false, error: '식사 기록 생성에 실패했습니다' },
-      { status: 500 }
-    )
+    return apiError('SERVER_ERROR')
   }
 
   return NextResponse.json({ success: true, data: data as MealLog }, { status: 201 })

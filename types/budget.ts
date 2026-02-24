@@ -1,4 +1,5 @@
 import type { Category } from './category'
+import type { CurrencyCode } from '@/lib/currency'
 
 export interface Budget {
   id: string
@@ -7,6 +8,7 @@ export interface Budget {
   category?: Category | null  // 조인 시 포함
   amount: number
   year_month: string  // 'YYYY-MM'
+  currency: CurrencyCode
   created_at: string
   updated_at: string
 }
@@ -15,10 +17,12 @@ export interface CreateBudgetInput {
   category_id?: string
   amount: number
   year_month: string
+  currency?: CurrencyCode
 }
 
 export interface UpdateBudgetInput {
   amount: number
+  currency?: CurrencyCode
 }
 
 // 예산 대비 지출 현황

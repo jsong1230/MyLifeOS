@@ -1,4 +1,5 @@
 import { NextResponse, type NextRequest } from 'next/server'
+import { apiError } from '@/lib/api-errors'
 import { createClient } from '@/lib/supabase/server'
 import type { UpdateRecurringInput, RecurringExpense } from '@/types/recurring'
 
@@ -14,10 +15,7 @@ export async function PATCH(
   } = await supabase.auth.getUser()
 
   if (authError || !user) {
-    return NextResponse.json(
-      { success: false, error: '인증이 필요합니다' },
-      { status: 401 }
-    )
+    return apiError('AUTH_REQUIRED')
   }
 
   const { id } = await params
@@ -26,29 +24,20 @@ export async function PATCH(
   try {
     body = await request.json() as UpdateRecurringInput
   } catch {
-    return NextResponse.json(
-      { success: false, error: '잘못된 요청 형식입니다' },
-      { status: 400 }
-    )
+    return apiError('VALIDATION_ERROR')
   }
 
   // 이름 검증 (입력된 경우)
   if (body.name !== undefined) {
     if (typeof body.name !== 'string' || body.name.trim() === '') {
-      return NextResponse.json(
-        { success: false, error: '이름은 빈 값일 수 없습니다' },
-        { status: 400 }
-      )
+      return apiError('VALIDATION_ERROR')
     }
   }
 
   // 금액 검증 (입력된 경우)
   if (body.amount !== undefined) {
     if (typeof body.amount !== 'number' || body.amount <= 0) {
-      return NextResponse.json(
-        { success: false, error: '금액은 0보다 커야 합니다' },
-        { status: 400 }
-      )
+      return apiError('VALIDATION_ERROR')
     }
   }
 
@@ -59,19 +48,13 @@ export async function PATCH(
       body.billing_day < 1 ||
       body.billing_day > 31
     ) {
-      return NextResponse.json(
-        { success: false, error: '결제일은 1에서 31 사이의 정수여야 합니다' },
-        { status: 400 }
-      )
+      return apiError('VALIDATION_ERROR')
     }
   }
 
   // 주기 검증 (입력된 경우)
   if (body.cycle !== undefined && !['monthly', 'yearly'].includes(body.cycle)) {
-    return NextResponse.json(
-      { success: false, error: '유효하지 않은 주기입니다' },
-      { status: 400 }
-    )
+    return apiError('VALIDATION_ERROR')
   }
 
   // 업데이트할 필드 구성
@@ -84,10 +67,7 @@ export async function PATCH(
   if (body.is_active !== undefined) updateData.is_active = body.is_active
 
   if (Object.keys(updateData).length === 0) {
-    return NextResponse.json(
-      { success: false, error: '수정할 필드가 없습니다' },
-      { status: 400 }
-    )
+    return apiError('VALIDATION_ERROR')
   }
 
   const { data, error } = await supabase
@@ -99,17 +79,11 @@ export async function PATCH(
     .maybeSingle()
 
   if (error) {
-    return NextResponse.json(
-      { success: false, error: '정기 지출 수정에 실패했습니다' },
-      { status: 500 }
-    )
+    return apiError('SERVER_ERROR')
   }
 
   if (!data) {
-    return NextResponse.json(
-      { success: false, error: '정기 지출 항목을 찾을 수 없습니다' },
-      { status: 404 }
-    )
+    return apiError('NOT_FOUND')
   }
 
   return NextResponse.json({ success: true, data: data as RecurringExpense })
@@ -127,10 +101,7 @@ export async function DELETE(
   } = await supabase.auth.getUser()
 
   if (authError || !user) {
-    return NextResponse.json(
-      { success: false, error: '인증이 필요합니다' },
-      { status: 401 }
-    )
+    return apiError('AUTH_REQUIRED')
   }
 
   const { id } = await params
@@ -142,10 +113,7 @@ export async function DELETE(
     .eq('user_id', user.id)
 
   if (error) {
-    return NextResponse.json(
-      { success: false, error: '정기 지출 삭제에 실패했습니다' },
-      { status: 500 }
-    )
+    return apiError('SERVER_ERROR')
   }
 
   return NextResponse.json({ success: true, data: null })

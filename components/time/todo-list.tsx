@@ -1,5 +1,6 @@
 'use client'
 
+import { useTranslations } from 'next-intl'
 import {
   DndContext,
   closestCenter,
@@ -28,6 +29,7 @@ interface TodoListProps {
 
 // 할일 목록 컴포넌트 — DnD Sortable 지원
 export function TodoList({ todos, onToggle, onEdit, onDelete, onReorder }: TodoListProps) {
+  const t = useTranslations('time.todos')
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
@@ -65,9 +67,9 @@ export function TodoList({ todos, onToggle, onEdit, onDelete, onReorder }: TodoL
   if (todos.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-16 text-center">
-        <p className="text-muted-foreground text-sm">할일이 없습니다</p>
+        <p className="text-muted-foreground text-sm">{t('noData')}</p>
         <p className="text-muted-foreground/60 text-xs mt-1">
-          오른쪽 하단의 + 버튼으로 할일을 추가해보세요
+          {t('addFirstHint')}
         </p>
       </div>
     )

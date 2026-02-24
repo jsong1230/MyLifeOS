@@ -2,6 +2,7 @@
 
 import { useQuery } from '@tanstack/react-query'
 import Link from 'next/link'
+import { useTranslations } from 'next-intl'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { EmptyState } from '@/components/dashboard/empty-state'
 import { Wallet, ChevronRight, TrendingUp, TrendingDown } from 'lucide-react'
@@ -19,6 +20,8 @@ function formatAmount(amount: number): string {
 // 금전 모듈 요약 카드 — 이번 달 수입/지출 합계
 export function MoneySummaryCard() {
   const month = getCurrentMonth()
+  const t = useTranslations('dashboard')
+  const commonT = useTranslations('common')
 
   const { data: transactions, isLoading } = useQuery<Transaction[]>({
     queryKey: ['transactions', month],
@@ -40,23 +43,23 @@ export function MoneySummaryCard() {
         <CardHeader className="flex flex-row items-center justify-between pb-2">
           <div className="flex items-center gap-2">
             <Wallet className="w-4 h-4 text-primary" />
-            <span className="text-sm font-medium">금전 관리</span>
+            <span className="text-sm font-medium">{t('moneySummary')}</span>
           </div>
           <ChevronRight className="w-4 h-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
           {isLoading ? (
-            <p className="text-xs text-muted-foreground">불러오는 중...</p>
+            <p className="text-xs text-muted-foreground">{commonT('loading')}</p>
           ) : hasData ? (
             <div className="space-y-1.5">
-              <p className="text-xs text-muted-foreground">이번 달</p>
+              <p className="text-xs text-muted-foreground">{t('thisMonth')}</p>
               <div className="flex items-center gap-1">
                 <TrendingUp className="w-3 h-3 text-green-500" />
-                <span className="text-xs text-green-600">수입 {formatAmount(income)}원</span>
+                <span className="text-xs text-green-600">{t('income')} {formatAmount(income)}원</span>
               </div>
               <div className="flex items-center gap-1">
                 <TrendingDown className="w-3 h-3 text-red-500" />
-                <span className="text-xs text-red-600">지출 {formatAmount(expense)}원</span>
+                <span className="text-xs text-red-600">{t('expense')} {formatAmount(expense)}원</span>
               </div>
               <div className="pt-1 border-t">
                 <span
@@ -72,8 +75,8 @@ export function MoneySummaryCard() {
           ) : (
             <EmptyState
               icon={<Wallet />}
-              title="이번 달 지출 기록이 없어요"
-              description="지출을 기록하고 예산을 관리해보세요"
+              title={t('noTransactionsYet')}
+              description={t('addTransactionDesc')}
             />
           )}
         </CardContent>

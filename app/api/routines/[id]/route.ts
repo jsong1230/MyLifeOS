@@ -1,4 +1,5 @@
 import { NextResponse, type NextRequest } from 'next/server'
+import { apiError } from '@/lib/api-errors'
 import { createClient } from '@/lib/supabase/server'
 import type { UpdateRoutineInput } from '@/types/routine'
 
@@ -19,16 +20,13 @@ export async function PATCH(
       error: authError,
     } = await supabase.auth.getUser()
     if (authError || !user) {
-      return NextResponse.json({ error: '인증이 필요합니다' }, { status: 401 })
+      return apiError('AUTH_REQUIRED')
     }
 
     const { id } = await params
 
     if (!id) {
-      return NextResponse.json(
-        { error: '루틴 ID가 필요합니다' },
-        { status: 400 }
-      )
+      return apiError('VALIDATION_ERROR')
     }
 
     // 루틴 존재 여부 및 소유권 확인
@@ -40,37 +38,25 @@ export async function PATCH(
       .maybeSingle()
 
     if (fetchError) {
-      return NextResponse.json(
-        { error: '루틴 조회에 실패했습니다' },
-        { status: 500 }
-      )
+      return apiError('SERVER_ERROR')
     }
 
     if (!existing) {
-      return NextResponse.json(
-        { error: '루틴을 찾을 수 없습니다' },
-        { status: 404 }
-      )
+      return apiError('NOT_FOUND')
     }
 
     const body = (await request.json()) as UpdateRoutineInput
 
     // 입력값 검증
     if (body.title !== undefined && body.title.trim() === '') {
-      return NextResponse.json(
-        { error: '루틴 제목은 비워둘 수 없습니다' },
-        { status: 400 }
-      )
+      return apiError('VALIDATION_ERROR')
     }
 
     if (
       body.frequency !== undefined &&
       !['daily', 'weekly', 'custom'].includes(body.frequency)
     ) {
-      return NextResponse.json(
-        { error: '반복 주기는 daily, weekly, custom 중 하나여야 합니다' },
-        { status: 400 }
-      )
+      return apiError('VALIDATION_ERROR')
     }
 
     // 업데이트할 데이터 구성
@@ -108,18 +94,12 @@ export async function PATCH(
       .maybeSingle()
 
     if (updateError || !updated) {
-      return NextResponse.json(
-        { error: '루틴 수정에 실패했습니다' },
-        { status: 500 }
-      )
+      return apiError('SERVER_ERROR')
     }
 
     return NextResponse.json({ success: true, data: updated })
   } catch {
-    return NextResponse.json(
-      { error: '서버 오류가 발생했습니다' },
-      { status: 500 }
-    )
+    return apiError('SERVER_ERROR')
   }
 }
 
@@ -140,16 +120,13 @@ export async function DELETE(
       error: authError,
     } = await supabase.auth.getUser()
     if (authError || !user) {
-      return NextResponse.json({ error: '인증이 필요합니다' }, { status: 401 })
+      return apiError('AUTH_REQUIRED')
     }
 
     const { id } = await params
 
     if (!id) {
-      return NextResponse.json(
-        { error: '루틴 ID가 필요합니다' },
-        { status: 400 }
-      )
+      return apiError('VALIDATION_ERROR')
     }
 
     // 소유권 확인
@@ -161,17 +138,11 @@ export async function DELETE(
       .maybeSingle()
 
     if (fetchError) {
-      return NextResponse.json(
-        { error: '루틴 조회에 실패했습니다' },
-        { status: 500 }
-      )
+      return apiError('SERVER_ERROR')
     }
 
     if (!existing) {
-      return NextResponse.json(
-        { error: '루틴을 찾을 수 없습니다' },
-        { status: 404 }
-      )
+      return apiError('NOT_FOUND')
     }
 
     const { error: deleteError } = await supabase
@@ -181,17 +152,11 @@ export async function DELETE(
       .eq('user_id', user.id)
 
     if (deleteError) {
-      return NextResponse.json(
-        { error: '루틴 삭제에 실패했습니다' },
-        { status: 500 }
-      )
+      return apiError('SERVER_ERROR')
     }
 
     return NextResponse.json({ success: true, data: { id } })
   } catch {
-    return NextResponse.json(
-      { error: '서버 오류가 발생했습니다' },
-      { status: 500 }
-    )
+    return apiError('SERVER_ERROR')
   }
 }

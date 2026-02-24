@@ -1,4 +1,5 @@
 import { NextResponse, type NextRequest } from 'next/server'
+import { apiError } from '@/lib/api-errors'
 import { createClient } from '@/lib/supabase/server'
 import type { EmotionType } from '@/types/diary'
 
@@ -18,10 +19,7 @@ export async function GET(request: NextRequest) {
   } = await supabase.auth.getUser()
 
   if (authError || !user) {
-    return NextResponse.json(
-      { success: false, error: '인증이 필요합니다' },
-      { status: 401 }
-    )
+    return apiError('AUTH_REQUIRED')
   }
 
   const { searchParams } = new URL(request.url)
@@ -30,20 +28,14 @@ export async function GET(request: NextRequest) {
 
   // 년도 및 월 파라미터 검증
   if (!year || !month) {
-    return NextResponse.json(
-      { success: false, error: 'year와 month 파라미터가 필요합니다' },
-      { status: 400 }
-    )
+    return apiError('VALIDATION_ERROR')
   }
 
   const yearNum = parseInt(year, 10)
   const monthNum = parseInt(month, 10)
 
   if (isNaN(yearNum) || isNaN(monthNum) || monthNum < 1 || monthNum > 12) {
-    return NextResponse.json(
-      { success: false, error: '유효하지 않은 year 또는 month 값입니다' },
-      { status: 400 }
-    )
+    return apiError('VALIDATION_ERROR')
   }
 
   // 해당 월의 시작일/종료일 계산
@@ -61,10 +53,7 @@ export async function GET(request: NextRequest) {
     .order('date', { ascending: true })
 
   if (error) {
-    return NextResponse.json(
-      { success: false, error: '일기 목록 조회에 실패했습니다' },
-      { status: 500 }
-    )
+    return apiError('SERVER_ERROR')
   }
 
   return NextResponse.json({ success: true, data: data as DiaryListItem[] })

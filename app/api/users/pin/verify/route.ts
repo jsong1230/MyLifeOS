@@ -1,4 +1,5 @@
 import { NextResponse, type NextRequest } from 'next/server'
+import { apiError } from '@/lib/api-errors'
 import bcrypt from 'bcryptjs'
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
@@ -19,14 +20,14 @@ export async function POST(request: NextRequest) {
     // JWT 인증 확인
     const { data: { user }, error: authError } = await supabase.auth.getUser()
     if (authError || !user) {
-      return NextResponse.json({ error: '인증이 필요합니다' }, { status: 401 })
+      return apiError('AUTH_REQUIRED')
     }
 
     const body = await request.json()
     const { pin } = body as { pin: string }
 
     if (!pin) {
-      return NextResponse.json({ error: 'PIN을 입력해주세요' }, { status: 400 })
+      return apiError('VALIDATION_ERROR')
     }
 
     // 사용자 PIN 정보 조회 (RLS 우회)
@@ -38,7 +39,7 @@ export async function POST(request: NextRequest) {
       .maybeSingle()
 
     if (fetchError) {
-      return NextResponse.json({ error: '사용자 정보를 조회할 수 없습니다' }, { status: 500 })
+      return apiError('SERVER_ERROR')
     }
 
     const { pin_hash, pin_salt, pin_locked_until } = userData ?? {
@@ -130,6 +131,6 @@ export async function POST(request: NextRequest) {
       },
     })
   } catch {
-    return NextResponse.json({ error: '서버 오류가 발생했습니다' }, { status: 500 })
+    return apiError('SERVER_ERROR')
   }
 }

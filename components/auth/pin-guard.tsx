@@ -1,6 +1,7 @@
 'use client'
 
 import { useCallback, useEffect } from 'react'
+import { useTranslations } from 'next-intl'
 import { usePinStore } from '@/store/pin.store'
 import { usePinLock } from '@/hooks/use-pin-lock'
 import { deriveKey } from '@/lib/crypto/encryption'
@@ -19,6 +20,8 @@ import type { PinGuardProps } from '@/types/pin'
 export function PinGuard({ children }: PinGuardProps) {
   // visibilitychange 감지 시작
   usePinLock()
+
+  const t = useTranslations('pin')
 
   const {
     isPinSet,
@@ -94,9 +97,9 @@ export function PinGuard({ children }: PinGuardProps) {
     if (failedAttempts === 0) return ''
     const remaining = 5 - failedAttempts
     if (remaining <= 2) {
-      return `PIN이 올바르지 않습니다 (${failedAttempts}/5). 5회 실패 시 10분간 잠깁니다`
+      return t('wrongPinLockWarning', { attempts: failedAttempts })
     }
-    return `PIN이 올바르지 않습니다 (${failedAttempts}/5)`
+    return t('wrongPin', { attempts: failedAttempts })
   }
 
   // 로딩 중
@@ -128,8 +131,8 @@ export function PinGuard({ children }: PinGuardProps) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <PinPad
-          title="PIN 입력"
-          subtitle="PIN을 입력하여 잠금을 해제하세요"
+          title={t('enterPinTitle')}
+          subtitle={t('enterPinSubtitle')}
           onComplete={handlePinVerify}
           error={getPinError()}
         />

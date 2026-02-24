@@ -2,19 +2,21 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { useTranslations } from 'next-intl'
 import { Plus, CheckSquare, Receipt, Utensils, PenLine } from 'lucide-react'
 
 const FAB_OPTIONS = [
-  { label: '할일 추가', icon: CheckSquare, href: '/time' },
-  { label: '지출 입력', icon: Receipt, href: '/money' },
-  { label: '식사 기록', icon: Utensils, href: '/health' },
-  { label: '일기 쓰기', icon: PenLine, href: '/private' },
-] as const
+  { key: 'addTodo' as const, icon: CheckSquare, href: '/time' },
+  { key: 'addExpense' as const, icon: Receipt, href: '/money' },
+  { key: 'addMeal' as const, icon: Utensils, href: '/health' },
+  { key: 'addDiary' as const, icon: PenLine, href: '/private' },
+]
 
 // Floating Action Button — 빠른 입력 진입점
 export function FAB() {
   const [expanded, setExpanded] = useState(false)
   const router = useRouter()
+  const t = useTranslations('fab')
 
   function handleOption(href: string) {
     setExpanded(false)
@@ -37,7 +39,7 @@ export function FAB() {
         {/* 옵션 버튼 목록 */}
         {expanded && (
           <div className="flex flex-col items-end gap-2">
-            {FAB_OPTIONS.map(({ label, icon: Icon, href }, i) => (
+            {FAB_OPTIONS.map(({ key, icon: Icon, href }, i) => (
               <button
                 key={href}
                 type="button"
@@ -51,7 +53,7 @@ export function FAB() {
                 <span className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center">
                   <Icon className="w-4 h-4 text-primary" aria-hidden="true" />
                 </span>
-                {label}
+                {t(key)}
               </button>
             ))}
           </div>
@@ -60,7 +62,7 @@ export function FAB() {
         {/* 메인 FAB 버튼 */}
         <button
           type="button"
-          aria-label="빠른 입력"
+          aria-label={t('quickAdd')}
           aria-expanded={expanded}
           onClick={() => setExpanded((v) => !v)}
           className="w-14 h-14 rounded-full bg-primary text-primary-foreground shadow-lg flex items-center justify-center hover:bg-primary/90 transition-colors"

@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -16,6 +17,9 @@ interface DietGoalFormProps {
 
 // 식단 목표 설정 폼 — 칼로리(필수), 단백질/탄수화물/지방(선택)
 export function DietGoalForm({ goal, onSubmit, onCancel, isLoading = false }: DietGoalFormProps) {
+  const t = useTranslations('health.meals')
+  const tCommon = useTranslations('common')
+
   const [calorieGoal, setCalorieGoal] = useState<string>(
     goal?.calorie_goal ? String(goal.calorie_goal) : ''
   )
@@ -38,7 +42,7 @@ export function DietGoalForm({ goal, onSubmit, onCancel, isLoading = false }: Di
     // 칼로리 필수 검증
     const parsedCalorie = parseInt(calorieGoal, 10)
     if (!calorieGoal || isNaN(parsedCalorie) || parsedCalorie <= 0) {
-      setError('칼로리 목표는 1 이상의 정수를 입력해주세요')
+      setError(t('caloriesRequired'))
       return
     }
 
@@ -49,15 +53,15 @@ export function DietGoalForm({ goal, onSubmit, onCancel, isLoading = false }: Di
 
     // 선택 필드 유효성 검증
     if (parsedProtein !== undefined && (isNaN(parsedProtein) || parsedProtein < 0)) {
-      setError('단백질 목표는 0 이상의 숫자를 입력해주세요')
+      setError(t('proteinGoalInvalid'))
       return
     }
     if (parsedCarbs !== undefined && (isNaN(parsedCarbs) || parsedCarbs < 0)) {
-      setError('탄수화물 목표는 0 이상의 숫자를 입력해주세요')
+      setError(t('carbsGoalInvalid'))
       return
     }
     if (parsedFat !== undefined && (isNaN(parsedFat) || parsedFat < 0)) {
-      setError('지방 목표는 0 이상의 숫자를 입력해주세요')
+      setError(t('fatGoalInvalid'))
       return
     }
 
@@ -76,7 +80,7 @@ export function DietGoalForm({ goal, onSubmit, onCancel, isLoading = false }: Di
       {/* 칼로리 목표 (필수) */}
       <div className="space-y-1.5">
         <Label htmlFor="calorie_goal">
-          일일 칼로리 목표 <span className="text-destructive">*</span>
+          {t('goalCaloriesLabel')} <span className="text-destructive">*</span>
         </Label>
         <div className="relative">
           <Input
@@ -84,7 +88,7 @@ export function DietGoalForm({ goal, onSubmit, onCancel, isLoading = false }: Di
             type="number"
             min={1}
             step={1}
-            placeholder="예: 2000"
+            placeholder={t('caloriesGoalPlaceholder')}
             value={calorieGoal}
             onChange={(e) => {
               setCalorieGoal(e.target.value)
@@ -102,14 +106,14 @@ export function DietGoalForm({ goal, onSubmit, onCancel, isLoading = false }: Di
 
       {/* 단백질 목표 (선택) */}
       <div className="space-y-1.5">
-        <Label htmlFor="protein_goal">단백질 목표 (선택)</Label>
+        <Label htmlFor="protein_goal">{t('proteinGoalLabel')}</Label>
         <div className="relative">
           <Input
             id="protein_goal"
             type="number"
             min={0}
             step={0.1}
-            placeholder="예: 60"
+            placeholder={t('proteinPlaceholder')}
             value={proteinGoal}
             onChange={(e) => {
               setProteinGoal(e.target.value)
@@ -126,14 +130,14 @@ export function DietGoalForm({ goal, onSubmit, onCancel, isLoading = false }: Di
 
       {/* 탄수화물 목표 (선택) */}
       <div className="space-y-1.5">
-        <Label htmlFor="carbs_goal">탄수화물 목표 (선택)</Label>
+        <Label htmlFor="carbs_goal">{t('carbsGoalLabel')}</Label>
         <div className="relative">
           <Input
             id="carbs_goal"
             type="number"
             min={0}
             step={0.1}
-            placeholder="예: 250"
+            placeholder={t('carbsPlaceholder')}
             value={carbsGoal}
             onChange={(e) => {
               setCarbsGoal(e.target.value)
@@ -150,14 +154,14 @@ export function DietGoalForm({ goal, onSubmit, onCancel, isLoading = false }: Di
 
       {/* 지방 목표 (선택) */}
       <div className="space-y-1.5">
-        <Label htmlFor="fat_goal">지방 목표 (선택)</Label>
+        <Label htmlFor="fat_goal">{t('fatGoalLabel')}</Label>
         <div className="relative">
           <Input
             id="fat_goal"
             type="number"
             min={0}
             step={0.1}
-            placeholder="예: 65"
+            placeholder={t('fatPlaceholder')}
             value={fatGoal}
             onChange={(e) => {
               setFatGoal(e.target.value)
@@ -189,7 +193,7 @@ export function DietGoalForm({ goal, onSubmit, onCancel, isLoading = false }: Di
             onClick={onCancel}
             disabled={isLoading}
           >
-            취소
+            {tCommon('cancel')}
           </Button>
         )}
         <Button
@@ -197,7 +201,7 @@ export function DietGoalForm({ goal, onSubmit, onCancel, isLoading = false }: Di
           className={onCancel ? 'flex-1' : 'w-full'}
           disabled={isLoading}
         >
-          {isLoading ? '저장 중...' : '목표 저장'}
+          {isLoading ? tCommon('saving') : t('saveGoal')}
         </Button>
       </div>
     </form>

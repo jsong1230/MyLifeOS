@@ -1,4 +1,5 @@
 import { NextResponse, type NextRequest } from 'next/server'
+import { apiError } from '@/lib/api-errors'
 import { createClient } from '@/lib/supabase/server'
 import type { Asset, CreateAssetInput } from '@/types/asset'
 
@@ -11,7 +12,7 @@ export async function GET(request: NextRequest) {
   const { data: { user }, error: authError } = await supabase.auth.getUser()
 
   if (authError || !user) {
-    return NextResponse.json({ success: false, error: '인증이 필요합니다' }, { status: 401 })
+    return apiError('AUTH_REQUIRED')
   }
 
   const { searchParams } = new URL(request.url)
@@ -29,7 +30,7 @@ export async function GET(request: NextRequest) {
       .order('month', { ascending: true })
 
     if (error) {
-      return NextResponse.json({ success: false, error: '자산 조회에 실패했습니다' }, { status: 500 })
+      return apiError('SERVER_ERROR')
     }
 
     // 월별 합계 집계
@@ -49,7 +50,7 @@ export async function GET(request: NextRequest) {
 
   // 특정 월 자산 목록 조회
   if (!month || !/^\d{4}-\d{2}$/.test(month)) {
-    return NextResponse.json({ success: false, error: 'month 파라미터는 YYYY-MM 형식이어야 합니다' }, { status: 400 })
+    return apiError('VALIDATION_ERROR')
   }
 
   const { data, error } = await supabase
@@ -60,7 +61,7 @@ export async function GET(request: NextRequest) {
     .order('asset_type', { ascending: true })
 
   if (error) {
-    return NextResponse.json({ success: false, error: '자산 조회에 실패했습니다' }, { status: 500 })
+    return apiError('SERVER_ERROR')
   }
 
   return NextResponse.json({ success: true, data: (data ?? []) as Asset[] })
@@ -72,26 +73,26 @@ export async function POST(request: NextRequest) {
   const { data: { user }, error: authError } = await supabase.auth.getUser()
 
   if (authError || !user) {
-    return NextResponse.json({ success: false, error: '인증이 필요합니다' }, { status: 401 })
+    return apiError('AUTH_REQUIRED')
   }
 
   let body: CreateAssetInput
   try {
     body = await request.json() as CreateAssetInput
   } catch {
-    return NextResponse.json({ success: false, error: '잘못된 요청 형식입니다' }, { status: 400 })
+    return apiError('VALIDATION_ERROR')
   }
 
   if (!VALID_ASSET_TYPES.includes(body.asset_type)) {
-    return NextResponse.json({ success: false, error: '유효하지 않은 자산 유형입니다' }, { status: 400 })
+    return apiError('VALIDATION_ERROR')
   }
 
   if (body.amount == null || isNaN(Number(body.amount)) || Number(body.amount) < 0) {
-    return NextResponse.json({ success: false, error: '금액은 0 이상이어야 합니다' }, { status: 400 })
+    return apiError('VALIDATION_ERROR')
   }
 
   if (!body.month || !/^\d{4}-\d{2}$/.test(body.month)) {
-    return NextResponse.json({ success: false, error: 'month는 YYYY-MM 형식이어야 합니다' }, { status: 400 })
+    return apiError('VALIDATION_ERROR')
   }
 
   const { data, error } = await supabase
@@ -102,12 +103,13 @@ export async function POST(request: NextRequest) {
       amount: Number(body.amount),
       note: body.note ?? null,
       month: body.month,
+      currency: body.currency ?? 'KRW',
     })
     .select('*')
     .single()
 
   if (error) {
-    return NextResponse.json({ success: false, error: '자산 추가에 실패했습니다' }, { status: 500 })
+    return apiError('SERVER_ERROR')
   }
 
   return NextResponse.json({ success: true, data: data as Asset }, { status: 201 })

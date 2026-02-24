@@ -1,9 +1,9 @@
 'use client'
 
+import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
-import { RELATIONSHIP_LABELS } from '@/types/relation'
 import type { RelationshipType, RelationDecrypted } from '@/types/relation'
 
 // 관계 유형별 배지 스타일 정의
@@ -14,20 +14,6 @@ const RELATIONSHIP_BADGE_META: Record<RelationshipType, { badgeClass: string }> 
   other: { badgeClass: 'bg-slate-100 text-slate-700 border-slate-200' },
 }
 
-// 마지막 만난 날짜를 "N일 전" 형식으로 변환하는 헬퍼
-function formatDaysAgo(dateStr: string): string {
-  const today = new Date()
-  today.setHours(0, 0, 0, 0)
-  const target = new Date(dateStr + 'T00:00:00')
-  const diffMs = today.getTime() - target.getTime()
-  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24))
-
-  if (diffDays === 0) return '오늘'
-  if (diffDays === 1) return '어제'
-  if (diffDays < 0) return `${Math.abs(diffDays)}일 후`
-  return `${diffDays.toLocaleString()}일 전`
-}
-
 interface RelationItemProps {
   relation: RelationDecrypted
   onEdit: (relation: RelationDecrypted) => void
@@ -36,7 +22,24 @@ interface RelationItemProps {
 
 // 개별 인간관계 항목 컴포넌트
 export function RelationItem({ relation, onEdit, onDelete }: RelationItemProps) {
+  const t = useTranslations('private.relations')
+  const tCommon = useTranslations('common')
+
   const badgeMeta = RELATIONSHIP_BADGE_META[relation.relationship_type]
+
+  // 마지막 만난 날짜를 "N일 전" 형식으로 변환하는 헬퍼
+  function formatDaysAgo(dateStr: string): string {
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+    const target = new Date(dateStr + 'T00:00:00')
+    const diffMs = today.getTime() - target.getTime()
+    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24))
+
+    if (diffDays === 0) return t('today')
+    if (diffDays === 1) return t('yesterday')
+    if (diffDays < 0) return t('daysLater', { days: Math.abs(diffDays) })
+    return t('daysAgo', { days: diffDays.toLocaleString() })
+  }
 
   return (
     <div className="flex items-start justify-between py-3 px-1 gap-3">
@@ -46,7 +49,7 @@ export function RelationItem({ relation, onEdit, onDelete }: RelationItemProps) 
           variant="outline"
           className={cn('shrink-0 text-xs font-medium mt-0.5', badgeMeta.badgeClass)}
         >
-          {RELATIONSHIP_LABELS[relation.relationship_type]}
+          {t(`types.${relation.relationship_type}`)}
         </Badge>
 
         {/* 이름 + 날짜 + 메모 */}
@@ -56,7 +59,7 @@ export function RelationItem({ relation, onEdit, onDelete }: RelationItemProps) 
           {/* 마지막 만난 날짜 — 입력된 경우에만 표시 */}
           {relation.last_met_at && (
             <p className="text-xs text-muted-foreground mt-0.5">
-              마지막 만남: {formatDaysAgo(relation.last_met_at)}
+              {t('lastMeetLabel')} {formatDaysAgo(relation.last_met_at)}
               <span className="ml-1 text-muted-foreground/60">({relation.last_met_at})</span>
             </p>
           )}
@@ -77,18 +80,18 @@ export function RelationItem({ relation, onEdit, onDelete }: RelationItemProps) 
           size="sm"
           onClick={() => onEdit(relation)}
           className="h-8 px-2 text-xs text-muted-foreground hover:text-foreground"
-          aria-label={`${relation.name} 수정`}
+          aria-label={`${relation.name} ${tCommon('edit')}`}
         >
-          수정
+          {tCommon('edit')}
         </Button>
         <Button
           variant="ghost"
           size="sm"
           onClick={() => onDelete(relation.id)}
           className="h-8 px-2 text-xs text-destructive hover:text-destructive hover:bg-destructive/10"
-          aria-label={`${relation.name} 삭제`}
+          aria-label={`${relation.name} ${tCommon('delete')}`}
         >
-          삭제
+          {tCommon('delete')}
         </Button>
       </div>
     </div>

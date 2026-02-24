@@ -1,4 +1,5 @@
 import type { Category } from './category'
+import type { CurrencyCode } from '@/lib/currency'
 
 export type TransactionType = 'income' | 'expense'
 
@@ -12,6 +13,7 @@ export interface Transaction {
   memo?: string | null
   date: string  // DATE (ISO string)
   is_favorite: boolean
+  currency: CurrencyCode
   created_at: string
   updated_at: string
 }
@@ -23,6 +25,7 @@ export interface CreateTransactionInput {
   memo?: string
   date?: string
   is_favorite?: boolean
+  currency?: CurrencyCode
 }
 
 export interface UpdateTransactionInput {
@@ -32,6 +35,7 @@ export interface UpdateTransactionInput {
   memo?: string | null
   date?: string
   is_favorite?: boolean
+  currency?: CurrencyCode
 }
 
 export interface TransactionFilter {

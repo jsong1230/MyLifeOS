@@ -1,5 +1,6 @@
 'use client'
 
+import { useTranslations } from 'next-intl'
 import { cn } from '@/lib/utils'
 import {
   Card,
@@ -75,6 +76,8 @@ function NutrientBar({
 
 // 식단 목표 달성 프로그레스 카드
 export function DietGoalProgress({ goal, consumed }: DietGoalProgressProps) {
+  const t = useTranslations('health.meals')
+
   // 칼로리 달성률 계산
   const caloriePercentage =
     goal.calorie_goal > 0 ? (consumed.calories / goal.calorie_goal) * 100 : 0
@@ -88,7 +91,7 @@ export function DietGoalProgress({ goal, consumed }: DietGoalProgressProps) {
     <Card className={cn(isExceeded && 'border-red-400')}>
       <CardHeader className="pb-2">
         <div className="flex items-center justify-between">
-          <CardTitle className="text-base">오늘의 칼로리 목표</CardTitle>
+          <CardTitle className="text-base">{t('caloriesGoalTitle')}</CardTitle>
           {/* AC-03: 목표 초과 시 경고 배지 */}
           {isExceeded && (
             <span
@@ -96,7 +99,7 @@ export function DietGoalProgress({ goal, consumed }: DietGoalProgressProps) {
               role="alert"
               aria-live="polite"
             >
-              목표 초과
+              {t('goalExceeded')}
             </span>
           )}
         </div>
@@ -106,10 +109,10 @@ export function DietGoalProgress({ goal, consumed }: DietGoalProgressProps) {
         <div className="space-y-2">
           <div className="flex justify-between text-sm">
             <span className="font-medium">
-              {consumed.calories.toLocaleString()} kcal 섭취
+              {t('caloriesConsumed', { calories: consumed.calories.toLocaleString() })}
             </span>
             <span className="text-muted-foreground">
-              목표 {goal.calorie_goal.toLocaleString()} kcal
+              {t('caloriesGoal', { goal: goal.calorie_goal.toLocaleString() })}
             </span>
           </div>
 
@@ -121,7 +124,7 @@ export function DietGoalProgress({ goal, consumed }: DietGoalProgressProps) {
               role="progressbar"
               aria-valuenow={consumed.calories}
               aria-valuemax={goal.calorie_goal}
-              aria-label={`칼로리 ${consumed.calories}kcal / ${goal.calorie_goal}kcal`}
+              aria-label={`${t('caloriesConsumed', { calories: consumed.calories })} / ${goal.calorie_goal}kcal`}
             />
           </div>
 
@@ -132,10 +135,10 @@ export function DietGoalProgress({ goal, consumed }: DietGoalProgressProps) {
               isExceeded ? 'text-red-600 font-medium' : 'text-muted-foreground'
             )}
           >
-            {Math.round(caloriePercentage)}% 달성
+            {t('achievePercent', { percent: Math.round(caloriePercentage) })}
             {isExceeded && (
               <span className="ml-1">
-                (+{(consumed.calories - goal.calorie_goal).toLocaleString()} kcal 초과)
+                ({t('exceedKcal', { excess: (consumed.calories - goal.calorie_goal).toLocaleString() })})
               </span>
             )}
           </p>
@@ -144,10 +147,10 @@ export function DietGoalProgress({ goal, consumed }: DietGoalProgressProps) {
         {/* 영양소별 진행바 (목표가 설정된 경우에만 표시) */}
         {(goal.protein_goal != null || goal.carbs_goal != null || goal.fat_goal != null) && (
           <div className="space-y-2 pt-1 border-t">
-            <p className="text-xs text-muted-foreground font-medium">영양소 목표</p>
+            <p className="text-xs text-muted-foreground font-medium">{t('nutrientsTitle')}</p>
             {goal.protein_goal != null && (
               <NutrientBar
-                label="단백질"
+                label={t('protein')}
                 consumed={consumed.protein ?? 0}
                 goal={Number(goal.protein_goal)}
                 unit="g"
@@ -155,7 +158,7 @@ export function DietGoalProgress({ goal, consumed }: DietGoalProgressProps) {
             )}
             {goal.carbs_goal != null && (
               <NutrientBar
-                label="탄수화물"
+                label={t('carbs')}
                 consumed={consumed.carbs ?? 0}
                 goal={Number(goal.carbs_goal)}
                 unit="g"
@@ -163,7 +166,7 @@ export function DietGoalProgress({ goal, consumed }: DietGoalProgressProps) {
             )}
             {goal.fat_goal != null && (
               <NutrientBar
-                label="지방"
+                label={t('fat')}
                 consumed={consumed.fat ?? 0}
                 goal={Number(goal.fat_goal)}
                 unit="g"

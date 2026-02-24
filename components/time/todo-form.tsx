@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, type FormEvent } from 'react'
+import { useTranslations } from 'next-intl'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
@@ -23,6 +24,8 @@ interface TodoFormProps {
 
 // 할일 생성/수정 폼 컴포넌트
 export function TodoForm({ todo, onSubmit, onCancel, isLoading = false }: TodoFormProps) {
+  const t = useTranslations('time.todos')
+  const tCommon = useTranslations('common')
   const [title, setTitle] = useState(todo?.title ?? '')
   const [dueDate, setDueDate] = useState(todo?.due_date ?? '')
   const [priority, setPriority] = useState<TodoPriority>(todo?.priority ?? 'medium')
@@ -46,19 +49,19 @@ export function TodoForm({ todo, onSubmit, onCancel, isLoading = false }: TodoFo
   return (
     <Card>
       <CardHeader>
-        <CardTitle>{isEditMode ? '할일 수정' : '새 할일 추가'}</CardTitle>
+        <CardTitle>{isEditMode ? t('editTitle') : t('addTitle')}</CardTitle>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           {/* 제목 */}
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="todo-title">
-              제목 <span className="text-destructive">*</span>
+              {t('titleLabel')} <span className="text-destructive">*</span>
             </Label>
             <Input
               id="todo-title"
               type="text"
-              placeholder="할일 제목을 입력하세요"
+              placeholder={t('titlePlaceholder')}
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               required
@@ -69,7 +72,7 @@ export function TodoForm({ todo, onSubmit, onCancel, isLoading = false }: TodoFo
 
           {/* 마감일 */}
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor="todo-due-date">마감일</Label>
+            <Label htmlFor="todo-due-date">{t('dueDate')}</Label>
             <Input
               id="todo-due-date"
               type="date"
@@ -81,30 +84,30 @@ export function TodoForm({ todo, onSubmit, onCancel, isLoading = false }: TodoFo
 
           {/* 우선순위 */}
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor="todo-priority">우선순위</Label>
+            <Label htmlFor="todo-priority">{t('priority')}</Label>
             <Select
               value={priority}
               onValueChange={(value) => setPriority(value as TodoPriority)}
               disabled={isLoading}
             >
               <SelectTrigger id="todo-priority">
-                <SelectValue placeholder="우선순위 선택" />
+                <SelectValue placeholder={t('priority')} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="high">높음</SelectItem>
-                <SelectItem value="medium">중간</SelectItem>
-                <SelectItem value="low">낮음</SelectItem>
+                <SelectItem value="high">{t('priorities.high')}</SelectItem>
+                <SelectItem value="medium">{t('priorities.medium')}</SelectItem>
+                <SelectItem value="low">{t('priorities.low')}</SelectItem>
               </SelectContent>
             </Select>
           </div>
 
           {/* 카테고리 */}
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor="todo-category">카테고리</Label>
+            <Label htmlFor="todo-category">{tCommon('category')}</Label>
             <Input
               id="todo-category"
               type="text"
-              placeholder="카테고리 (선택사항)"
+              placeholder={`${tCommon('category')} (${tCommon('optional')})`}
               value={category}
               onChange={(e) => setCategory(e.target.value)}
               disabled={isLoading}
@@ -121,11 +124,11 @@ export function TodoForm({ todo, onSubmit, onCancel, isLoading = false }: TodoFo
                 onClick={onCancel}
                 disabled={isLoading}
               >
-                취소
+                {tCommon('cancel')}
               </Button>
             )}
             <Button type="submit" disabled={isLoading || title.trim() === ''}>
-              {isLoading ? '저장 중...' : isEditMode ? '수정' : '추가'}
+              {isLoading ? tCommon('saving') : isEditMode ? tCommon('update') : tCommon('add')}
             </Button>
           </div>
         </form>

@@ -1,5 +1,6 @@
 'use client'
 
+import { useTranslations } from 'next-intl'
 import { RoutineItem } from '@/components/time/routine-item'
 import { Separator } from '@/components/ui/separator'
 import type { Routine, RoutineWithLog } from '@/types/routine'
@@ -24,6 +25,7 @@ export function RoutineList({
   onDelete,
   onToggleActive,
 }: RoutineListProps) {
+  const t = useTranslations('time.routines')
   // 완료/미완료 분리
   const pending = routines.filter((r) => !r.log?.completed)
   const completed = routines.filter((r) => r.log?.completed)
@@ -33,10 +35,10 @@ export function RoutineList({
     return (
       <div className="flex flex-col items-center justify-center py-12 text-center">
         <p className="text-muted-foreground text-sm">
-          오늘 예정된 루틴이 없습니다.
+          {t('todayEmpty')}
         </p>
         <p className="text-muted-foreground text-xs mt-1">
-          + 루틴 추가 버튼을 눌러 새 루틴을 만들어보세요
+          {t('addFirstHint')}
         </p>
       </div>
     )
@@ -46,7 +48,7 @@ export function RoutineList({
     <div className="space-y-4">
       {/* 미완료 루틴 */}
       {pending.length > 0 && (
-        <section aria-label="미완료 루틴">
+        <section aria-label={t('noData')}>
           <div className="space-y-2">
             {pending.map((routine) => (
               <RoutineItem
@@ -66,14 +68,14 @@ export function RoutineList({
       {pending.length > 0 && completed.length > 0 && (
         <div className="flex items-center gap-2">
           <Separator className="flex-1" />
-          <span className="text-xs text-muted-foreground shrink-0">완료됨</span>
+          <span className="text-xs text-muted-foreground shrink-0">{t('completedLabel')}</span>
           <Separator className="flex-1" />
         </div>
       )}
 
       {/* 완료 루틴 */}
       {completed.length > 0 && (
-        <section aria-label="완료 루틴">
+        <section aria-label={t('completedLabel')}>
           <div className="space-y-2">
             {completed.map((routine) => (
               <RoutineItem

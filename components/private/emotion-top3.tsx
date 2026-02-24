@@ -1,6 +1,7 @@
 'use client'
 
-import { EMOTION_ICONS, EMOTION_LABELS, type EmotionType } from '@/types/diary'
+import { useTranslations } from 'next-intl'
+import { EMOTION_ICONS, type EmotionType } from '@/types/diary'
 import type { EmotionStatsData } from '@/app/api/diaries/emotion-stats/route'
 
 interface EmotionTop3Props {
@@ -23,32 +24,34 @@ const RANK_STYLES: Record<number, { badge: string; card: string }> = {
   },
 }
 
-// 순위 레이블
-const RANK_LABELS: Record<number, string> = {
-  1: '1위',
-  2: '2위',
-  3: '3위',
-}
-
 // 감정 TOP 3 하이라이트 컴포넌트
 export function EmotionTop3({ stats }: EmotionTop3Props) {
+  const t = useTranslations('private.emotions')
+
   const { top3, emotion_counts } = stats
+
+  // 순위 레이블 매핑
+  const rankLabels: Record<number, string> = {
+    1: t('rankFirst'),
+    2: t('rankSecond'),
+    3: t('rankThird'),
+  }
 
   // top3가 비어있으면 안내 메시지 표시
   if (top3.length === 0) {
     return (
-      <section aria-label="이번 달 감정 TOP 3">
-        <h2 className="text-sm font-semibold text-foreground mb-3">이번 달 감정 TOP 3</h2>
+      <section aria-label={t('monthlyTop3')}>
+        <h2 className="text-sm font-semibold text-foreground mb-3">{t('monthlyTop3')}</h2>
         <p className="text-sm text-muted-foreground text-center py-4">
-          아직 감정 기록이 없습니다
+          {t('noEmotionData')}
         </p>
       </section>
     )
   }
 
   return (
-    <section aria-label="이번 달 감정 TOP 3">
-      <h2 className="text-sm font-semibold text-foreground mb-3">이번 달 감정 TOP 3</h2>
+    <section aria-label={t('monthlyTop3')}>
+      <h2 className="text-sm font-semibold text-foreground mb-3">{t('monthlyTop3')}</h2>
       <div className="grid grid-cols-3 gap-3">
         {top3.map((emotion: EmotionType, index: number) => {
           const rank = index + 1
@@ -63,28 +66,28 @@ export function EmotionTop3({ stats }: EmotionTop3Props) {
               {/* 순위 배지 */}
               <span
                 className={`text-xs font-bold px-2 py-0.5 rounded-full ${styles.badge}`}
-                aria-label={`${RANK_LABELS[rank]}`}
+                aria-label={rankLabels[rank]}
               >
-                {RANK_LABELS[rank]}
+                {rankLabels[rank]}
               </span>
 
               {/* 감정 아이콘 */}
               <span
                 className="text-3xl leading-none"
                 role="img"
-                aria-label={EMOTION_LABELS[emotion]}
+                aria-label={t(emotion as Parameters<typeof t>[0])}
               >
                 {EMOTION_ICONS[emotion]}
               </span>
 
               {/* 감정 이름 */}
               <span className="text-xs font-medium text-foreground text-center">
-                {EMOTION_LABELS[emotion]}
+                {t(emotion as Parameters<typeof t>[0])}
               </span>
 
               {/* 횟수 */}
               <span className="text-xs text-muted-foreground">
-                {count}회
+                {count}{t('timesUnit')}
               </span>
             </div>
           )

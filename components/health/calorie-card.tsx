@@ -1,5 +1,6 @@
 'use client'
 
+import { useTranslations } from 'next-intl'
 import { cn } from '@/lib/utils'
 import {
   Card,
@@ -9,14 +10,6 @@ import {
   CardContent,
 } from '@/components/ui/card'
 import type { MealLog, MealType } from '@/types/health'
-
-// 식사 유형 한국어 레이블
-const MEAL_TYPE_LABELS: Record<MealType, string> = {
-  breakfast: '아침',
-  lunch: '점심',
-  dinner: '저녁',
-  snack: '간식',
-}
 
 // 식사 유형별 색상 (div 기반 미니 바)
 const MEAL_TYPE_COLORS: Record<MealType, string> = {
@@ -36,6 +29,8 @@ interface CalorieCardProps {
 
 // 오늘 총 칼로리 섭취량 카드
 export function CalorieCard({ meals, date }: CalorieCardProps) {
+  const t = useTranslations('health.meals')
+
   // 총 칼로리 합산
   const totalCalories = meals.reduce((sum, meal) => sum + (meal.calories ?? 0), 0)
 
@@ -58,17 +53,15 @@ export function CalorieCard({ meals, date }: CalorieCardProps) {
     <Card>
       <CardHeader>
         <CardTitle className="text-base flex items-center gap-2">
-          {/* 칼로리 아이콘 */}
           <span className="text-lg">🍽️</span>
-          오늘 칼로리 섭취
+          {t('caloriesTodayTitle')}
         </CardTitle>
         <CardDescription>{dateLabel} 기준</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         {meals.length === 0 ? (
-          // 데이터 없음 상태
           <p className="text-sm text-muted-foreground text-center py-4">
-            오늘 식사 기록이 없습니다
+            {t('noFoodToday')}
           </p>
         ) : (
           <>
@@ -86,7 +79,6 @@ export function CalorieCard({ meals, date }: CalorieCardProps) {
                 const calories = caloriesByType[type]
                 if (calories === 0) return null
 
-                // 전체 대비 비율 계산 (최소 4% 보장으로 바 가시성 확보)
                 const percentage =
                   totalCalories > 0
                     ? Math.max(4, Math.round((calories / totalCalories) * 100))
@@ -95,10 +87,9 @@ export function CalorieCard({ meals, date }: CalorieCardProps) {
                 return (
                   <div key={type} className="space-y-1">
                     <div className="flex justify-between text-xs text-muted-foreground">
-                      <span>{MEAL_TYPE_LABELS[type]}</span>
+                      <span>{t(`types.${type}`)}</span>
                       <span>{calories.toLocaleString()} kcal</span>
                     </div>
-                    {/* div 기반 바 */}
                     <div className="h-2 w-full bg-muted rounded-full overflow-hidden">
                       <div
                         className={cn('h-full rounded-full transition-all', MEAL_TYPE_COLORS[type])}
@@ -106,7 +97,7 @@ export function CalorieCard({ meals, date }: CalorieCardProps) {
                         role="progressbar"
                         aria-valuenow={calories}
                         aria-valuemax={totalCalories}
-                        aria-label={`${MEAL_TYPE_LABELS[type]} ${calories}kcal`}
+                        aria-label={`${t(`types.${type}`)} ${calories}kcal`}
                       />
                     </div>
                   </div>
@@ -116,7 +107,7 @@ export function CalorieCard({ meals, date }: CalorieCardProps) {
 
             {/* 식사 횟수 */}
             <p className="text-xs text-muted-foreground">
-              총 {meals.length}건의 식사 기록
+              {t('mealCount', { count: meals.length })}
             </p>
           </>
         )}

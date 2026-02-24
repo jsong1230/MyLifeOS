@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -18,6 +19,9 @@ interface PinFormProps {
  * - PIN 설정 상태: 현재 PIN 입력 + 새 PIN 입력 + 새 PIN 확인
  */
 export function PinForm({ hasPinAlready, onComplete }: PinFormProps) {
+  const t = useTranslations('private.pin')
+  const tCommon = useTranslations('common')
+
   const [currentPin, setCurrentPin] = useState('')
   const [newPin, setNewPin] = useState('')
   const [confirmPin, setConfirmPin] = useState('')
@@ -32,11 +36,11 @@ export function PinForm({ hasPinAlready, onComplete }: PinFormProps) {
 
     // 클라이언트 사이드 유효성 검사
     if (!/^\d{4,6}$/.test(newPin)) {
-      setError('PIN은 4~6자리 숫자만 사용 가능합니다')
+      setError(t('pinFormValidation'))
       return
     }
     if (newPin !== confirmPin) {
-      setError('새 PIN이 일치하지 않습니다')
+      setError(t('newPinMismatch'))
       return
     }
 
@@ -146,7 +150,7 @@ export function PinForm({ hasPinAlready, onComplete }: PinFormProps) {
         className="w-full"
         disabled={loading}
       >
-        {loading ? '처리 중...' : hasPinAlready ? 'PIN 변경' : 'PIN 설정'}
+        {loading ? tCommon('processing') : hasPinAlready ? t('changePinTitle') : t('setPinTitle')}
       </Button>
     </form>
   )

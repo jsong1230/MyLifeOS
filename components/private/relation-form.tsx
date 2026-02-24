@@ -1,11 +1,11 @@
 'use client'
 
 import { useState } from 'react'
+import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { cn } from '@/lib/utils'
-import { RELATIONSHIP_LABELS } from '@/types/relation'
 import type { RelationshipType, RelationDecrypted, CreateRelationInput } from '@/types/relation'
 
 // 관계 유형 선택 버튼 스타일 정의
@@ -51,6 +51,10 @@ function hasEncKey(): boolean {
 
 // 인간관계 등록/수정 폼 컴포넌트
 export function RelationForm({ relation, onSubmit, onCancel, isLoading = false }: RelationFormProps) {
+  const t = useTranslations('private.relations')
+  const tCommon = useTranslations('common')
+  const tv = useTranslations('validation')
+
   const [name, setName] = useState(relation?.name ?? '')
   const [relationshipType, setRelationshipType] = useState<RelationshipType>(
     relation?.relationship_type ?? 'friend'
@@ -67,16 +71,16 @@ export function RelationForm({ relation, onSubmit, onCancel, isLoading = false }
     const newErrors: Record<string, string> = {}
 
     if (!name.trim()) {
-      newErrors.name = '이름을 입력하세요'
+      newErrors.name = tCommon('name')
     }
 
     if (lastMetAt !== '' && !/^\d{4}-\d{2}-\d{2}$/.test(lastMetAt)) {
-      newErrors.lastMetAt = '날짜 형식이 올바르지 않습니다'
+      newErrors.lastMetAt = tv('invalidDate')
     }
 
     // 메모 입력 시 암호화 키 필수
     if (memo.trim() !== '' && !encKeyExists) {
-      newErrors.memo = '암호화 키가 없습니다. PIN 잠금을 해제해주세요.'
+      newErrors.memo = t('pinLocked')
     }
 
     setErrors(newErrors)
@@ -100,13 +104,13 @@ export function RelationForm({ relation, onSubmit, onCancel, isLoading = false }
       {/* 이름 입력 (필수) */}
       <div className="space-y-2">
         <Label htmlFor="relation-name">
-          이름 <span className="text-destructive">*</span>
+          {tCommon('name')} <span className="text-destructive">*</span>
         </Label>
         <Input
           id="relation-name"
           value={name}
           onChange={(e) => setName(e.target.value)}
-          placeholder="이름을 입력하세요"
+          placeholder={tCommon('name')}
           disabled={isLoading}
           autoFocus
         />
@@ -117,7 +121,7 @@ export function RelationForm({ relation, onSubmit, onCancel, isLoading = false }
 
       {/* 관계 유형 4버튼 토글 */}
       <div className="space-y-2">
-        <Label>관계 유형</Label>
+        <Label>{t('relationship')}</Label>
         <div className="flex gap-2">
           {RELATIONSHIP_TYPE_OPTIONS.map((option) => (
             <button
@@ -130,7 +134,7 @@ export function RelationForm({ relation, onSubmit, onCancel, isLoading = false }
                 relationshipType === option.value ? option.activeClass : option.borderClass
               )}
             >
-              {RELATIONSHIP_LABELS[option.value]}
+              {t(`types.${option.value}`)}
             </button>
           ))}
         </div>
@@ -138,7 +142,7 @@ export function RelationForm({ relation, onSubmit, onCancel, isLoading = false }
 
       {/* 마지막 만난 날짜 (date input) */}
       <div className="space-y-2">
-        <Label htmlFor="last-met-at">마지막 만난 날짜</Label>
+        <Label htmlFor="last-met-at">{t('lastContact')}</Label>
         <Input
           id="last-met-at"
           type="date"
@@ -155,14 +159,14 @@ export function RelationForm({ relation, onSubmit, onCancel, isLoading = false }
       {/* 메모 textarea (선택, 저장 시 암호화) */}
       <div className="space-y-2">
         <Label htmlFor="relation-memo">
-          메모
-          <span className="text-xs text-muted-foreground ml-2">암호화 저장</span>
+          {tCommon('memo')}
+          <span className="text-xs text-muted-foreground ml-2">{t('encrypted')}</span>
         </Label>
         <textarea
           id="relation-memo"
           value={memo}
           onChange={(e) => setMemo(e.target.value)}
-          placeholder="메모를 입력하세요 (선택)"
+          placeholder={tCommon('memo')}
           disabled={isLoading}
           rows={4}
           className={cn(
@@ -178,7 +182,7 @@ export function RelationForm({ relation, onSubmit, onCancel, isLoading = false }
         {/* 암호화 키 없을 때 경고 메시지 */}
         {!encKeyExists && (
           <p className="text-xs text-muted-foreground">
-            PIN 잠금 해제 후 메모를 입력할 수 있습니다.
+            {t('pinLocked')}
           </p>
         )}
       </div>
@@ -192,11 +196,11 @@ export function RelationForm({ relation, onSubmit, onCancel, isLoading = false }
             onClick={onCancel}
             disabled={isLoading}
           >
-            취소
+            {tCommon('cancel')}
           </Button>
         )}
         <Button type="submit" disabled={isLoading}>
-          {isLoading ? '저장 중...' : relation ? '수정' : '등록'}
+          {isLoading ? tCommon('saving') : relation ? tCommon('update') : tCommon('create')}
         </Button>
       </div>
     </form>

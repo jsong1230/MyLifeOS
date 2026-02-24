@@ -1,20 +1,19 @@
 'use client'
 
+import { useTranslations } from 'next-intl'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { cn } from '@/lib/utils'
+import { formatCurrency } from '@/lib/currency'
 import type { Transaction } from '@/types/transaction'
 
 interface SummaryCardsProps {
   transactions: Transaction[]
 }
 
-// 금액을 한국 원화 포맷으로 변환
-function formatKRW(amount: number): string {
-  return amount.toLocaleString('ko-KR') + '원'
-}
-
 // 이번달 수입/지출/잔액 요약 카드 3개
 export function SummaryCards({ transactions }: SummaryCardsProps) {
+  const t = useTranslations('money.transactions')
+  const td = useTranslations('dashboard')
   // 수입 합계
   const totalIncome = transactions
     .filter((t) => t.type === 'income')
@@ -40,22 +39,22 @@ export function SummaryCards({ transactions }: SummaryCardsProps) {
 
   const cards: CardItem[] = [
     {
-      label: '이번달 수입',
-      value: formatKRW(totalIncome),
+      label: td('income'),
+      value: formatCurrency(totalIncome, 'KRW'),
       valueClass: 'text-blue-600',
       bgClass: 'bg-blue-50 dark:bg-blue-950/20',
       prefix: '',
     },
     {
-      label: '이번달 지출',
-      value: formatKRW(totalExpense),
+      label: td('expense'),
+      value: formatCurrency(totalExpense, 'KRW'),
       valueClass: 'text-red-500',
       bgClass: 'bg-red-50 dark:bg-red-950/20',
       prefix: '',
     },
     {
-      label: '잔액',
-      value: formatKRW(Math.abs(balance)),
+      label: td('balance'),
+      value: formatCurrency(Math.abs(balance), 'KRW'),
       // 잔액 양수=초록, 음수=빨강, 음수면 앞에 '-' 표시
       valueClass: isPositiveBalance ? 'text-green-600' : 'text-red-500',
       bgClass: isPositiveBalance

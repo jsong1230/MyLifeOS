@@ -1,3 +1,5 @@
+import type { CurrencyCode } from '@/lib/currency'
+
 export type AssetType = 'cash' | 'deposit' | 'investment' | 'other'
 
 export const ASSET_TYPE_LABEL: Record<AssetType, string> = {
@@ -14,6 +16,7 @@ export interface Asset {
   amount: number
   note?: string | null
   month: string        // YYYY-MM
+  currency: CurrencyCode
   created_at: string
   updated_at: string
 }
@@ -23,12 +26,14 @@ export interface CreateAssetInput {
   amount: number
   note?: string
   month: string        // YYYY-MM
+  currency?: CurrencyCode
 }
 
 export interface UpdateAssetInput {
   asset_type?: AssetType
   amount?: number
   note?: string | null
+  currency?: CurrencyCode
 }
 
 // 월별 자산 합계 (트렌드 차트용)

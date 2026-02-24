@@ -1,15 +1,11 @@
 'use client'
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { formatCurrency } from '@/lib/currency'
 import type { RecurringExpense } from '@/types/recurring'
 
 interface RecurringSummaryProps {
   expenses: RecurringExpense[]
-}
-
-// 원화 금액 포맷
-function formatKRW(value: number): string {
-  return new Intl.NumberFormat('ko-KR').format(Math.round(value))
 }
 
 /**
@@ -49,11 +45,11 @@ export function RecurringSummary({ expenses }: RecurringSummaryProps) {
         </CardHeader>
         <CardContent className="pb-4 px-4">
           <p className="text-2xl font-bold">
-            {formatKRW(monthlyTotal)}
-            <span className="text-sm font-normal text-muted-foreground ml-1">원/월</span>
+            {formatCurrency(monthlyTotal, 'KRW')}
+            <span className="text-sm font-normal text-muted-foreground ml-1">/월</span>
           </p>
           <p className="text-xs text-muted-foreground mt-1">
-            연간 환산 약 {formatKRW(monthlyTotal * 12)}원
+            연간 환산 약 {formatCurrency(monthlyTotal * 12, 'KRW')}
           </p>
         </CardContent>
       </Card>
@@ -83,7 +79,7 @@ export function RecurringSummary({ expenses }: RecurringSummaryProps) {
       {/* 연간 총액 */}
       {yearlyCount > 0 && (
         <p className="text-xs text-muted-foreground px-1">
-          * 연간 항목 {yearlyCount}건 포함 — 연 총액 {formatKRW(yearlyTotal)}원
+          * 연간 항목 {yearlyCount}건 포함 — 연 총액 {formatCurrency(yearlyTotal, 'KRW')}
         </p>
       )}
     </div>

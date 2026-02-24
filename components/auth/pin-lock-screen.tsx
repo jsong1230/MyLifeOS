@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { useTranslations } from 'next-intl'
 import { Lock } from 'lucide-react'
 import { usePinStore } from '@/store/pin.store'
 import type { PinLockScreenProps } from '@/types/pin'
@@ -18,6 +19,7 @@ function formatTime(seconds: number): string {
  */
 export function PinLockScreen({ lockedUntil, onUnlock }: PinLockScreenProps) {
   const resetLockState = usePinStore((s) => s.resetLockState)
+  const t = useTranslations('pin')
   const [remaining, setRemaining] = useState(() =>
     Math.max(0, Math.ceil((lockedUntil - Date.now()) / 1000)),
   )
@@ -40,15 +42,15 @@ export function PinLockScreen({ lockedUntil, onUnlock }: PinLockScreenProps) {
     <div className="flex flex-col items-center justify-center min-h-screen gap-6 px-6">
       <Lock className="w-16 h-16 text-destructive" />
       <div className="text-center">
-        <p className="text-lg font-semibold">앱이 잠겼습니다</p>
+        <p className="text-lg font-semibold">{t('appLocked')}</p>
         <p className="text-sm text-muted-foreground mt-2">
-          PIN 5회 연속 오입력으로 앱이 잠겼습니다
+          {t('appLockedDesc')}
         </p>
       </div>
       <div className="text-4xl font-mono font-bold text-destructive">
         {formatTime(remaining)}
       </div>
-      <p className="text-sm text-muted-foreground">후 자동으로 해제됩니다</p>
+      <p className="text-sm text-muted-foreground">{t('unlockSuffix')}</p>
     </div>
   )
 }

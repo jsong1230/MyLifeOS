@@ -1,5 +1,6 @@
 'use client'
 
+import { useTranslations } from 'next-intl'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -7,32 +8,8 @@ import { cn } from '@/lib/utils'
 import { Pencil, Trash2, PauseCircle, PlayCircle } from 'lucide-react'
 import type { Routine, RoutineWithLog } from '@/types/routine'
 
-// 요일 레이블 (0=일, 1=월, ..., 6=토)
-const DAY_LABELS = ['일', '월', '화', '수', '목', '금', '토'] as const
-
-/**
- * 루틴 반복 주기 텍스트 생성
- */
-function getFrequencyLabel(routine: Routine): string {
-  if (routine.frequency === 'daily') {
-    return '매일'
-  }
-
-  if (routine.frequency === 'weekly') {
-    if (!routine.days_of_week || routine.days_of_week.length === 0) {
-      return '매주'
-    }
-    const dayNames = routine.days_of_week.map((d) => DAY_LABELS[d]).join('/')
-    return `매주 ${dayNames}`
-  }
-
-  if (routine.frequency === 'custom') {
-    const days = routine.interval_days ?? 0
-    return `${days}일마다`
-  }
-
-  return ''
-}
+// 요일 키 (0=일, 1=월, ..., 6=토)
+const DAY_KEYS = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'] as const
 
 interface RoutineItemProps {
   routine: RoutineWithLog
@@ -56,12 +33,35 @@ export function RoutineItem({
   onDelete,
   onToggleActive,
 }: RoutineItemProps) {
+  const t = useTranslations('time.routines')
+  const tCommon = useTranslations('common')
   const isCompleted = routine.log?.completed ?? false
   const today = new Date().toISOString().split('T')[0]
 
   function handleCheckboxChange(checked: boolean | 'indeterminate') {
     if (checked === 'indeterminate') return
     onToggle(routine.id, today, checked)
+  }
+
+  function getFrequencyLabel(r: Routine): string {
+    if (r.frequency === 'daily') {
+      return t('everyday')
+    }
+
+    if (r.frequency === 'weekly') {
+      if (!r.days_of_week || r.days_of_week.length === 0) {
+        return t('weeklyOn', { days: '' })
+      }
+      const dayNames = r.days_of_week.map((d) => t(`weekdays.${DAY_KEYS[d]}`)).join('/')
+      return t('weeklyOn', { days: dayNames })
+    }
+
+    if (r.frequency === 'custom') {
+      const days = r.interval_days ?? 0
+      return t('everyNDays', { n: days })
+    }
+
+    return ''
   }
 
   return (
@@ -77,7 +77,7 @@ export function RoutineItem({
         checked={isCompleted}
         onCheckedChange={handleCheckboxChange}
         disabled={!routine.is_active}
-        aria-label={`${routine.title} 완료 체크`}
+        aria-label={`${routine.title} ${tCommon('done')}`}
       />
 
       {/* 루틴 정보 */}
@@ -97,7 +97,7 @@ export function RoutineItem({
           {routine.streak >= 1 && (
             <Badge variant="secondary" className="text-xs gap-1">
               <span aria-hidden>🔥</span>
-              {routine.streak}일 연속
+              {t('streak', { n: routine.streak })}
             </Badge>
           )}
         </div>
@@ -126,8 +126,8 @@ export function RoutineItem({
           variant="ghost"
           size="icon-sm"
           onClick={() => onToggleActive(routine.id, !routine.is_active)}
-          aria-label={routine.is_active ? '루틴 일시정지' : '루틴 재개'}
-          title={routine.is_active ? '일시정지' : '재개'}
+          aria-label={routine.is_active ? t('pause') : t('resume')}
+          title={routine.is_active ? t('pause') : t('resume')}
         >
           {routine.is_active ? (
             <PauseCircle className="size-4 text-muted-foreground" />
@@ -142,8 +142,8 @@ export function RoutineItem({
           variant="ghost"
           size="icon-sm"
           onClick={() => onEdit(routine)}
-          aria-label="루틴 수정"
-          title="수정"
+          aria-label={tCommon('edit')}
+          title={tCommon('edit')}
         >
           <Pencil className="size-4 text-muted-foreground" />
         </Button>
@@ -154,8 +154,8 @@ export function RoutineItem({
           variant="ghost"
           size="icon-sm"
           onClick={() => onDelete(routine.id)}
-          aria-label="루틴 삭제"
-          title="삭제"
+          aria-label={tCommon('delete')}
+          title={tCommon('delete')}
         >
           <Trash2 className="size-4 text-muted-foreground" />
         </Button>

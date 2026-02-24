@@ -1,4 +1,5 @@
 import { NextResponse, type NextRequest } from 'next/server'
+import { apiError } from '@/lib/api-errors'
 import { createClient } from '@/lib/supabase/server'
 import type { CreateRoutineInput, RoutineWithLog } from '@/types/routine'
 
@@ -61,7 +62,7 @@ export async function GET(request: NextRequest) {
       error: authError,
     } = await supabase.auth.getUser()
     if (authError || !user) {
-      return NextResponse.json({ error: '인증이 필요합니다' }, { status: 401 })
+      return apiError('AUTH_REQUIRED')
     }
 
     // date 파라미터 처리 (기본값: 오늘)
@@ -72,10 +73,7 @@ export async function GET(request: NextRequest) {
     if (dateParam) {
       targetDate = new Date(dateParam)
       if (isNaN(targetDate.getTime())) {
-        return NextResponse.json(
-          { error: '유효하지 않은 날짜 형식입니다 (YYYY-MM-DD)' },
-          { status: 400 }
-        )
+        return apiError('VALIDATION_ERROR')
       }
     } else {
       targetDate = new Date()
@@ -94,10 +92,7 @@ export async function GET(request: NextRequest) {
       .order('created_at', { ascending: true })
 
     if (routinesError) {
-      return NextResponse.json(
-        { error: '루틴 목록을 조회할 수 없습니다' },
-        { status: 500 }
-      )
+      return apiError('SERVER_ERROR')
     }
 
     if (!routines || routines.length === 0) {
@@ -116,10 +111,7 @@ export async function GET(request: NextRequest) {
       .in('routine_id', routineIds)
 
     if (logsError) {
-      return NextResponse.json(
-        { error: '루틴 로그를 조회할 수 없습니다' },
-        { status: 500 }
-      )
+      return apiError('SERVER_ERROR')
     }
 
     // 루틴 ID → 로그 매핑
@@ -145,10 +137,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ success: true, data: result })
   } catch {
-    return NextResponse.json(
-      { error: '서버 오류가 발생했습니다' },
-      { status: 500 }
-    )
+    return apiError('SERVER_ERROR')
   }
 }
 
@@ -166,24 +155,18 @@ export async function POST(request: NextRequest) {
       error: authError,
     } = await supabase.auth.getUser()
     if (authError || !user) {
-      return NextResponse.json({ error: '인증이 필요합니다' }, { status: 401 })
+      return apiError('AUTH_REQUIRED')
     }
 
     const body = (await request.json()) as CreateRoutineInput
 
     // 필수 입력값 검증
     if (!body.title || body.title.trim() === '') {
-      return NextResponse.json(
-        { error: '루틴 제목은 필수입니다' },
-        { status: 400 }
-      )
+      return apiError('VALIDATION_ERROR')
     }
 
     if (!body.frequency || !['daily', 'weekly', 'custom'].includes(body.frequency)) {
-      return NextResponse.json(
-        { error: '반복 주기는 daily, weekly, custom 중 하나여야 합니다' },
-        { status: 400 }
-      )
+      return apiError('VALIDATION_ERROR')
     }
 
     // weekly 검증
@@ -193,20 +176,14 @@ export async function POST(request: NextRequest) {
         body.days_of_week.length === 0 ||
         body.days_of_week.some((d) => d < 0 || d > 6)
       ) {
-        return NextResponse.json(
-          { error: '요일 반복 루틴은 요일을 1개 이상 선택해야 합니다 (0~6)' },
-          { status: 400 }
-        )
+        return apiError('VALIDATION_ERROR')
       }
     }
 
     // custom 검증
     if (body.frequency === 'custom') {
       if (!body.interval_days || body.interval_days < 1) {
-        return NextResponse.json(
-          { error: '간격 반복 루틴은 1 이상의 interval_days가 필요합니다' },
-          { status: 400 }
-        )
+        return apiError('VALIDATION_ERROR')
       }
     }
 
@@ -230,17 +207,11 @@ export async function POST(request: NextRequest) {
       .maybeSingle()
 
     if (insertError || !routine) {
-      return NextResponse.json(
-        { error: '루틴 생성에 실패했습니다' },
-        { status: 500 }
-      )
+      return apiError('SERVER_ERROR')
     }
 
     return NextResponse.json({ success: true, data: routine }, { status: 201 })
   } catch {
-    return NextResponse.json(
-      { error: '서버 오류가 발생했습니다' },
-      { status: 500 }
-    )
+    return apiError('SERVER_ERROR')
   }
 }

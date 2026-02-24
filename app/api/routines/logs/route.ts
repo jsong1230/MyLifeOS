@@ -1,4 +1,5 @@
 import { NextResponse, type NextRequest } from 'next/server'
+import { apiError } from '@/lib/api-errors'
 import { createClient } from '@/lib/supabase/server'
 
 /**
@@ -16,26 +17,20 @@ export async function GET(request: NextRequest) {
       error: authError,
     } = await supabase.auth.getUser()
     if (authError || !user) {
-      return NextResponse.json({ error: '인증이 필요합니다' }, { status: 401 })
+      return apiError('AUTH_REQUIRED')
     }
 
     const { searchParams } = new URL(request.url)
     const dateParam = searchParams.get('date')
 
     if (!dateParam) {
-      return NextResponse.json(
-        { error: 'date 파라미터가 필요합니다 (YYYY-MM-DD)' },
-        { status: 400 }
-      )
+      return apiError('VALIDATION_ERROR')
     }
 
     // 날짜 형식 검증
     const dateRegex = /^\d{4}-\d{2}-\d{2}$/
     if (!dateRegex.test(dateParam)) {
-      return NextResponse.json(
-        { error: '유효하지 않은 날짜 형식입니다 (YYYY-MM-DD)' },
-        { status: 400 }
-      )
+      return apiError('VALIDATION_ERROR')
     }
 
     const { data: logs, error: logsError } = await supabase
@@ -48,18 +43,12 @@ export async function GET(request: NextRequest) {
       .order('created_at', { ascending: true })
 
     if (logsError) {
-      return NextResponse.json(
-        { error: '루틴 로그를 조회할 수 없습니다' },
-        { status: 500 }
-      )
+      return apiError('SERVER_ERROR')
     }
 
     return NextResponse.json({ success: true, data: logs ?? [] })
   } catch {
-    return NextResponse.json(
-      { error: '서버 오류가 발생했습니다' },
-      { status: 500 }
-    )
+    return apiError('SERVER_ERROR')
   }
 }
 
@@ -82,7 +71,7 @@ export async function POST(request: NextRequest) {
       error: authError,
     } = await supabase.auth.getUser()
     if (authError || !user) {
-      return NextResponse.json({ error: '인증이 필요합니다' }, { status: 401 })
+      return apiError('AUTH_REQUIRED')
     }
 
     const body = (await request.json()) as {
@@ -95,25 +84,16 @@ export async function POST(request: NextRequest) {
 
     // 입력값 검증
     if (!routineId || typeof routineId !== 'string') {
-      return NextResponse.json(
-        { error: 'routineId가 필요합니다' },
-        { status: 400 }
-      )
+      return apiError('VALIDATION_ERROR')
     }
 
     const dateRegex = /^\d{4}-\d{2}-\d{2}$/
     if (!date || !dateRegex.test(date)) {
-      return NextResponse.json(
-        { error: '유효하지 않은 날짜 형식입니다 (YYYY-MM-DD)' },
-        { status: 400 }
-      )
+      return apiError('VALIDATION_ERROR')
     }
 
     if (typeof completed !== 'boolean') {
-      return NextResponse.json(
-        { error: 'completed는 boolean 값이어야 합니다' },
-        { status: 400 }
-      )
+      return apiError('VALIDATION_ERROR')
     }
 
     // 루틴 소유권 확인 및 현재 streak 조회
@@ -125,17 +105,11 @@ export async function POST(request: NextRequest) {
       .maybeSingle()
 
     if (routineError) {
-      return NextResponse.json(
-        { error: '루틴 조회에 실패했습니다' },
-        { status: 500 }
-      )
+      return apiError('SERVER_ERROR')
     }
 
     if (!routine) {
-      return NextResponse.json(
-        { error: '루틴을 찾을 수 없습니다' },
-        { status: 404 }
-      )
+      return apiError('NOT_FOUND')
     }
 
     // completed_at 처리
@@ -160,10 +134,7 @@ export async function POST(request: NextRequest) {
       .maybeSingle()
 
     if (upsertError || !log) {
-      return NextResponse.json(
-        { error: '체크인 처리에 실패했습니다' },
-        { status: 500 }
-      )
+      return apiError('SERVER_ERROR')
     }
 
     // streak 업데이트
@@ -207,10 +178,7 @@ export async function POST(request: NextRequest) {
       .eq('user_id', user.id)
 
     if (streakError) {
-      return NextResponse.json(
-        { error: 'streak 업데이트에 실패했습니다' },
-        { status: 500 }
-      )
+      return apiError('SERVER_ERROR')
     }
 
     return NextResponse.json({
@@ -221,9 +189,6 @@ export async function POST(request: NextRequest) {
       },
     })
   } catch {
-    return NextResponse.json(
-      { error: '서버 오류가 발생했습니다' },
-      { status: 500 }
-    )
+    return apiError('SERVER_ERROR')
   }
 }

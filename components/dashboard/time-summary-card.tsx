@@ -2,6 +2,7 @@
 
 import { useQuery } from '@tanstack/react-query'
 import Link from 'next/link'
+import { useTranslations } from 'next-intl'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { EmptyState } from '@/components/dashboard/empty-state'
 import { Clock, ListTodo, ChevronRight } from 'lucide-react'
@@ -15,6 +16,8 @@ function getToday(): string {
 // 시간 모듈 요약 카드 — 오늘 할일 현황
 export function TimeSummaryCard() {
   const today = getToday()
+  const t = useTranslations('dashboard')
+  const commonT = useTranslations('common')
 
   const { data: todos, isLoading } = useQuery<Todo[]>({
     queryKey: ['todos', 'today', today],
@@ -36,18 +39,18 @@ export function TimeSummaryCard() {
         <CardHeader className="flex flex-row items-center justify-between pb-2">
           <div className="flex items-center gap-2">
             <Clock className="w-4 h-4 text-primary" />
-            <span className="text-sm font-medium">시간 관리</span>
+            <span className="text-sm font-medium">{t('timeSummary')}</span>
           </div>
           <ChevronRight className="w-4 h-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
           {isLoading ? (
-            <p className="text-xs text-muted-foreground">불러오는 중...</p>
+            <p className="text-xs text-muted-foreground">{commonT('loading')}</p>
           ) : total > 0 ? (
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <span className="text-xs text-muted-foreground">오늘 할일</span>
-                <span className="text-xs font-medium">{completed}/{total} 완료</span>
+                <span className="text-xs text-muted-foreground">{t('todayTodos')}</span>
+                <span className="text-xs font-medium">{t('completedFraction', { completed, total })}</span>
               </div>
               <div className="w-full bg-muted rounded-full h-1.5">
                 <div
@@ -56,14 +59,14 @@ export function TimeSummaryCard() {
                 />
               </div>
               {pending > 0 && (
-                <p className="text-xs text-muted-foreground">남은 할일 {pending}개</p>
+                <p className="text-xs text-muted-foreground">{t('pendingCount', { count: pending })}</p>
               )}
             </div>
           ) : (
             <EmptyState
               icon={<ListTodo />}
-              title="할일이 아직 없어요"
-              description="할일을 추가하고 하루를 관리해보세요"
+              title={t('noTodosYet')}
+              description={t('addTodoDesc')}
             />
           )}
         </CardContent>

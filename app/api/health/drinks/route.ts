@@ -1,4 +1,5 @@
 import { NextResponse, type NextRequest } from 'next/server'
+import { apiError } from '@/lib/api-errors'
 import { createClient } from '@/lib/supabase/server'
 import type { CreateDrinkInput, DrinkLog } from '@/types/health'
 
@@ -34,10 +35,7 @@ export async function GET(request: NextRequest) {
   } = await supabase.auth.getUser()
 
   if (authError || !user) {
-    return NextResponse.json(
-      { success: false, error: '인증이 필요합니다' },
-      { status: 401 }
-    )
+    return apiError('AUTH_REQUIRED')
   }
 
   const { searchParams } = new URL(request.url)
@@ -53,10 +51,7 @@ export async function GET(request: NextRequest) {
   if (dateParam) {
     // 특정 날짜 조회
     if (!datePattern.test(dateParam)) {
-      return NextResponse.json(
-        { success: false, error: '날짜 형식이 올바르지 않습니다 (YYYY-MM-DD)' },
-        { status: 400 }
-      )
+      return apiError('VALIDATION_ERROR')
     }
     startDate = dateParam
     endDate = dateParam
@@ -64,10 +59,7 @@ export async function GET(request: NextRequest) {
   } else if (weekParam) {
     // 특정 주 조회 (week=YYYY-MM-DD는 해당 주의 임의 날짜)
     if (!datePattern.test(weekParam)) {
-      return NextResponse.json(
-        { success: false, error: '날짜 형식이 올바르지 않습니다 (YYYY-MM-DD)' },
-        { status: 400 }
-      )
+      return apiError('VALIDATION_ERROR')
     }
     startDate = getWeekStart(weekParam)
     endDate = getWeekEnd(startDate)
@@ -90,10 +82,7 @@ export async function GET(request: NextRequest) {
     .order('created_at', { ascending: false })
 
   if (error) {
-    return NextResponse.json(
-      { success: false, error: '음주 기록 조회에 실패했습니다' },
-      { status: 500 }
-    )
+    return apiError('SERVER_ERROR')
   }
 
   const logs = (data ?? []) as DrinkLog[]
@@ -122,73 +111,49 @@ export async function POST(request: NextRequest) {
   } = await supabase.auth.getUser()
 
   if (authError || !user) {
-    return NextResponse.json(
-      { success: false, error: '인증이 필요합니다' },
-      { status: 401 }
-    )
+    return apiError('AUTH_REQUIRED')
   }
 
   let body: CreateDrinkInput
   try {
     body = await request.json() as CreateDrinkInput
   } catch {
-    return NextResponse.json(
-      { success: false, error: '잘못된 요청 형식입니다' },
-      { status: 400 }
-    )
+    return apiError('VALIDATION_ERROR')
   }
 
   // 주종 필수 검증
   const validDrinkTypes = ['beer', 'soju', 'wine', 'whiskey', 'other']
   if (!body.drink_type || !validDrinkTypes.includes(body.drink_type)) {
-    return NextResponse.json(
-      { success: false, error: '유효하지 않은 주종입니다 (beer/soju/wine/whiskey/other)' },
-      { status: 400 }
-    )
+    return apiError('VALIDATION_ERROR')
   }
 
   // 음주량 필수 검증
   if (body.amount_ml === undefined || body.amount_ml === null) {
-    return NextResponse.json(
-      { success: false, error: '음주량(ml)은 필수입니다' },
-      { status: 400 }
-    )
+    return apiError('VALIDATION_ERROR')
   }
 
   if (typeof body.amount_ml !== 'number' || body.amount_ml <= 0) {
-    return NextResponse.json(
-      { success: false, error: '음주량은 0보다 커야 합니다' },
-      { status: 400 }
-    )
+    return apiError('VALIDATION_ERROR')
   }
 
   // 도수 범위 검증 (입력된 경우)
   if (body.alcohol_pct !== undefined && body.alcohol_pct !== null) {
     if (typeof body.alcohol_pct !== 'number' || body.alcohol_pct < 0 || body.alcohol_pct > 100) {
-      return NextResponse.json(
-        { success: false, error: '도수는 0~100 사이여야 합니다' },
-        { status: 400 }
-      )
+      return apiError('VALIDATION_ERROR')
     }
   }
 
   // 잔 수 검증 (입력된 경우)
   if (body.drink_count !== undefined && body.drink_count !== null) {
     if (typeof body.drink_count !== 'number' || body.drink_count < 0) {
-      return NextResponse.json(
-        { success: false, error: '잔 수는 0 이상이어야 합니다' },
-        { status: 400 }
-      )
+      return apiError('VALIDATION_ERROR')
     }
   }
 
   // 날짜 형식 검증
   const datePattern = /^\d{4}-\d{2}-\d{2}$/
   if (body.date && !datePattern.test(body.date)) {
-    return NextResponse.json(
-      { success: false, error: '날짜 형식이 올바르지 않습니다 (YYYY-MM-DD)' },
-      { status: 400 }
-    )
+    return apiError('VALIDATION_ERROR')
   }
 
   const insertData = {
@@ -210,10 +175,7 @@ export async function POST(request: NextRequest) {
     .maybeSingle()
 
   if (error) {
-    return NextResponse.json(
-      { success: false, error: '음주 기록 생성에 실패했습니다' },
-      { status: 500 }
-    )
+    return apiError('SERVER_ERROR')
   }
 
   return NextResponse.json({ success: true, data: data as DrinkLog }, { status: 201 })

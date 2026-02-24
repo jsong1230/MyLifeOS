@@ -1,4 +1,5 @@
 import { NextResponse, type NextRequest } from 'next/server'
+import { apiError } from '@/lib/api-errors'
 import { createClient } from '@/lib/supabase/server'
 import type { DiaryEntry, EmotionType } from '@/types/diary'
 
@@ -20,48 +21,33 @@ export async function PATCH(
   } = await supabase.auth.getUser()
 
   if (authError || !user) {
-    return NextResponse.json(
-      { success: false, error: '인증이 필요합니다' },
-      { status: 401 }
-    )
+    return apiError('AUTH_REQUIRED')
   }
 
   const { id } = await params
 
   if (!id) {
-    return NextResponse.json(
-      { success: false, error: '유효하지 않은 ID입니다' },
-      { status: 400 }
-    )
+    return apiError('VALIDATION_ERROR')
   }
 
   let body: { content_encrypted?: unknown; emotion_tags?: unknown }
   try {
     body = await request.json() as { content_encrypted?: unknown; emotion_tags?: unknown }
   } catch {
-    return NextResponse.json(
-      { success: false, error: '잘못된 요청 형식입니다' },
-      { status: 400 }
-    )
+    return apiError('VALIDATION_ERROR')
   }
 
   // content_encrypted 검증 (선택 입력 필드이지만, 있을 경우 유효해야 함)
   if (body.content_encrypted !== undefined) {
     if (typeof body.content_encrypted !== 'string' || body.content_encrypted.trim() === '') {
-      return NextResponse.json(
-        { success: false, error: 'content_encrypted는 비워둘 수 없습니다' },
-        { status: 400 }
-      )
+      return apiError('VALIDATION_ERROR')
     }
   }
 
   // emotion_tags 검증 (선택 입력 필드이지만, 있을 경우 유효해야 함)
   if (body.emotion_tags !== undefined) {
     if (!Array.isArray(body.emotion_tags) || body.emotion_tags.length === 0) {
-      return NextResponse.json(
-        { success: false, error: '감정 태그를 1개 이상 선택해야 합니다' },
-        { status: 400 }
-      )
+      return apiError('VALIDATION_ERROR')
     }
 
     const emotionTags = body.emotion_tags as EmotionType[]
@@ -83,10 +69,7 @@ export async function PATCH(
     .maybeSingle()
 
   if (!existing) {
-    return NextResponse.json(
-      { success: false, error: '일기를 찾을 수 없습니다' },
-      { status: 404 }
-    )
+    return apiError('NOT_FOUND')
   }
 
   // 업데이트할 필드 구성
@@ -107,10 +90,7 @@ export async function PATCH(
     .maybeSingle()
 
   if (error) {
-    return NextResponse.json(
-      { success: false, error: '일기 수정에 실패했습니다' },
-      { status: 500 }
-    )
+    return apiError('SERVER_ERROR')
   }
 
   return NextResponse.json({ success: true, data: data as DiaryEntry })
@@ -128,19 +108,13 @@ export async function DELETE(
   } = await supabase.auth.getUser()
 
   if (authError || !user) {
-    return NextResponse.json(
-      { success: false, error: '인증이 필요합니다' },
-      { status: 401 }
-    )
+    return apiError('AUTH_REQUIRED')
   }
 
   const { id } = await params
 
   if (!id) {
-    return NextResponse.json(
-      { success: false, error: '유효하지 않은 ID입니다' },
-      { status: 400 }
-    )
+    return apiError('VALIDATION_ERROR')
   }
 
   // 해당 일기가 현재 사용자 소유인지 확인
@@ -152,10 +126,7 @@ export async function DELETE(
     .maybeSingle()
 
   if (!existing) {
-    return NextResponse.json(
-      { success: false, error: '일기를 찾을 수 없습니다' },
-      { status: 404 }
-    )
+    return apiError('NOT_FOUND')
   }
 
   const { error } = await supabase
@@ -165,10 +136,7 @@ export async function DELETE(
     .eq('user_id', user.id)
 
   if (error) {
-    return NextResponse.json(
-      { success: false, error: '일기 삭제에 실패했습니다' },
-      { status: 500 }
-    )
+    return apiError('SERVER_ERROR')
   }
 
   return NextResponse.json({ success: true })

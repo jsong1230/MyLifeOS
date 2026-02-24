@@ -2,6 +2,7 @@
 
 import { useQuery } from '@tanstack/react-query'
 import Link from 'next/link'
+import { useTranslations } from 'next-intl'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { EmptyState } from '@/components/dashboard/empty-state'
 import { Heart, ChevronRight, Utensils, Moon } from 'lucide-react'
@@ -15,6 +16,8 @@ function getToday(): string {
 // 건강 모듈 요약 카드 — 오늘 식사 칼로리 + 수면 시간
 export function HealthSummaryCard() {
   const today = getToday()
+  const t = useTranslations('dashboard')
+  const commonT = useTranslations('common')
 
   const { data: meals, isLoading: mealsLoading } = useQuery<MealLog[]>({
     queryKey: ['meals', today],
@@ -49,16 +52,16 @@ export function HealthSummaryCard() {
         <CardHeader className="flex flex-row items-center justify-between pb-2">
           <div className="flex items-center gap-2">
             <Heart className="w-4 h-4 text-primary" />
-            <span className="text-sm font-medium">건강 관리</span>
+            <span className="text-sm font-medium">{t('healthSummary')}</span>
           </div>
           <ChevronRight className="w-4 h-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
           {isLoading ? (
-            <p className="text-xs text-muted-foreground">불러오는 중...</p>
+            <p className="text-xs text-muted-foreground">{commonT('loading')}</p>
           ) : hasData ? (
             <div className="space-y-1.5">
-              <p className="text-xs text-muted-foreground">오늘</p>
+              <p className="text-xs text-muted-foreground">{t('today')}</p>
               {hasMeals && (
                 <div className="flex items-center gap-1.5">
                   <Utensils className="w-3 h-3 text-muted-foreground" />
@@ -70,15 +73,15 @@ export function HealthSummaryCard() {
               {hasSleep && (
                 <div className="flex items-center gap-1.5">
                   <Moon className="w-3 h-3 text-muted-foreground" />
-                  <span className="text-xs">수면 {sleepHours}시간</span>
+                  <span className="text-xs">{t('sleepHours', { hours: sleepHours })}</span>
                 </div>
               )}
             </div>
           ) : (
             <EmptyState
               icon={<Heart />}
-              title="건강 기록을 시작해보세요"
-              description="식사, 음주, 수면을 기록하고 건강을 관리하세요"
+              title={t('noHealthYet')}
+              description={t('noHealthDesc')}
             />
           )}
         </CardContent>

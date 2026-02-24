@@ -1,12 +1,12 @@
 'use client'
 
 import { useState } from 'react'
+import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { cn } from '@/lib/utils'
 import type { DrinkLog, DrinkType, CreateDrinkInput } from '@/types/health'
-import { DRINK_TYPE_LABELS } from '@/types/health'
 
 // 주종별 기본 도수(%) 자동 입력값
 const DRINK_DEFAULT_PCT: Record<DrinkType, number> = {
@@ -66,6 +66,9 @@ interface DrinkFormProps {
 // 음주 기록 생성/수정 폼 컴포넌트
 // 주종 선택 시 도수 기본값 자동 입력
 export function DrinkForm({ drink, onSubmit, onCancel, isLoading = false }: DrinkFormProps) {
+  const t = useTranslations('health.drinks')
+  const tc = useTranslations('common')
+  const tv = useTranslations('validation')
   const [drinkType, setDrinkType] = useState<DrinkType>(drink?.drink_type ?? 'beer')
   const [amountMl, setAmountMl] = useState(drink?.amount_ml != null ? String(drink.amount_ml) : '')
   const [alcoholPct, setAlcoholPct] = useState(
@@ -105,27 +108,27 @@ export function DrinkForm({ drink, onSubmit, onCancel, isLoading = false }: Drin
     const newErrors: Record<string, string> = {}
 
     if (amountMl.trim() === '') {
-      newErrors.amountMl = '음주량(ml)을 입력하세요'
+      newErrors.amountMl = t('amountRequired')
     } else if (isNaN(parseFloat(amountMl)) || parseFloat(amountMl) <= 0) {
-      newErrors.amountMl = '음주량은 0보다 커야 합니다'
+      newErrors.amountMl = t('amountPositive')
     }
 
     if (alcoholPct !== '') {
       const pct = parseFloat(alcoholPct)
       if (isNaN(pct) || pct < 0 || pct > 100) {
-        newErrors.alcoholPct = '도수는 0~100 사이여야 합니다'
+        newErrors.alcoholPct = t('alcoholInvalid')
       }
     }
 
     if (drinkCount !== '') {
       const count = parseFloat(drinkCount)
       if (isNaN(count) || count < 0) {
-        newErrors.drinkCount = '잔 수는 0 이상이어야 합니다'
+        newErrors.drinkCount = t('drinkCountInvalid')
       }
     }
 
     if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
-      newErrors.date = '날짜 형식이 올바르지 않습니다'
+      newErrors.date = tv('invalidDate')
     }
 
     setErrors(newErrors)
@@ -150,7 +153,7 @@ export function DrinkForm({ drink, onSubmit, onCancel, isLoading = false }: Drin
     <form onSubmit={handleSubmit} className="space-y-4">
       {/* 주종 선택 버튼 토글 */}
       <div className="space-y-2">
-        <Label>주종</Label>
+        <Label>{t('type')}</Label>
         <div className="flex gap-1.5 flex-wrap">
           {DRINK_TYPE_OPTIONS.map((option) => (
             <button
@@ -163,7 +166,7 @@ export function DrinkForm({ drink, onSubmit, onCancel, isLoading = false }: Drin
               )}
             >
               <span className="mr-1">{option.emoji}</span>
-              {DRINK_TYPE_LABELS[option.value]}
+              {t(`types.${option.value}` as Parameters<typeof t>[0])}
             </button>
           ))}
         </div>
@@ -172,7 +175,7 @@ export function DrinkForm({ drink, onSubmit, onCancel, isLoading = false }: Drin
       {/* 음주량(ml) 입력 (필수) */}
       <div className="space-y-2">
         <Label htmlFor="amount-ml">
-          음주량 (ml) <span className="text-destructive">*</span>
+          ml <span className="text-destructive">*</span>
         </Label>
         <Input
           id="amount-ml"
@@ -193,7 +196,7 @@ export function DrinkForm({ drink, onSubmit, onCancel, isLoading = false }: Drin
       <div className="grid grid-cols-2 gap-3">
         {/* 도수(%) 입력 (선택, 주종 선택 시 기본값 자동 입력) */}
         <div className="space-y-2">
-          <Label htmlFor="alcohol-pct">도수 (%)</Label>
+          <Label htmlFor="alcohol-pct">% ABV</Label>
           <Input
             id="alcohol-pct"
             type="number"
@@ -212,7 +215,7 @@ export function DrinkForm({ drink, onSubmit, onCancel, isLoading = false }: Drin
 
         {/* 잔 수 입력 (선택) */}
         <div className="space-y-2">
-          <Label htmlFor="drink-count">잔 수</Label>
+          <Label htmlFor="drink-count">{t('amount')}</Label>
           <Input
             id="drink-count"
             type="number"
@@ -231,7 +234,7 @@ export function DrinkForm({ drink, onSubmit, onCancel, isLoading = false }: Drin
 
       {/* 날짜 입력 */}
       <div className="space-y-2">
-        <Label htmlFor="drink-date">날짜</Label>
+        <Label htmlFor="drink-date">{tc('date')}</Label>
         <Input
           id="drink-date"
           type="date"
@@ -246,12 +249,12 @@ export function DrinkForm({ drink, onSubmit, onCancel, isLoading = false }: Drin
 
       {/* 메모 입력 (선택) */}
       <div className="space-y-2">
-        <Label htmlFor="drink-note">메모</Label>
+        <Label htmlFor="drink-note">{tc('memo')}</Label>
         <Input
           id="drink-note"
           value={note}
           onChange={(e) => setNote(e.target.value)}
-          placeholder="메모 (선택)"
+          placeholder={tc('optional')}
           disabled={isLoading}
         />
       </div>
@@ -265,11 +268,11 @@ export function DrinkForm({ drink, onSubmit, onCancel, isLoading = false }: Drin
             onClick={onCancel}
             disabled={isLoading}
           >
-            취소
+            {tc('cancel')}
           </Button>
         )}
         <Button type="submit" disabled={isLoading}>
-          {isLoading ? '저장 중...' : drink ? '수정' : '추가'}
+          {isLoading ? tc('loading') : drink ? tc('update') : tc('add')}
         </Button>
       </div>
     </form>

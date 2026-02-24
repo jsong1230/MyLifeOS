@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
+import { useTranslations } from 'next-intl'
 import { Search, Loader2 } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
@@ -9,7 +10,6 @@ import { Button } from '@/components/ui/button'
 import { decrypt } from '@/lib/crypto/encryption'
 import { useDiarySearch } from '@/hooks/use-diary-search'
 import {
-  EMOTION_LABELS,
   EMOTION_ICONS,
   type EmotionType,
 } from '@/types/diary'
@@ -24,15 +24,6 @@ interface SearchResultItem {
   excerpt: string
   // 하이라이트 적용을 위한 세그먼트
   segments: Array<{ text: string; highlight: boolean }>
-}
-
-// 날짜를 한국어 형식으로 포맷 (YYYY-MM-DD → YYYY년 M월 D일)
-function formatDateKr(dateStr: string): string {
-  const [year, month, day] = dateStr.split('-').map(Number)
-  const date = new Date(dateStr + 'T00:00:00')
-  const days = ['일', '월', '화', '수', '목', '금', '토']
-  const dayOfWeek = days[date.getDay()]
-  return `${year}년 ${month}월 ${day}일 (${dayOfWeek})`
 }
 
 // 키워드를 기준으로 앞뒤 50자 발췌 + 하이라이트 세그먼트 생성
@@ -84,6 +75,7 @@ interface EmotionFilterButtonProps {
 }
 
 function EmotionFilterButton({ emotionType, selected, onToggle }: EmotionFilterButtonProps) {
+  const te = useTranslations('private.emotions')
   return (
     <button
       type="button"
@@ -95,10 +87,10 @@ function EmotionFilterButton({ emotionType, selected, onToggle }: EmotionFilterB
           : 'bg-background text-foreground border-border hover:bg-muted',
       ].join(' ')}
       aria-pressed={selected}
-      aria-label={`${EMOTION_LABELS[emotionType]} 필터`}
+      aria-label={te(emotionType as Parameters<typeof te>[0])}
     >
       <span aria-hidden="true">{EMOTION_ICONS[emotionType]}</span>
-      {EMOTION_LABELS[emotionType]}
+      {te(emotionType as Parameters<typeof te>[0])}
     </button>
   )
 }
@@ -110,6 +102,17 @@ interface SearchResultCardProps {
 }
 
 function SearchResultCard({ item, onClick }: SearchResultCardProps) {
+  const tCalendar = useTranslations('time.calendar')
+  const te = useTranslations('private.emotions')
+
+  function formatDateKr(dateStr: string): string {
+    const [year, month, day] = dateStr.split('-').map(Number)
+    const date = new Date(dateStr + 'T00:00:00')
+    const dayKeys = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'] as const
+    const dayKey = dayKeys[date.getDay()]
+    return `${year}년 ${month}월 ${day}일 (${tCalendar(`weekdays.${dayKey}`)})`
+  }
+
   return (
     <button
       type="button"
@@ -127,7 +130,7 @@ function SearchResultCard({ item, onClick }: SearchResultCardProps) {
         {item.emotion_tags.map((tag) => (
           <Badge key={tag} variant="secondary" className="gap-1 text-xs py-0">
             <span aria-hidden="true">{EMOTION_ICONS[tag]}</span>
-            {EMOTION_LABELS[tag]}
+            {te(tag as Parameters<typeof te>[0])}
           </Badge>
         ))}
       </div>
@@ -163,6 +166,9 @@ const ALL_EMOTIONS: EmotionType[] = [
 // - 매칭 키워드 하이라이트 (AC-03)
 export function DiarySearch() {
   const router = useRouter()
+  const t = useTranslations('private.diary')
+  const tCommon = useTranslations('common')
+
   const [keyword, setKeyword] = useState('')
   const [selectedEmotions, setSelectedEmotions] = useState<EmotionType[]>([])
 
@@ -254,7 +260,7 @@ export function DiarySearch() {
           className="rounded-lg border border-destructive/50 bg-destructive/10 p-4 text-sm text-destructive"
           role="alert"
         >
-          PIN을 다시 입력해주세요. 암호화 키가 만료되었습니다.
+          {t('pinExpired')}
         </div>
       )}
 
@@ -263,18 +269,18 @@ export function DiarySearch() {
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
         <Input
           type="search"
-          placeholder="일기 내용 검색..."
+          placeholder={t('searchPlaceholder')}
           value={keyword}
           onChange={(e) => setKeyword(e.target.value)}
           className="pl-9"
-          aria-label="일기 검색"
+          aria-label={t('search')}
           disabled={!encKey}
         />
       </div>
 
       {/* 감정 태그 필터 */}
       <div className="space-y-2">
-        <p className="text-xs font-medium text-muted-foreground">감정 태그 필터</p>
+        <p className="text-xs font-medium text-muted-foreground">{t('emotionFilter')}</p>
         <div className="flex flex-wrap gap-1.5">
           {ALL_EMOTIONS.map((emotion) => (
             <EmotionFilterButton
@@ -297,7 +303,7 @@ export function DiarySearch() {
             onClick={resetFilters}
             className="text-xs text-muted-foreground"
           >
-            필터 초기화
+            {t('resetFilter')}
           </Button>
         </div>
       )}
@@ -306,7 +312,7 @@ export function DiarySearch() {
       {isLoading && (
         <div className="flex items-center justify-center py-8 gap-2 text-muted-foreground">
           <Loader2 className="h-4 w-4 animate-spin" />
-          <span className="text-sm">검색 중...</span>
+          <span className="text-sm">{t('searching')}</span>
         </div>
       )}
 
@@ -325,12 +331,12 @@ export function DiarySearch() {
         <div className="space-y-3">
           {searchResults.length === 0 ? (
             <p className="text-center text-sm text-muted-foreground py-8">
-              검색 결과가 없습니다
+              {tCommon('noResults')}
             </p>
           ) : (
             <>
               <p className="text-xs text-muted-foreground">
-                {searchResults.length}개의 일기를 찾았습니다
+                {t('foundCount', { count: searchResults.length })}
               </p>
               {searchResults.map((item) => (
                 <SearchResultCard
@@ -347,7 +353,7 @@ export function DiarySearch() {
       {/* 필터 미입력 안내 */}
       {!hasFilters && !isLoading && encKey && (
         <p className="text-center text-sm text-muted-foreground py-8">
-          키워드를 입력하거나 감정 태그를 선택하여 검색하세요
+          {t('enterKeyword')}
         </p>
       )}
     </div>

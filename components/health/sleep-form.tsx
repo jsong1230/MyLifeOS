@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -17,25 +18,17 @@ function timeToMinutes(time: string): number {
 function calcSleepHours(start: string, end: string): number {
   let startMin = timeToMinutes(start)
   let endMin = timeToMinutes(end)
-  if (endMin <= startMin) endMin += 24 * 60 // 자정 넘김
-  return Math.round(((endMin - startMin) / 60) * 10) / 10 // 소수점 1자리
+  if (endMin <= startMin) endMin += 24 * 60
+  return Math.round(((endMin - startMin) / 60) * 10) / 10
 }
 
-// 수면 시간 미리보기 포맷 (예: 7.5h → "7시간 30분")
-function formatSleepHoursPreview(hours: number): string {
-  const h = Math.floor(hours)
-  const m = Math.round((hours - h) * 60)
-  if (m === 0) return `${h}시간`
-  return `${h}시간 ${m}분`
-}
-
-// 수면 질 별점 레이블
-const QUALITY_LABELS: Record<number, string> = {
-  1: '매우 나쁨',
-  2: '나쁨',
-  3: '보통',
-  4: '좋음',
-  5: '매우 좋음',
+// 수면 질 레이블 키 매핑
+const QUALITY_LABEL_KEYS: Record<number, string> = {
+  1: 'veryPoor',
+  2: 'poor',
+  3: 'fair',
+  4: 'good',
+  5: 'excellent',
 }
 
 interface SleepFormProps {
@@ -47,51 +40,60 @@ interface SleepFormProps {
 
 // 수면 기록 생성/수정 폼 컴포넌트
 export function SleepForm({ sleep, onSubmit, onCancel, isLoading = false }: SleepFormProps) {
+  const t = useTranslations('health.sleep')
+  const tCommon = useTranslations('common')
   const [timeStart, setTimeStart] = useState(sleep?.time_start ?? '23:00')
   const [timeEnd, setTimeEnd] = useState(sleep?.time_end ?? '07:00')
   const [quality, setQuality] = useState<number | ''>(sleep?.value2 ?? '')
   const [date, setDate] = useState(sleep?.date ?? new Date().toISOString().split('T')[0])
   const [note, setNote] = useState(sleep?.note ?? '')
   const [errors, setErrors] = useState<Record<string, string>>({})
-
-  // 예상 수면 시간 실시간 미리보기
   const [sleepPreview, setSleepPreview] = useState<string | null>(null)
+
+  // 수면 시간 포맷 (예: 7.5h → "7시간 30분")
+  function formatSleepHoursPreview(hours: number): string {
+    const h = Math.floor(hours)
+    const m = Math.round((hours - h) * 60)
+    if (m === 0) return `${h}${t('hourUnit')}`
+    return `${h}${t('hourUnit')} ${m}${t('minuteUnit')}`
+  }
 
   useEffect(() => {
     const timePattern = /^\d{2}:\d{2}$/
     if (timePattern.test(timeStart) && timePattern.test(timeEnd)) {
       const hours = calcSleepHours(timeStart, timeEnd)
       const isMidnightCross = timeToMinutes(timeEnd) <= timeToMinutes(timeStart)
+      const preview = formatSleepHoursPreview(hours)
       setSleepPreview(
-        `${formatSleepHoursPreview(hours)}${isMidnightCross ? ' (자정 넘김)' : ''}`
+        isMidnightCross ? `${preview} (${t('midnight')})` : preview
       )
     } else {
       setSleepPreview(null)
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [timeStart, timeEnd])
 
-  // 폼 검증
   function validate(): boolean {
     const newErrors: Record<string, string> = {}
     const timePattern = /^\d{2}:\d{2}$/
 
     if (!timeStart || !timePattern.test(timeStart)) {
-      newErrors.timeStart = '취침 시각을 입력하세요 (HH:MM)'
+      newErrors.timeStart = t('bedtimeLabel')
     }
 
     if (!timeEnd || !timePattern.test(timeEnd)) {
-      newErrors.timeEnd = '기상 시각을 입력하세요 (HH:MM)'
+      newErrors.timeEnd = t('wakeTimeLabel')
     }
 
     if (quality !== '') {
       const q = Number(quality)
       if (isNaN(q) || q < 1 || q > 5) {
-        newErrors.quality = '수면 질은 1~5 사이의 값이어야 합니다'
+        newErrors.quality = t('qualityLabel')
       }
     }
 
     if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
-      newErrors.date = '날짜 형식이 올바르지 않습니다'
+      newErrors.date = tCommon('invalidDate')
     }
 
     setErrors(newErrors)
@@ -117,7 +119,7 @@ export function SleepForm({ sleep, onSubmit, onCancel, isLoading = false }: Slee
       <div className="grid grid-cols-2 gap-3">
         <div className="space-y-2">
           <Label htmlFor="time-start">
-            취침 시각 <span className="text-destructive">*</span>
+            {t('bedtimeLabel')} <span className="text-destructive">*</span>
           </Label>
           <Input
             id="time-start"
@@ -133,7 +135,7 @@ export function SleepForm({ sleep, onSubmit, onCancel, isLoading = false }: Slee
 
         <div className="space-y-2">
           <Label htmlFor="time-end">
-            기상 시각 <span className="text-destructive">*</span>
+            {t('wakeTimeLabel')} <span className="text-destructive">*</span>
           </Label>
           <Input
             id="time-end"
@@ -151,13 +153,13 @@ export function SleepForm({ sleep, onSubmit, onCancel, isLoading = false }: Slee
       {/* 예상 수면 시간 미리보기 */}
       {sleepPreview && (
         <div className="rounded-md bg-blue-50 px-3 py-2 text-sm text-blue-700 dark:bg-blue-950 dark:text-blue-300">
-          예상 수면 시간: <span className="font-semibold">{sleepPreview}</span>
+          {t('estimatedDuration', { time: sleepPreview })}
         </div>
       )}
 
       {/* 수면 질 별점 선택 (1-5) */}
       <div className="space-y-2">
-        <Label>수면 질 (선택)</Label>
+        <Label>{t('qualityLabel')}</Label>
         <div className="flex gap-2">
           {[1, 2, 3, 4, 5].map((q) => (
             <button
@@ -171,14 +173,16 @@ export function SleepForm({ sleep, onSubmit, onCancel, isLoading = false }: Slee
                   ? 'bg-yellow-400 text-yellow-900 border-yellow-400'
                   : 'border-gray-200 text-gray-500 hover:bg-yellow-50 hover:border-yellow-300'
               )}
-              title={QUALITY_LABELS[q]}
+              title={t(`qualities.${QUALITY_LABEL_KEYS[q]}`)}
             >
               {'★'.repeat(q)}
             </button>
           ))}
         </div>
         {quality !== '' && (
-          <p className="text-xs text-muted-foreground">{QUALITY_LABELS[Number(quality)]}</p>
+          <p className="text-xs text-muted-foreground">
+            {t(`qualities.${QUALITY_LABEL_KEYS[Number(quality)]}`)}
+          </p>
         )}
         {errors.quality && (
           <p className="text-xs text-destructive">{errors.quality}</p>
@@ -187,7 +191,7 @@ export function SleepForm({ sleep, onSubmit, onCancel, isLoading = false }: Slee
 
       {/* 날짜 입력 */}
       <div className="space-y-2">
-        <Label htmlFor="date">날짜</Label>
+        <Label htmlFor="date">{tCommon('date')}</Label>
         <Input
           id="date"
           type="date"
@@ -202,12 +206,14 @@ export function SleepForm({ sleep, onSubmit, onCancel, isLoading = false }: Slee
 
       {/* 메모 입력 (선택) */}
       <div className="space-y-2">
-        <Label htmlFor="note">메모 (선택)</Label>
+        <Label htmlFor="note">
+          {tCommon('memo')} ({tCommon('optional')})
+        </Label>
         <Input
           id="note"
           value={note}
           onChange={(e) => setNote(e.target.value)}
-          placeholder="수면에 영향을 준 요인 등 메모"
+          placeholder={tCommon('memo')}
           disabled={isLoading}
         />
       </div>
@@ -221,11 +227,11 @@ export function SleepForm({ sleep, onSubmit, onCancel, isLoading = false }: Slee
             onClick={onCancel}
             disabled={isLoading}
           >
-            취소
+            {tCommon('cancel')}
           </Button>
         )}
         <Button type="submit" disabled={isLoading}>
-          {isLoading ? '저장 중...' : sleep ? '수정' : '추가'}
+          {isLoading ? tCommon('saving') : sleep ? tCommon('update') : tCommon('add')}
         </Button>
       </div>
     </form>

@@ -1,5 +1,6 @@
 'use client'
 
+import { useTranslations } from 'next-intl'
 import {
   PieChart,
   Pie,
@@ -8,7 +9,7 @@ import {
   Legend,
   ResponsiveContainer,
 } from 'recharts'
-import { EMOTION_ICONS, EMOTION_LABELS, type EmotionType } from '@/types/diary'
+import { EMOTION_ICONS, type EmotionType } from '@/types/diary'
 import type { EmotionStatsData } from '@/app/api/diaries/emotion-stats/route'
 
 interface EmotionPieChartProps {
@@ -50,55 +51,57 @@ interface CustomTooltipProps {
   payload?: readonly CustomTooltipPayloadItem[] | undefined
 }
 
-// 커스텀 Legend 렌더러 (감정 이모지 + 이름 표시)
-function renderCustomLegend(props: CustomLegendProps) {
-  const { payload } = props
-  if (!payload) return null
-
-  return (
-    <ul className="flex flex-wrap justify-center gap-x-3 gap-y-1 mt-2">
-      {payload.map((entry) => {
-        const emotion = (String(entry.value ?? '')) as EmotionType
-        return (
-          <li key={emotion} className="flex items-center gap-1 text-xs">
-            <span
-              className="inline-block w-2.5 h-2.5 rounded-full flex-shrink-0"
-              style={{ backgroundColor: entry.color }}
-            />
-            <span role="img" aria-label={EMOTION_LABELS[emotion]}>
-              {EMOTION_ICONS[emotion]}
-            </span>
-            <span className="text-foreground">{EMOTION_LABELS[emotion]}</span>
-          </li>
-        )
-      })}
-    </ul>
-  )
-}
-
-// 커스텀 Tooltip 렌더러
-function renderCustomTooltip(props: CustomTooltipProps) {
-  const { active, payload } = props
-  if (!active || !payload || payload.length === 0) return null
-
-  const emotion = (payload[0].name ?? '') as EmotionType
-  const count = payload[0].value ?? 0
-
-  return (
-    <div className="rounded-lg border bg-background px-3 py-2 shadow-md text-xs">
-      <span role="img" aria-label={EMOTION_LABELS[emotion]}>
-        {EMOTION_ICONS[emotion]}
-      </span>
-      {' '}
-      <span className="font-medium">{EMOTION_LABELS[emotion]}</span>
-      <span className="text-muted-foreground ml-1">{count}회</span>
-    </div>
-  )
-}
-
 // 월별 감정 분포 도넛 차트 컴포넌트
 export function EmotionPieChart({ stats }: EmotionPieChartProps) {
+  const t = useTranslations('private.emotions')
+
   const { emotion_counts } = stats
+
+  // 커스텀 Legend 렌더러 (감정 이모지 + 이름 표시)
+  function renderCustomLegend(props: CustomLegendProps) {
+    const { payload } = props
+    if (!payload) return null
+
+    return (
+      <ul className="flex flex-wrap justify-center gap-x-3 gap-y-1 mt-2">
+        {payload.map((entry) => {
+          const emotion = (String(entry.value ?? '')) as EmotionType
+          return (
+            <li key={emotion} className="flex items-center gap-1 text-xs">
+              <span
+                className="inline-block w-2.5 h-2.5 rounded-full flex-shrink-0"
+                style={{ backgroundColor: entry.color }}
+              />
+              <span role="img" aria-label={t(emotion as Parameters<typeof t>[0])}>
+                {EMOTION_ICONS[emotion]}
+              </span>
+              <span className="text-foreground">{t(emotion as Parameters<typeof t>[0])}</span>
+            </li>
+          )
+        })}
+      </ul>
+    )
+  }
+
+  // 커스텀 Tooltip 렌더러
+  function renderCustomTooltip(props: CustomTooltipProps) {
+    const { active, payload } = props
+    if (!active || !payload || payload.length === 0) return null
+
+    const emotion = (payload[0].name ?? '') as EmotionType
+    const count = payload[0].value ?? 0
+
+    return (
+      <div className="rounded-lg border bg-background px-3 py-2 shadow-md text-xs">
+        <span role="img" aria-label={t(emotion as Parameters<typeof t>[0])}>
+          {EMOTION_ICONS[emotion]}
+        </span>
+        {' '}
+        <span className="font-medium">{t(emotion as Parameters<typeof t>[0])}</span>
+        <span className="text-muted-foreground ml-1">{count}{t('timesUnit')}</span>
+      </div>
+    )
+  }
 
   // 차트 데이터 생성 (횟수 > 0인 감정만)
   const chartData = (Object.entries(emotion_counts) as Array<[EmotionType, number]>)
@@ -112,18 +115,18 @@ export function EmotionPieChart({ stats }: EmotionPieChartProps) {
 
   if (chartData.length === 0) {
     return (
-      <section aria-label="월별 감정 분포">
-        <h2 className="text-sm font-semibold text-foreground mb-3">월별 감정 분포</h2>
+      <section aria-label={t('monthlyDistribution')}>
+        <h2 className="text-sm font-semibold text-foreground mb-3">{t('monthlyDistribution')}</h2>
         <p className="text-sm text-muted-foreground text-center py-4">
-          아직 감정 기록이 없습니다
+          {t('noEmotionData')}
         </p>
       </section>
     )
   }
 
   return (
-    <section aria-label="월별 감정 분포">
-      <h2 className="text-sm font-semibold text-foreground mb-3">월별 감정 분포</h2>
+    <section aria-label={t('monthlyDistribution')}>
+      <h2 className="text-sm font-semibold text-foreground mb-3">{t('monthlyDistribution')}</h2>
       <div className="w-full h-64">
         <ResponsiveContainer width="100%" height="100%">
           <PieChart>

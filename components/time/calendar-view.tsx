@@ -2,6 +2,7 @@
 
 import { useCallback } from 'react'
 import { ChevronLeft, ChevronRight, Plus, Calendar } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
@@ -11,16 +12,6 @@ import {
   type CalendarDay,
 } from '@/hooks/use-calendar'
 import type { Todo } from '@/types/todo'
-
-// 요일 헤더 라벨
-const DAY_LABELS = ['일', '월', '화', '수', '목', '금', '토'] as const
-
-// 뷰 탭 설정
-const VIEW_TABS: { value: CalendarView; label: string }[] = [
-  { value: 'month', label: '월간' },
-  { value: 'week', label: '주간' },
-  { value: 'day', label: '일간' },
-]
 
 // 할일 상태에 따른 배지 색상
 function getTodoBadgeVariant(todo: Todo): string {
@@ -39,6 +30,10 @@ interface CalendarViewProps {
 
 // 캘린더 메인 컴포넌트
 export function CalendarView({ todos, onAddTodo, onSelectDate }: CalendarViewProps) {
+  const t = useTranslations('time.calendar')
+  const tTodos = useTranslations('time.todos')
+  const tCommon = useTranslations('common')
+
   const {
     selectedDate,
     setSelectedDate,
@@ -52,9 +47,16 @@ export function CalendarView({ todos, onAddTodo, onSelectDate }: CalendarViewPro
     monthLabel,
   } = useCalendar()
 
+  // 뷰 탭 설정 (번역 포함)
+  const viewTabs: { value: CalendarView; label: string }[] = [
+    { value: 'month', label: t('monthView') },
+    { value: 'week', label: t('weekView') },
+    { value: 'day', label: t('dayView') },
+  ]
+
   // 날짜별 할일 맵 생성 (O(n) 전처리)
   const todosByDate = useCallback(
-    (date: string) => todos.filter((t) => t.due_date === date),
+    (date: string) => todos.filter((todo) => todo.due_date === date),
     [todos]
   )
 
@@ -80,7 +82,7 @@ export function CalendarView({ todos, onAddTodo, onSelectDate }: CalendarViewPro
               variant="ghost"
               size="icon"
               onClick={prevMonth}
-              aria-label="이전 달"
+              aria-label={t('prevMonth')}
             >
               <ChevronLeft className="h-4 w-4" />
             </Button>
@@ -91,7 +93,7 @@ export function CalendarView({ todos, onAddTodo, onSelectDate }: CalendarViewPro
               variant="ghost"
               size="icon"
               onClick={nextMonth}
-              aria-label="다음 달"
+              aria-label={t('nextMonth')}
             >
               <ChevronRight className="h-4 w-4" />
             </Button>
@@ -104,23 +106,23 @@ export function CalendarView({ todos, onAddTodo, onSelectDate }: CalendarViewPro
               onClick={goToToday}
               className="text-xs"
             >
-              오늘
+              {t('today')}
             </Button>
             <Button
               size="sm"
               onClick={handleAddTodo}
               className="text-xs gap-1"
-              aria-label="할일 추가"
+              aria-label={tTodos('add')}
             >
               <Plus className="h-3.5 w-3.5" />
-              추가
+              {tCommon('add')}
             </Button>
           </div>
         </div>
 
         {/* 뷰 전환 탭 */}
         <div className="flex rounded-lg border bg-muted p-1 self-start">
-          {VIEW_TABS.map(({ value, label }) => (
+          {viewTabs.map(({ value, label }) => (
             <button
               key={value}
               onClick={() => setView(value)}
@@ -174,13 +176,16 @@ interface MonthViewProps {
 }
 
 function MonthView({ days, todosByDate, onDateClick }: MonthViewProps) {
+  const t = useTranslations('time.calendar')
+  const dayKeys = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'] as const
+
   return (
     <div className="p-2">
       {/* 요일 헤더 */}
       <div className="grid grid-cols-7 mb-1">
-        {DAY_LABELS.map((label, idx) => (
+        {dayKeys.map((key, idx) => (
           <div
-            key={label}
+            key={key}
             className={cn(
               'text-center text-xs font-medium py-2',
               idx === 0 && 'text-red-500',
@@ -188,7 +193,7 @@ function MonthView({ days, todosByDate, onDateClick }: MonthViewProps) {
               idx > 0 && idx < 6 && 'text-muted-foreground'
             )}
           >
-            {label}
+            {t(`weekdays.${key}`)}
           </div>
         ))}
       </div>
@@ -212,7 +217,7 @@ function MonthView({ days, todosByDate, onDateClick }: MonthViewProps) {
                 !day.isCurrentMonth && 'opacity-40',
                 day.isSelected && !day.isToday && 'bg-accent'
               )}
-              aria-label={`${day.date} 날짜 선택`}
+              aria-label={day.date}
               aria-pressed={day.isSelected}
             >
               {/* 날짜 숫자 */}
@@ -244,7 +249,7 @@ function MonthView({ days, todosByDate, onDateClick }: MonthViewProps) {
                 ))}
                 {extraCount > 0 && (
                   <span className="text-xs text-muted-foreground px-1">
-                    +{extraCount}개
+                    {t('moreItems', { n: extraCount })}
                   </span>
                 )}
               </div>
@@ -264,6 +269,9 @@ interface WeekViewProps {
 }
 
 function WeekView({ days, todosByDate, onDateClick }: WeekViewProps) {
+  const t = useTranslations('time.calendar')
+  const dayKeys = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'] as const
+
   return (
     <div className="p-4">
       <div className="grid grid-cols-7 gap-2">
@@ -277,7 +285,7 @@ function WeekView({ days, todosByDate, onDateClick }: WeekViewProps) {
               <button
                 onClick={() => onDateClick(day.date)}
                 className="flex flex-col items-center gap-1 focus:outline-none"
-                aria-label={`${day.date} 날짜 선택`}
+                aria-label={day.date}
               >
                 <span
                   className={cn(
@@ -287,7 +295,7 @@ function WeekView({ days, todosByDate, onDateClick }: WeekViewProps) {
                     idx > 0 && idx < 6 && 'text-muted-foreground'
                   )}
                 >
-                  {DAY_LABELS[idx]}
+                  {t(`weekdays.${dayKeys[idx]}`)}
                 </span>
                 <span
                   className={cn(
@@ -336,10 +344,14 @@ interface DayViewProps {
 }
 
 function DayView({ date, todos, onAddTodo }: DayViewProps) {
+  const t = useTranslations('time.calendar')
+  const tTodos = useTranslations('time.todos')
+  const dayKeys = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'] as const
+
   // 날짜 표시 포맷 (예: 2026년 2월 23일 월요일)
   const dateObj = new Date(date + 'T00:00:00')
-  const DAY_KR = ['일', '월', '화', '수', '목', '금', '토'] as const
-  const dateLabel = `${dateObj.getFullYear()}년 ${dateObj.getMonth() + 1}월 ${dateObj.getDate()}일 ${DAY_KR[dateObj.getDay()]}요일`
+  const dayLabel = t(`weekdays.${dayKeys[dateObj.getDay()]}`)
+  const dateLabel = `${dateObj.getFullYear()}년 ${dateObj.getMonth() + 1}월 ${dateObj.getDate()}일 ${dayLabel}요일`
 
   return (
     <div className="p-4 flex flex-col gap-4">
@@ -353,7 +365,7 @@ function DayView({ date, todos, onAddTodo }: DayViewProps) {
           className="gap-1 text-xs"
         >
           <Plus className="h-3.5 w-3.5" />
-          할일 추가
+          {tTodos('add')}
         </Button>
       </div>
 
@@ -361,7 +373,7 @@ function DayView({ date, todos, onAddTodo }: DayViewProps) {
       {todos.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-16 gap-3 text-muted-foreground">
           <Calendar className="h-10 w-10 opacity-30" />
-          <p className="text-sm">이 날에 등록된 할일이 없습니다</p>
+          <p className="text-sm">{t('noTodosForDay')}</p>
           <Button
             size="sm"
             variant="outline"
@@ -369,7 +381,7 @@ function DayView({ date, todos, onAddTodo }: DayViewProps) {
             className="gap-1 text-xs mt-1"
           >
             <Plus className="h-3.5 w-3.5" />
-            할일 추가하기
+            {t('addTodo')}
           </Button>
         </div>
       ) : (
@@ -434,19 +446,20 @@ function DayTodoItem({ todo }: { todo: Todo }) {
 
 // 우선순위 배지 컴포넌트
 function PriorityBadge({ priority }: { priority: Todo['priority'] }) {
+  const t = useTranslations('time.todos')
   const config = {
-    high: { label: '높음', className: 'bg-red-100 text-red-700' },
-    medium: { label: '중간', className: 'bg-yellow-100 text-yellow-700' },
-    low: { label: '낮음', className: 'bg-gray-100 text-gray-600' },
+    high: { className: 'bg-red-100 text-red-700' },
+    medium: { className: 'bg-yellow-100 text-yellow-700' },
+    low: { className: 'bg-gray-100 text-gray-600' },
   }
-  const { label, className } = config[priority]
+  const { className } = config[priority]
 
   return (
     <Badge
       variant="outline"
       className={cn('text-xs border-0 px-1.5 py-0 font-normal', className)}
     >
-      {label}
+      {t(`priorities.${priority}`)}
     </Badge>
   )
 }

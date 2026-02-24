@@ -1,4 +1,5 @@
 import { NextResponse, type NextRequest } from 'next/server'
+import { apiError } from '@/lib/api-errors'
 import { createClient } from '@/lib/supabase/server'
 import type { CreateTodoInput, Todo } from '@/types/todo'
 
@@ -12,10 +13,7 @@ export async function GET(request: NextRequest) {
   } = await supabase.auth.getUser()
 
   if (authError || !user) {
-    return NextResponse.json(
-      { success: false, error: '인증이 필요합니다' },
-      { status: 401 }
-    )
+    return apiError('AUTH_REQUIRED')
   }
 
   const { searchParams } = new URL(request.url)
@@ -47,10 +45,7 @@ export async function GET(request: NextRequest) {
   const { data, error } = await query
 
   if (error) {
-    return NextResponse.json(
-      { success: false, error: '할일 조회에 실패했습니다' },
-      { status: 500 }
-    )
+    return apiError('SERVER_ERROR')
   }
 
   return NextResponse.json({ success: true, data: data as Todo[] })
@@ -65,36 +60,24 @@ export async function POST(request: NextRequest) {
   } = await supabase.auth.getUser()
 
   if (authError || !user) {
-    return NextResponse.json(
-      { success: false, error: '인증이 필요합니다' },
-      { status: 401 }
-    )
+    return apiError('AUTH_REQUIRED')
   }
 
   let body: CreateTodoInput
   try {
     body = await request.json()
   } catch {
-    return NextResponse.json(
-      { success: false, error: '잘못된 요청 형식입니다' },
-      { status: 400 }
-    )
+    return apiError('VALIDATION_ERROR')
   }
 
   // 필수 필드 검증
   if (!body.title || typeof body.title !== 'string' || body.title.trim() === '') {
-    return NextResponse.json(
-      { success: false, error: '제목은 필수입니다' },
-      { status: 400 }
-    )
+    return apiError('VALIDATION_ERROR')
   }
 
   // 우선순위 검증
   if (body.priority && !['high', 'medium', 'low'].includes(body.priority)) {
-    return NextResponse.json(
-      { success: false, error: '유효하지 않은 우선순위입니다' },
-      { status: 400 }
-    )
+    return apiError('VALIDATION_ERROR')
   }
 
   // 현재 최대 sort_order 조회하여 새 항목은 맨 뒤에 추가
@@ -128,10 +111,7 @@ export async function POST(request: NextRequest) {
     .maybeSingle()
 
   if (error) {
-    return NextResponse.json(
-      { success: false, error: '할일 생성에 실패했습니다' },
-      { status: 500 }
-    )
+    return apiError('SERVER_ERROR')
   }
 
   return NextResponse.json({ success: true, data: data as Todo }, { status: 201 })

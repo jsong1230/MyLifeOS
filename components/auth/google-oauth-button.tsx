@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button'
 import { createClient } from '@/lib/supabase/client'
 
@@ -10,6 +11,7 @@ interface GoogleOAuthButtonProps {
 
 export function GoogleOAuthButton({ className }: GoogleOAuthButtonProps) {
   const [isLoading, setIsLoading] = useState(false)
+  const t = useTranslations('auth')
 
   async function handleGoogleLogin() {
     setIsLoading(true)
@@ -57,7 +59,7 @@ export function GoogleOAuthButton({ className }: GoogleOAuthButtonProps) {
           fill="#EA4335"
         />
       </svg>
-      {isLoading ? '연결 중...' : 'Google로 계속하기'}
+      {isLoading ? t('connecting') : t('googleLogin')}
     </Button>
   )
 }

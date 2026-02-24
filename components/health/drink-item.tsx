@@ -1,10 +1,10 @@
 'use client'
 
+import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Pencil, Trash2 } from 'lucide-react'
 import type { DrinkLog, DrinkType } from '@/types/health'
-import { DRINK_TYPE_LABELS } from '@/types/health'
 
 // 주종별 이모지 매핑
 const DRINK_TYPE_EMOJI: Record<DrinkType, string> = {
@@ -37,11 +37,12 @@ interface DrinkItemProps {
 }
 
 // 음주 기록 단일 항목 컴포넌트
-// 주종 이모지 + 이름 + 양(ml) + 잔수 + 도수 + 날짜 표시
-// 수정/삭제 버튼 포함
 export function DrinkItem({ drink, onEdit, onDelete }: DrinkItemProps) {
+  const t = useTranslations('health.drinks')
+  const tc = useTranslations('common')
+
   const emoji = DRINK_TYPE_EMOJI[drink.drink_type]
-  const label = DRINK_TYPE_LABELS[drink.drink_type]
+  const label = t(`types.${drink.drink_type}` as Parameters<typeof t>[0])
   const badgeClass = DRINK_TYPE_BADGE_CLASS[drink.drink_type]
 
   return (
@@ -69,8 +70,8 @@ export function DrinkItem({ drink, onEdit, onDelete }: DrinkItemProps) {
           {drink.drink_count != null && Number(drink.drink_count) > 0 && (
             <span className="text-sm text-muted-foreground">
               {Number(drink.drink_count) % 1 === 0
-                ? `${Number(drink.drink_count).toFixed(0)}잔`
-                : `${Number(drink.drink_count)}잔`}
+                ? `${Number(drink.drink_count).toFixed(0)}${t('unit')}`
+                : `${Number(drink.drink_count)}${t('unit')}`}
             </span>
           )}
 
@@ -98,7 +99,7 @@ export function DrinkItem({ drink, onEdit, onDelete }: DrinkItemProps) {
           size="icon"
           className="h-8 w-8 text-muted-foreground hover:text-foreground"
           onClick={() => onEdit(drink)}
-          aria-label="음주 기록 수정"
+          aria-label={t('edit')}
         >
           <Pencil className="h-3.5 w-3.5" />
         </Button>
@@ -107,7 +108,7 @@ export function DrinkItem({ drink, onEdit, onDelete }: DrinkItemProps) {
           size="icon"
           className="h-8 w-8 text-muted-foreground hover:text-destructive"
           onClick={() => onDelete(drink)}
-          aria-label="음주 기록 삭제"
+          aria-label={tc('delete')}
         >
           <Trash2 className="h-3.5 w-3.5" />
         </Button>

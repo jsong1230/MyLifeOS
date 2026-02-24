@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -13,9 +14,6 @@ import {
 } from '@/components/ui/select'
 import { cn } from '@/lib/utils'
 import type { Routine, CreateRoutineInput, UpdateRoutineInput, RoutineFrequency } from '@/types/routine'
-
-// 요일 레이블 (0=일, 1=월, ..., 6=토)
-const DAY_LABELS = ['일', '월', '화', '수', '목', '금', '토'] as const
 
 interface RoutineFormProps {
   routine?: Routine
@@ -33,6 +31,8 @@ export function RoutineForm({
   onCancel,
   isLoading = false,
 }: RoutineFormProps) {
+  const t = useTranslations('time.routines')
+  const tCommon = useTranslations('common')
   const [title, setTitle] = useState(routine?.title ?? '')
   const [description, setDescription] = useState(routine?.description ?? '')
   const [frequency, setFrequency] = useState<RoutineFrequency>(
@@ -46,6 +46,9 @@ export function RoutineForm({
   )
   const [timeOfDay, setTimeOfDay] = useState(routine?.time_of_day ?? '')
   const [errors, setErrors] = useState<Record<string, string>>({})
+
+  // 요일 키 순서 (0=일, 1=월, ..., 6=토)
+  const dayKeys = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'] as const
 
   // 루틴 prop 변경 시 폼 초기화
   useEffect(() => {
@@ -70,17 +73,17 @@ export function RoutineForm({
     const newErrors: Record<string, string> = {}
 
     if (!title.trim()) {
-      newErrors.title = '루틴 제목을 입력해주세요'
+      newErrors.title = t('title')
     }
 
     if (frequency === 'weekly' && daysOfWeek.length === 0) {
-      newErrors.daysOfWeek = '요일을 1개 이상 선택해주세요'
+      newErrors.daysOfWeek = t('days')
     }
 
     if (frequency === 'custom') {
       const days = parseInt(intervalDays, 10)
       if (isNaN(days) || days < 1) {
-        newErrors.intervalDays = '1 이상의 숫자를 입력해주세요'
+        newErrors.intervalDays = t('intervalDays', { n: 1 })
       }
     }
 
@@ -111,13 +114,13 @@ export function RoutineForm({
       {/* 제목 */}
       <div className="space-y-1.5">
         <Label htmlFor="routine-title">
-          제목 <span className="text-destructive">*</span>
+          {t('title')} <span className="text-destructive">*</span>
         </Label>
         <Input
           id="routine-title"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          placeholder="루틴 제목 입력"
+          placeholder={t('title')}
           disabled={isLoading}
           aria-invalid={Boolean(errors.title)}
         />
@@ -129,7 +132,7 @@ export function RoutineForm({
       {/* 반복 주기 */}
       <div className="space-y-1.5">
         <Label htmlFor="routine-frequency">
-          반복 주기 <span className="text-destructive">*</span>
+          {t('days')} <span className="text-destructive">*</span>
         </Label>
         <Select
           value={frequency}
@@ -137,12 +140,12 @@ export function RoutineForm({
           disabled={isLoading}
         >
           <SelectTrigger id="routine-frequency">
-            <SelectValue placeholder="반복 주기 선택" />
+            <SelectValue placeholder={t('days')} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="daily">매일</SelectItem>
-            <SelectItem value="weekly">특정 요일</SelectItem>
-            <SelectItem value="custom">N일 간격</SelectItem>
+            <SelectItem value="daily">{t('everyday')}</SelectItem>
+            <SelectItem value="weekly">{t('specificDays')}</SelectItem>
+            <SelectItem value="custom">{t('intervalDays', { n: 'N' })}</SelectItem>
           </SelectContent>
         </Select>
       </div>
@@ -150,9 +153,9 @@ export function RoutineForm({
       {/* 요일 선택 (weekly인 경우) */}
       {frequency === 'weekly' && (
         <div className="space-y-1.5">
-          <Label>요일 선택 <span className="text-destructive">*</span></Label>
+          <Label>{t('days')} <span className="text-destructive">*</span></Label>
           <div className="flex gap-1.5 flex-wrap">
-            {DAY_LABELS.map((label, idx) => (
+            {dayKeys.map((key, idx) => (
               <button
                 key={idx}
                 type="button"
@@ -165,9 +168,9 @@ export function RoutineForm({
                     : 'bg-background text-foreground border-input hover:bg-accent'
                 )}
                 aria-pressed={daysOfWeek.includes(idx)}
-                aria-label={`${label}요일`}
+                aria-label={t(`weekdays.${key}`)}
               >
-                {label}
+                {t(`weekdays.${key}`)}
               </button>
             ))}
           </div>
@@ -181,7 +184,7 @@ export function RoutineForm({
       {frequency === 'custom' && (
         <div className="space-y-1.5">
           <Label htmlFor="routine-interval">
-            반복 간격 (일) <span className="text-destructive">*</span>
+            {t('everyNDays', { n: 'N' })} <span className="text-destructive">*</span>
           </Label>
           <div className="flex items-center gap-2">
             <Input
@@ -194,7 +197,7 @@ export function RoutineForm({
               disabled={isLoading}
               aria-invalid={Boolean(errors.intervalDays)}
             />
-            <span className="text-sm text-muted-foreground">일마다</span>
+            <span className="text-sm text-muted-foreground">{t('everyNDays', { n: '' }).trim()}</span>
           </div>
           {errors.intervalDays && (
             <p className="text-destructive text-xs">{errors.intervalDays}</p>
@@ -204,7 +207,9 @@ export function RoutineForm({
 
       {/* 실행 시간 (선택) */}
       <div className="space-y-1.5">
-        <Label htmlFor="routine-time">실행 시간 (선택)</Label>
+        <Label htmlFor="routine-time">
+          {tCommon('time')} ({tCommon('optional')})
+        </Label>
         <Input
           id="routine-time"
           type="time"
@@ -216,12 +221,14 @@ export function RoutineForm({
 
       {/* 설명 (선택) */}
       <div className="space-y-1.5">
-        <Label htmlFor="routine-description">설명 (선택)</Label>
+        <Label htmlFor="routine-description">
+          {tCommon('description')} ({tCommon('optional')})
+        </Label>
         <Input
           id="routine-description"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
-          placeholder="루틴 설명 입력"
+          placeholder={tCommon('description')}
           disabled={isLoading}
         />
       </div>
@@ -235,11 +242,11 @@ export function RoutineForm({
             onClick={onCancel}
             disabled={isLoading}
           >
-            취소
+            {tCommon('cancel')}
           </Button>
         )}
         <Button type="submit" disabled={isLoading}>
-          {isLoading ? '저장 중...' : routine ? '수정' : '추가'}
+          {isLoading ? tCommon('saving') : routine ? tCommon('update') : tCommon('add')}
         </Button>
       </div>
     </form>

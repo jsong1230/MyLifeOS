@@ -1,5 +1,6 @@
 'use client'
 
+import { useTranslations } from 'next-intl'
 import { cn } from '@/lib/utils'
 import {
   Card,
@@ -37,6 +38,7 @@ function formatVolume(ml: number): string {
 
 // 이번 주 음주 현황 카드
 export function DrinkWeeklyCard({ summary, weekLabel, totalDrinkCount }: DrinkWeeklyCardProps) {
+  const t = useTranslations('health.drinks')
   const hasNoDrinks = summary.count === 0
 
   // WHO 기준 초과/주의 여부 — 잔 수 데이터가 있을 때만 판단
@@ -53,7 +55,7 @@ export function DrinkWeeklyCard({ summary, weekLabel, totalDrinkCount }: DrinkWe
         <CardTitle className="text-base flex items-center gap-2">
           {/* 음주 아이콘 */}
           <span className="text-lg">🍺</span>
-          이번 주 음주
+          {t('weeklyTitle')}
         </CardTitle>
         <CardDescription>{weekLabel}</CardDescription>
       </CardHeader>
@@ -67,7 +69,7 @@ export function DrinkWeeklyCard({ summary, weekLabel, totalDrinkCount }: DrinkWe
                 'dark:bg-green-900/30 dark:text-green-400'
               )}
             >
-              이번주 음주 없음
+              {t('noDrinksBadge')}
             </Badge>
           </div>
         ) : (
@@ -76,16 +78,16 @@ export function DrinkWeeklyCard({ summary, weekLabel, totalDrinkCount }: DrinkWe
             <div className="grid grid-cols-2 gap-4">
               {/* 음주 횟수 */}
               <div className="space-y-1">
-                <p className="text-xs text-muted-foreground">음주 횟수</p>
+                <p className="text-xs text-muted-foreground">{t('drinkFrequency')}</p>
                 <div className="flex items-baseline gap-1">
                   <span className="text-2xl font-bold">{summary.count}</span>
-                  <span className="text-sm text-muted-foreground">회</span>
+                  <span className="text-sm text-muted-foreground">{t('frequencyUnit')}</span>
                 </div>
               </div>
 
               {/* 총 섭취량 */}
               <div className="space-y-1">
-                <p className="text-xs text-muted-foreground">총 섭취량</p>
+                <p className="text-xs text-muted-foreground">{t('totalIntake')}</p>
                 <div className="flex items-baseline gap-1">
                   <span className="text-2xl font-bold">
                     {formatVolume(summary.total_ml)}
@@ -104,7 +106,7 @@ export function DrinkWeeklyCard({ summary, weekLabel, totalDrinkCount }: DrinkWe
                       'dark:bg-red-900/30 dark:text-red-400'
                     )}
                   >
-                    ⚠️ WHO 권장량 초과 ({totalDrinkCount}잔 / 기준 {WHO_WEEKLY_LIMIT_DRINKS}잔)
+                    {t('exceedBadge', { count: totalDrinkCount, limit: WHO_WEEKLY_LIMIT_DRINKS })}
                   </Badge>
                 ) : isNearWhoLimit ? (
                   <Badge
@@ -113,7 +115,7 @@ export function DrinkWeeklyCard({ summary, weekLabel, totalDrinkCount }: DrinkWe
                       'dark:bg-yellow-900/30 dark:text-yellow-400'
                     )}
                   >
-                    ⚡ 권장량 80% 근접 ({totalDrinkCount}잔 / 기준 {WHO_WEEKLY_LIMIT_DRINKS}잔)
+                    {t('near80Badge', { count: totalDrinkCount, limit: WHO_WEEKLY_LIMIT_DRINKS })}
                   </Badge>
                 ) : (
                   <Badge
@@ -122,7 +124,7 @@ export function DrinkWeeklyCard({ summary, weekLabel, totalDrinkCount }: DrinkWe
                       'dark:bg-green-900/30 dark:text-green-400'
                     )}
                   >
-                    권장량 이내 ({totalDrinkCount}잔 / 기준 {WHO_WEEKLY_LIMIT_DRINKS}잔)
+                    {t('withinLimit', { count: totalDrinkCount, limit: WHO_WEEKLY_LIMIT_DRINKS })}
                   </Badge>
                 )}
               </div>

@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -19,6 +20,9 @@ function getTodayString(): string {
 }
 
 export function BodyLogForm({ log, onSubmit, onCancel, isLoading = false }: BodyLogFormProps) {
+  const t = useTranslations('health.body')
+  const tc = useTranslations('common')
+
   const [weight, setWeight] = useState(log?.weight != null ? String(log.weight) : '')
   const [bodyFat, setBodyFat] = useState(log?.body_fat != null ? String(log.body_fat) : '')
   const [muscleMass, setMuscleMass] = useState(log?.muscle_mass != null ? String(log.muscle_mass) : '')
@@ -33,7 +37,7 @@ export function BodyLogForm({ log, onSubmit, onCancel, isLoading = false }: Body
     const mm = muscleMass ? parseFloat(muscleMass) : undefined
 
     if (w == null && bf == null && mm == null) {
-      setError('체중, 체지방률, 근육량 중 하나 이상 입력해주세요')
+      setError(t('atLeastOne'))
       return
     }
 
@@ -50,7 +54,7 @@ export function BodyLogForm({ log, onSubmit, onCancel, isLoading = false }: Body
     <form onSubmit={handleSubmit} className="space-y-4">
       {/* 날짜 */}
       <div className="space-y-1.5">
-        <Label htmlFor="body-date">날짜</Label>
+        <Label htmlFor="body-date">{tc('date')}</Label>
         <Input
           id="body-date"
           type="date"
@@ -61,14 +65,14 @@ export function BodyLogForm({ log, onSubmit, onCancel, isLoading = false }: Body
 
       {/* 체중 */}
       <div className="space-y-1.5">
-        <Label htmlFor="weight">체중 (kg)</Label>
+        <Label htmlFor="weight">{t('weight')} ({t('weightUnit')})</Label>
         <Input
           id="weight"
           type="number"
           step="0.1"
           min="0"
           max="500"
-          placeholder="예: 70.5"
+          placeholder={t('weightPlaceholder')}
           value={weight}
           onChange={(e) => { setWeight(e.target.value); setError('') }}
         />
@@ -76,14 +80,14 @@ export function BodyLogForm({ log, onSubmit, onCancel, isLoading = false }: Body
 
       {/* 체지방률 */}
       <div className="space-y-1.5">
-        <Label htmlFor="body-fat">체지방률 (%)</Label>
+        <Label htmlFor="body-fat">{t('bodyFat')} ({t('percentUnit')})</Label>
         <Input
           id="body-fat"
           type="number"
           step="0.1"
           min="0"
           max="100"
-          placeholder="예: 20.5"
+          placeholder={t('bodyFatPlaceholder')}
           value={bodyFat}
           onChange={(e) => { setBodyFat(e.target.value); setError('') }}
         />
@@ -91,14 +95,14 @@ export function BodyLogForm({ log, onSubmit, onCancel, isLoading = false }: Body
 
       {/* 근육량 */}
       <div className="space-y-1.5">
-        <Label htmlFor="muscle-mass">근육량 (kg)</Label>
+        <Label htmlFor="muscle-mass">{t('muscle')} ({t('weightUnit')})</Label>
         <Input
           id="muscle-mass"
           type="number"
           step="0.1"
           min="0"
           max="200"
-          placeholder="예: 30.0"
+          placeholder={t('musclePlaceholder')}
           value={muscleMass}
           onChange={(e) => { setMuscleMass(e.target.value); setError('') }}
         />
@@ -106,11 +110,11 @@ export function BodyLogForm({ log, onSubmit, onCancel, isLoading = false }: Body
 
       {/* 메모 */}
       <div className="space-y-1.5">
-        <Label htmlFor="body-note">메모 (선택)</Label>
+        <Label htmlFor="body-note">{tc('memo')} ({tc('optional')})</Label>
         <Input
           id="body-note"
           type="text"
-          placeholder="예: 아침 공복 측정"
+          placeholder={t('notePlaceholder')}
           value={note}
           onChange={(e) => setNote(e.target.value)}
           maxLength={100}
@@ -122,11 +126,11 @@ export function BodyLogForm({ log, onSubmit, onCancel, isLoading = false }: Body
       <div className="flex gap-2 pt-2">
         {onCancel && (
           <Button type="button" variant="outline" onClick={onCancel} disabled={isLoading} className="flex-1">
-            취소
+            {tc('cancel')}
           </Button>
         )}
         <Button type="submit" disabled={isLoading} className="flex-1">
-          {isLoading ? '저장 중...' : log ? '수정하기' : '추가하기'}
+          {isLoading ? tc('saving') : log ? tc('update') : tc('add')}
         </Button>
       </div>
     </form>

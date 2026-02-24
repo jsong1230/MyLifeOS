@@ -2,20 +2,22 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import { useTranslations } from 'next-intl'
 import { Home, Clock, Wallet, Heart, BookOpen, Settings, BarChart2 } from 'lucide-react'
 
 const NAV_ITEMS = [
-  { label: '홈', icon: Home, href: '/' },
-  { label: '시간 관리', icon: Clock, href: '/time' },
-  { label: '금전 관리', icon: Wallet, href: '/money' },
-  { label: '건강 관리', icon: Heart, href: '/health' },
-  { label: '사적 기록', icon: BookOpen, href: '/private' },
-  { label: '리포트', icon: BarChart2, href: '/reports' },
-] as const
+  { key: 'home' as const, icon: Home, href: '/' },
+  { key: 'time' as const, icon: Clock, href: '/time' },
+  { key: 'money' as const, icon: Wallet, href: '/money' },
+  { key: 'health' as const, icon: Heart, href: '/health' },
+  { key: 'private' as const, icon: BookOpen, href: '/private' },
+  { key: 'reports' as const, icon: BarChart2, href: '/reports' },
+]
 
 // 데스크탑 사이드바
 export function Sidebar() {
   const pathname = usePathname()
+  const t = useTranslations('nav')
 
   function isActive(href: string) {
     if (href === '/') return pathname === '/'
@@ -30,8 +32,8 @@ export function Sidebar() {
       </div>
 
       {/* 네비게이션 */}
-      <nav role="navigation" aria-label="사이드 메뉴" className="flex-1 px-3 py-4 space-y-1">
-        {NAV_ITEMS.map(({ label, icon: Icon, href }) => {
+      <nav role="navigation" aria-label={t('sideMenu')} className="flex-1 px-3 py-4 space-y-1">
+        {NAV_ITEMS.map(({ key, icon: Icon, href }) => {
           const active = isActive(href)
           return (
             <Link
@@ -45,7 +47,7 @@ export function Sidebar() {
               }`}
             >
               <Icon className="w-4 h-4 shrink-0" aria-hidden="true" />
-              {label}
+              {t(key)}
             </Link>
           )
         })}
@@ -63,7 +65,7 @@ export function Sidebar() {
           }`}
         >
           <Settings className="w-4 h-4 shrink-0" aria-hidden="true" />
-          설정
+          {t('settings')}
         </Link>
       </div>
     </div>

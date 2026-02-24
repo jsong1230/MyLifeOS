@@ -1,4 +1,5 @@
 import { NextResponse, type NextRequest } from 'next/server'
+import { apiError } from '@/lib/api-errors'
 import { createClient } from '@/lib/supabase/server'
 import type { DiaryEntry, EmotionType } from '@/types/diary'
 
@@ -17,10 +18,7 @@ export async function GET(request: NextRequest) {
   } = await supabase.auth.getUser()
 
   if (authError || !user) {
-    return NextResponse.json(
-      { success: false, error: '인증이 필요합니다' },
-      { status: 401 }
-    )
+    return apiError('AUTH_REQUIRED')
   }
 
   const { searchParams } = new URL(request.url)
@@ -28,17 +26,11 @@ export async function GET(request: NextRequest) {
 
   // 날짜 파라미터 검증
   if (!date) {
-    return NextResponse.json(
-      { success: false, error: 'date 파라미터가 필요합니다 (YYYY-MM-DD)' },
-      { status: 400 }
-    )
+    return apiError('VALIDATION_ERROR')
   }
 
   if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
-    return NextResponse.json(
-      { success: false, error: '날짜 형식이 올바르지 않습니다 (YYYY-MM-DD)' },
-      { status: 400 }
-    )
+    return apiError('VALIDATION_ERROR')
   }
 
   // 특정 날짜 일기 조회 (.maybeSingle() 사용 — 없으면 null)
@@ -50,10 +42,7 @@ export async function GET(request: NextRequest) {
     .maybeSingle()
 
   if (error) {
-    return NextResponse.json(
-      { success: false, error: '일기 조회에 실패했습니다' },
-      { status: 500 }
-    )
+    return apiError('SERVER_ERROR')
   }
 
   return NextResponse.json({ success: true, data: data as DiaryEntry | null })
@@ -68,36 +57,24 @@ export async function POST(request: NextRequest) {
   } = await supabase.auth.getUser()
 
   if (authError || !user) {
-    return NextResponse.json(
-      { success: false, error: '인증이 필요합니다' },
-      { status: 401 }
-    )
+    return apiError('AUTH_REQUIRED')
   }
 
   let body: { content_encrypted?: unknown; emotion_tags?: unknown; date?: unknown }
   try {
     body = await request.json() as { content_encrypted?: unknown; emotion_tags?: unknown; date?: unknown }
   } catch {
-    return NextResponse.json(
-      { success: false, error: '잘못된 요청 형식입니다' },
-      { status: 400 }
-    )
+    return apiError('VALIDATION_ERROR')
   }
 
   // 암호화된 콘텐츠 검증
   if (!body.content_encrypted || typeof body.content_encrypted !== 'string' || body.content_encrypted.trim() === '') {
-    return NextResponse.json(
-      { success: false, error: 'content_encrypted는 필수입니다' },
-      { status: 400 }
-    )
+    return apiError('VALIDATION_ERROR')
   }
 
   // 감정 태그 검증
   if (!Array.isArray(body.emotion_tags) || body.emotion_tags.length === 0) {
-    return NextResponse.json(
-      { success: false, error: '감정 태그를 1개 이상 선택해야 합니다' },
-      { status: 400 }
-    )
+    return apiError('VALIDATION_ERROR')
   }
 
   const emotionTags = body.emotion_tags as EmotionType[]
@@ -143,10 +120,7 @@ export async function POST(request: NextRequest) {
     .maybeSingle()
 
   if (error) {
-    return NextResponse.json(
-      { success: false, error: '일기 생성에 실패했습니다' },
-      { status: 500 }
-    )
+    return apiError('SERVER_ERROR')
   }
 
   return NextResponse.json({ success: true, data: data as DiaryEntry }, { status: 201 })

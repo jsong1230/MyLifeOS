@@ -1,5 +1,6 @@
 'use client'
 
+import { useTranslations } from 'next-intl'
 import {
   LineChart,
   Line,
@@ -24,13 +25,15 @@ function formatDate(dateStr: string): string {
 }
 
 export function BodyTrendChart({ logs }: BodyTrendChartProps) {
+  const t = useTranslations('health.body')
+
   // 최신순 → 오름차순 정렬 (차트는 시간 순)
   const sorted = [...logs].sort((a, b) => a.date.localeCompare(b.date))
   const chartData = sorted.map((log) => ({
     date: formatDate(log.date),
-    체중: log.weight ?? undefined,
-    체지방률: log.body_fat ?? undefined,
-    근육량: log.muscle_mass ?? undefined,
+    weight: log.weight ?? undefined,
+    bodyFat: log.body_fat ?? undefined,
+    muscle: log.muscle_mass ?? undefined,
   }))
 
   const hasWeight = sorted.some((l) => l.weight != null)
@@ -42,7 +45,7 @@ export function BodyTrendChart({ logs }: BodyTrendChartProps) {
   return (
     <Card>
       <CardHeader className="pb-2">
-        <CardTitle className="text-sm font-medium">체중/체성분 추이</CardTitle>
+        <CardTitle className="text-sm font-medium">{t('trend')}</CardTitle>
       </CardHeader>
       <CardContent>
         <ResponsiveContainer width="100%" height={200}>
@@ -56,13 +59,13 @@ export function BodyTrendChart({ logs }: BodyTrendChartProps) {
               formatter={(value) => <span className="text-xs">{value}</span>}
             />
             {hasWeight && (
-              <Line type="monotone" dataKey="체중" stroke="#3b82f6" strokeWidth={2} dot={{ r: 3 }} connectNulls />
+              <Line type="monotone" dataKey="weight" name={t('weight')} stroke="#3b82f6" strokeWidth={2} dot={{ r: 3 }} connectNulls />
             )}
             {hasBodyFat && (
-              <Line type="monotone" dataKey="체지방률" stroke="#ef4444" strokeWidth={2} dot={{ r: 3 }} connectNulls />
+              <Line type="monotone" dataKey="bodyFat" name={t('bodyFat')} stroke="#ef4444" strokeWidth={2} dot={{ r: 3 }} connectNulls />
             )}
             {hasMuscleMass && (
-              <Line type="monotone" dataKey="근육량" stroke="#22c55e" strokeWidth={2} dot={{ r: 3 }} connectNulls />
+              <Line type="monotone" dataKey="muscle" name={t('muscle')} stroke="#22c55e" strokeWidth={2} dot={{ r: 3 }} connectNulls />
             )}
           </LineChart>
         </ResponsiveContainer>

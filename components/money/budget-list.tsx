@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
 import { BudgetProgress } from '@/components/money/budget-progress'
 import { ChevronLeftIcon, ChevronRightIcon, PlusIcon } from 'lucide-react'
+import { formatCurrency } from '@/lib/currency'
 import type { BudgetStatus, Budget } from '@/types/budget'
 
 interface BudgetListProps {
@@ -35,11 +36,6 @@ export function BudgetList({
   function formatMonthLabel(yearMonth: string): string {
     const [year, mon] = yearMonth.split('-')
     return `${year}년 ${parseInt(mon, 10)}월`
-  }
-
-  // 금액 포맷 (원화)
-  function formatKRW(value: number): string {
-    return new Intl.NumberFormat('ko-KR').format(Math.round(value))
   }
 
   // 이전/다음 달 계산
@@ -96,7 +92,7 @@ export function BudgetList({
             </CardTitle>
           </CardHeader>
           <CardContent className="pb-3 px-3">
-            <p className="text-sm font-semibold">{formatKRW(totalBudget)}원</p>
+            <p className="text-sm font-semibold">{formatCurrency(totalBudget, 'KRW')}</p>
           </CardContent>
         </Card>
         <Card>
@@ -106,7 +102,7 @@ export function BudgetList({
             </CardTitle>
           </CardHeader>
           <CardContent className="pb-3 px-3">
-            <p className="text-sm font-semibold">{formatKRW(totalSpent)}원</p>
+            <p className="text-sm font-semibold">{formatCurrency(totalSpent, 'KRW')}</p>
           </CardContent>
         </Card>
         <Card>
@@ -121,7 +117,7 @@ export function BudgetList({
                 totalRemaining < 0 ? 'text-destructive' : ''
               }`}
             >
-              {formatKRW(totalRemaining)}원
+              {formatCurrency(totalRemaining, 'KRW')}
             </p>
           </CardContent>
         </Card>

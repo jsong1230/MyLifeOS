@@ -2,22 +2,24 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Settings, User } from 'lucide-react'
+import { useTranslations } from 'next-intl'
+import { Settings } from 'lucide-react'
 import { useAuthStore } from '@/store/auth.store'
-
-const PAGE_TITLES: Record<string, string> = {
-  '/': 'My Life OS',
-  '/time': '시간 관리',
-  '/money': '금전 관리',
-  '/health': '건강 관리',
-  '/private': '사적 기록',
-  '/settings': '설정',
-}
 
 // 상단 헤더 — 경로별 제목 + 사용자 아바타 + 설정 링크
 export function Header() {
   const pathname = usePathname()
   const user = useAuthStore((s) => s.user)
+  const t = useTranslations()
+
+  const PAGE_TITLES: Record<string, string> = {
+    '/': 'My Life OS',
+    '/time': t('nav.time'),
+    '/money': t('nav.money'),
+    '/health': t('nav.health'),
+    '/private': t('nav.private'),
+    '/settings': t('nav.settings'),
+  }
 
   const title =
     Object.entries(PAGE_TITLES).find(([path]) =>
@@ -37,7 +39,7 @@ export function Header() {
             // eslint-disable-next-line @next/next/no-img-element
             <img
               src={user.user_metadata.avatar_url}
-              alt="프로필"
+              alt={t('auth.profileImage')}
               className="w-8 h-8 rounded-full object-cover"
             />
           ) : (
@@ -45,7 +47,7 @@ export function Header() {
           )}
         </div>
         {/* 설정 링크 */}
-        <Link href="/settings" aria-label="설정">
+        <Link href="/settings" aria-label={t('nav.settings')}>
           <Settings className="w-5 h-5 text-muted-foreground hover:text-foreground transition-colors" />
         </Link>
       </div>

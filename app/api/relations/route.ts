@@ -1,4 +1,5 @@
 import { NextResponse, type NextRequest } from 'next/server'
+import { apiError } from '@/lib/api-errors'
 import { createClient } from '@/lib/supabase/server'
 import type { Relation } from '@/types/relation'
 
@@ -21,10 +22,7 @@ export async function GET() {
   } = await supabase.auth.getUser()
 
   if (authError || !user) {
-    return NextResponse.json(
-      { success: false, error: '인증이 필요합니다' },
-      { status: 401 }
-    )
+    return apiError('AUTH_REQUIRED')
   }
 
   const { data, error } = await supabase
@@ -34,10 +32,7 @@ export async function GET() {
     .order('name', { ascending: true })
 
   if (error) {
-    return NextResponse.json(
-      { success: false, error: '인간관계 목록 조회에 실패했습니다' },
-      { status: 500 }
-    )
+    return apiError('SERVER_ERROR')
   }
 
   return NextResponse.json({ success: true, data: data as Relation[] })
@@ -52,47 +47,32 @@ export async function POST(request: NextRequest) {
   } = await supabase.auth.getUser()
 
   if (authError || !user) {
-    return NextResponse.json(
-      { success: false, error: '인증이 필요합니다' },
-      { status: 401 }
-    )
+    return apiError('AUTH_REQUIRED')
   }
 
   let body: CreateRelationBody
   try {
     body = await request.json() as CreateRelationBody
   } catch {
-    return NextResponse.json(
-      { success: false, error: '잘못된 요청 형식입니다' },
-      { status: 400 }
-    )
+    return apiError('VALIDATION_ERROR')
   }
 
   // 이름 필수 검증
   if (!body.name || typeof body.name !== 'string' || body.name.trim() === '') {
-    return NextResponse.json(
-      { success: false, error: '이름은 필수입니다' },
-      { status: 400 }
-    )
+    return apiError('VALIDATION_ERROR')
   }
 
   // 관계 유형 검증
   if (!body.relationship_type || !VALID_RELATIONSHIP_TYPES.includes(
     body.relationship_type as (typeof VALID_RELATIONSHIP_TYPES)[number]
   )) {
-    return NextResponse.json(
-      { success: false, error: '유효하지 않은 관계 유형입니다' },
-      { status: 400 }
-    )
+    return apiError('VALIDATION_ERROR')
   }
 
   // 날짜 형식 검증 (입력된 경우)
   if (body.last_met_at != null && body.last_met_at !== '') {
     if (!/^\d{4}-\d{2}-\d{2}$/.test(body.last_met_at)) {
-      return NextResponse.json(
-        { success: false, error: '날짜 형식이 올바르지 않습니다 (YYYY-MM-DD)' },
-        { status: 400 }
-      )
+      return apiError('VALIDATION_ERROR')
     }
   }
 
@@ -111,10 +91,7 @@ export async function POST(request: NextRequest) {
     .maybeSingle()
 
   if (error) {
-    return NextResponse.json(
-      { success: false, error: '인간관계 등록에 실패했습니다' },
-      { status: 500 }
-    )
+    return apiError('SERVER_ERROR')
   }
 
   return NextResponse.json({ success: true, data: data as Relation }, { status: 201 })

@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, type FormEvent } from 'react'
+import { useTranslations } from 'next-intl'
 import {
   Dialog,
   DialogContent,
@@ -22,12 +23,6 @@ interface TodoFormDialogProps {
   onSuccess?: () => void
 }
 
-const PRIORITY_OPTIONS: { value: TodoPriority; label: string }[] = [
-  { value: 'high', label: '높음' },
-  { value: 'medium', label: '중간' },
-  { value: 'low', label: '낮음' },
-]
-
 // 할일 생성 폼 다이얼로그
 export function TodoFormDialog({
   open,
@@ -35,6 +30,8 @@ export function TodoFormDialog({
   defaultDate,
   onSuccess,
 }: TodoFormDialogProps) {
+  const t = useTranslations('time.todos')
+  const tCommon = useTranslations('common')
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
   const [dueDate, setDueDate] = useState(defaultDate ?? '')
@@ -67,7 +64,7 @@ export function TodoFormDialog({
 
     // 제목 유효성 검사
     if (!title.trim()) {
-      setTitleError('제목을 입력해 주세요')
+      setTitleError(t('titleLabel'))
       return
     }
 
@@ -89,18 +86,24 @@ export function TodoFormDialog({
     }
   }
 
+  const priorityOptions: { value: TodoPriority; label: string }[] = [
+    { value: 'high', label: t('priorities.high') },
+    { value: 'medium', label: t('priorities.medium') },
+    { value: 'low', label: t('priorities.low') },
+  ]
+
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>새 할일 추가</DialogTitle>
+          <DialogTitle>{t('addTitle')}</DialogTitle>
         </DialogHeader>
 
         <form onSubmit={(e) => void handleSubmit(e)} className="flex flex-col gap-4">
           {/* 제목 */}
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="todo-title">
-              제목 <span className="text-destructive">*</span>
+              {t('titleLabel')} <span className="text-destructive">*</span>
             </Label>
             <Input
               id="todo-title"
@@ -109,7 +112,7 @@ export function TodoFormDialog({
                 setTitle(e.target.value)
                 if (e.target.value.trim()) setTitleError('')
               }}
-              placeholder="할일을 입력하세요"
+              placeholder={t('titlePlaceholder')}
               aria-invalid={!!titleError}
               aria-describedby={titleError ? 'todo-title-error' : undefined}
               autoFocus
@@ -123,19 +126,21 @@ export function TodoFormDialog({
 
           {/* 설명 */}
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor="todo-description">설명 (선택)</Label>
+            <Label htmlFor="todo-description">
+              {tCommon('description')} ({tCommon('optional')})
+            </Label>
             <Input
               id="todo-description"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="세부 내용을 입력하세요"
+              placeholder={tCommon('description')}
             />
           </div>
 
           {/* 날짜 + 우선순위 */}
           <div className="grid grid-cols-2 gap-3">
             <div className="flex flex-col gap-1.5">
-              <Label htmlFor="todo-due-date">마감일</Label>
+              <Label htmlFor="todo-due-date">{t('dueDate')}</Label>
               <Input
                 id="todo-due-date"
                 type="date"
@@ -145,14 +150,14 @@ export function TodoFormDialog({
             </div>
 
             <div className="flex flex-col gap-1.5">
-              <Label htmlFor="todo-priority">우선순위</Label>
+              <Label htmlFor="todo-priority">{t('priority')}</Label>
               <select
                 id="todo-priority"
                 value={priority}
                 onChange={(e) => setPriority(e.target.value as TodoPriority)}
                 className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               >
-                {PRIORITY_OPTIONS.map(({ value, label }) => (
+                {priorityOptions.map(({ value, label }) => (
                   <option key={value} value={value}>
                     {label}
                   </option>
@@ -163,12 +168,14 @@ export function TodoFormDialog({
 
           {/* 카테고리 */}
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor="todo-category">카테고리 (선택)</Label>
+            <Label htmlFor="todo-category">
+              {tCommon('category')} ({tCommon('optional')})
+            </Label>
             <Input
               id="todo-category"
               value={category}
               onChange={(e) => setCategory(e.target.value)}
-              placeholder="예: 업무, 개인, 쇼핑"
+              placeholder={tCommon('category')}
             />
           </div>
 
@@ -179,10 +186,10 @@ export function TodoFormDialog({
               onClick={() => onOpenChange(false)}
               disabled={isPending}
             >
-              취소
+              {tCommon('cancel')}
             </Button>
             <Button type="submit" disabled={isPending}>
-              {isPending ? '저장 중...' : '저장'}
+              {isPending ? tCommon('saving') : tCommon('save')}
             </Button>
           </DialogFooter>
         </form>

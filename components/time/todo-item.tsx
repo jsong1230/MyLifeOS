@@ -3,6 +3,7 @@
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import { GripVertical, Pencil, Trash2 } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Checkbox } from '@/components/ui/checkbox'
@@ -24,12 +25,6 @@ const PRIORITY_BADGE_CLASS: Record<string, string> = {
   low: 'bg-green-100 text-green-700 border-green-200 dark:bg-green-900/30 dark:text-green-400',
 }
 
-const PRIORITY_LABEL: Record<string, string> = {
-  high: '높음',
-  medium: '중간',
-  low: '낮음',
-}
-
 // 마감일이 오늘보다 이전인지 확인
 function isOverdue(dueDate: string | null | undefined): boolean {
   if (!dueDate) return false
@@ -48,6 +43,8 @@ function formatDate(dateStr: string): string {
 
 // 할일 항목 컴포넌트 — 드래그 앤 드롭 지원
 export function TodoItem({ todo, onToggle, onEdit, onDelete, isDragging = false }: TodoItemProps) {
+  const t = useTranslations('time.todos')
+  const tCommon = useTranslations('common')
   const {
     attributes,
     listeners,
@@ -79,7 +76,7 @@ export function TodoItem({ todo, onToggle, onEdit, onDelete, isDragging = false 
       <button
         type="button"
         className="cursor-grab touch-none text-muted-foreground hover:text-foreground active:cursor-grabbing shrink-0"
-        aria-label="드래그하여 순서 변경"
+        aria-label="drag to reorder"
         {...attributes}
         {...listeners}
       >
@@ -91,7 +88,7 @@ export function TodoItem({ todo, onToggle, onEdit, onDelete, isDragging = false 
         id={`todo-check-${todo.id}`}
         checked={isCompleted}
         onCheckedChange={() => onToggle(todo.id)}
-        aria-label={`${todo.title} 완료 토글`}
+        aria-label={`${todo.title} ${t('complete')}`}
         className="shrink-0"
       />
 
@@ -114,7 +111,7 @@ export function TodoItem({ todo, onToggle, onEdit, onDelete, isDragging = false 
             variant="outline"
             className={cn('text-xs px-1.5 py-0', PRIORITY_BADGE_CLASS[todo.priority])}
           >
-            {PRIORITY_LABEL[todo.priority]}
+            {t(`priorities.${todo.priority}`)}
           </Badge>
 
           {/* 마감일 */}
@@ -146,7 +143,7 @@ export function TodoItem({ todo, onToggle, onEdit, onDelete, isDragging = false 
           variant="ghost"
           size="icon-sm"
           onClick={() => onEdit(todo)}
-          aria-label={`${todo.title} 수정`}
+          aria-label={`${todo.title} ${tCommon('edit')}`}
           className="text-muted-foreground hover:text-foreground"
         >
           <Pencil className="size-3.5" />
@@ -156,7 +153,7 @@ export function TodoItem({ todo, onToggle, onEdit, onDelete, isDragging = false 
           variant="ghost"
           size="icon-sm"
           onClick={() => onDelete(todo.id)}
-          aria-label={`${todo.title} 삭제`}
+          aria-label={`${todo.title} ${tCommon('delete')}`}
           className="text-muted-foreground hover:text-destructive"
         >
           <Trash2 className="size-3.5" />

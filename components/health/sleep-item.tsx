@@ -1,5 +1,6 @@
 'use client'
 
+import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Pencil, Trash2, Moon, Sun } from 'lucide-react'
@@ -7,7 +8,6 @@ import { cn } from '@/lib/utils'
 import type { SleepLog } from '@/types/health'
 
 // 수면 시간에 따른 색상 클래스 반환
-// 7h+ = 초록, 5-7h = 주황, 5h 미만 = 빨강
 function getSleepHoursColor(hours: number): string {
   if (hours >= 7) return 'text-green-600 dark:text-green-400'
   if (hours >= 5) return 'text-orange-500 dark:text-orange-400'
@@ -21,29 +21,34 @@ function getSleepBadgeVariant(hours: number): 'default' | 'secondary' | 'destruc
   return 'destructive'
 }
 
-// 수면 시간 포맷 (예: 7.5 → "7시간 30분")
-function formatSleepHours(hours: number): string {
-  const h = Math.floor(hours)
-  const m = Math.round((hours - h) * 60)
-  if (m === 0) return `${h}시간`
-  return `${h}시간 ${m}분`
-}
-
-// 날짜 포맷 (YYYY-MM-DD → M월 D일 (요일))
-function formatDate(dateStr: string): string {
-  const date = new Date(dateStr)
-  const days = ['일', '월', '화', '수', '목', '금', '토']
-  return `${date.getMonth() + 1}월 ${date.getDate()}일 (${days[date.getDay()]})`
-}
-
 interface SleepItemProps {
   sleep: SleepLog
   onEdit: (sleep: SleepLog) => void
   onDelete: (id: string) => void
 }
 
-// 수면 기록 아이템 컴포넌트 — 취침/기상 시각, 수면 시간, 수면 질 별점 표시
+// 수면 기록 아이템 컴포넌트
 export function SleepItem({ sleep, onEdit, onDelete }: SleepItemProps) {
+  const t = useTranslations('health.sleep')
+  const tCalendar = useTranslations('time.calendar')
+
+  const dayKeys = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'] as const
+
+  // 수면 시간 포맷 (예: 7.5 → "7시간 30분")
+  function formatSleepHours(hours: number): string {
+    const h = Math.floor(hours)
+    const m = Math.round((hours - h) * 60)
+    if (m === 0) return `${h}${t('hourUnit')}`
+    return `${h}${t('hourUnit')} ${m}${t('minuteUnit')}`
+  }
+
+  // 날짜 포맷 (YYYY-MM-DD → M월 D일 (요일))
+  function formatDate(dateStr: string): string {
+    const date = new Date(dateStr)
+    const dayKey = dayKeys[date.getDay()]
+    return `${date.getMonth() + 1}월 ${date.getDate()}일 (${tCalendar(`weekdays.${dayKey}`)})`
+  }
+
   return (
     <div className="flex items-start gap-3 p-3 rounded-lg border bg-card hover:bg-accent/30 transition-colors">
       {/* 수면 아이콘 */}
@@ -66,7 +71,10 @@ export function SleepItem({ sleep, onEdit, onDelete }: SleepItemProps) {
 
           {/* 수면 질 별점 */}
           {sleep.value2 != null && (
-            <span className="text-yellow-400 text-sm" title={`수면 질: ${sleep.value2}/5`}>
+            <span
+              className="text-yellow-400 text-sm"
+              title={t('qualityScore', { score: sleep.value2 })}
+            >
               {'★'.repeat(sleep.value2)}
               {'☆'.repeat(5 - sleep.value2)}
             </span>
@@ -100,7 +108,7 @@ export function SleepItem({ sleep, onEdit, onDelete }: SleepItemProps) {
           size="icon"
           className="h-8 w-8"
           onClick={() => onEdit(sleep)}
-          aria-label="수면 기록 수정"
+          aria-label={t('editAriaLabel')}
         >
           <Pencil className="w-3.5 h-3.5" />
         </Button>
@@ -109,7 +117,7 @@ export function SleepItem({ sleep, onEdit, onDelete }: SleepItemProps) {
           size="icon"
           className="h-8 w-8 text-destructive hover:text-destructive"
           onClick={() => onDelete(sleep.id)}
-          aria-label="수면 기록 삭제"
+          aria-label={t('deleteAriaLabel')}
         >
           <Trash2 className="w-3.5 h-3.5" />
         </Button>

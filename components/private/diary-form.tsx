@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { EmotionTags } from './emotion-tags'
@@ -24,10 +25,13 @@ function formatDateKr(dateStr: string): string {
 
 // 일기 작성/수정 폼 컴포넌트
 // - 감정 태그 선택 그리드 (10개 버튼, 다중 선택 가능)
-// - textarea로 일기 내용 작성 (min-height: 200px)
+// - textarea로 일기 내용 작성
 // - 날짜 표시 (읽기 전용)
 // - 저장 시 암호화는 hooks/use-diaries.ts에서 처리
 export function DiaryForm({ diary, date, onSubmit, onCancel, isLoading = false }: DiaryFormProps) {
+  const t = useTranslations('private.diary')
+  const tCommon = useTranslations('common')
+
   const [content, setContent] = useState(diary?.content ?? '')
   const [emotionTags, setEmotionTags] = useState<EmotionType[]>(
     diary?.emotion_tags ?? []
@@ -39,11 +43,11 @@ export function DiaryForm({ diary, date, onSubmit, onCancel, isLoading = false }
     const newErrors: { content?: string; emotion_tags?: string } = {}
 
     if (!content.trim()) {
-      newErrors.content = '일기 내용을 입력해주세요'
+      newErrors.content = t('contentRequired')
     }
 
     if (emotionTags.length === 0) {
-      newErrors.emotion_tags = '감정 태그를 1개 이상 선택해주세요'
+      newErrors.emotion_tags = t('emotionRequired')
     }
 
     setErrors(newErrors)
@@ -70,7 +74,7 @@ export function DiaryForm({ diary, date, onSubmit, onCancel, isLoading = false }
       {/* 감정 태그 선택 */}
       <div className="space-y-2">
         <Label>
-          오늘의 감정 <span className="text-destructive">*</span>
+          {t('todayEmotion')} <span className="text-destructive">*</span>
         </Label>
         <EmotionTags
           selected={emotionTags}
@@ -87,17 +91,16 @@ export function DiaryForm({ diary, date, onSubmit, onCancel, isLoading = false }
       {/* 일기 내용 입력 */}
       <div className="space-y-2">
         <Label htmlFor="diary-content">
-          일기 내용 <span className="text-destructive">*</span>
+          {t('contentLabel')} <span className="text-destructive">*</span>
         </Label>
         <textarea
           id="diary-content"
           value={content}
           onChange={(e) => setContent(e.target.value)}
-          placeholder="오늘 하루를 기록해보세요..."
+          placeholder={t('contentPlaceholder')}
           disabled={isLoading}
-          className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 resize-none"
-          style={{ minHeight: '200px' }}
-          aria-label="일기 내용"
+          className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 resize-none min-h-[200px]"
+          aria-label={t('contentLabel')}
         />
         {errors.content && (
           <p className="text-xs text-destructive" role="alert">
@@ -115,11 +118,11 @@ export function DiaryForm({ diary, date, onSubmit, onCancel, isLoading = false }
             onClick={onCancel}
             disabled={isLoading}
           >
-            취소
+            {tCommon('cancel')}
           </Button>
         )}
         <Button type="submit" disabled={isLoading || emotionTags.length === 0}>
-          {isLoading ? '저장 중...' : diary ? '수정' : '저장'}
+          {isLoading ? tCommon('saving') : diary ? tCommon('update') : tCommon('save')}
         </Button>
       </div>
     </form>

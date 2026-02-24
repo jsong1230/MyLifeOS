@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -14,6 +15,7 @@ import {
 import { Checkbox } from '@/components/ui/checkbox'
 import { Separator } from '@/components/ui/separator'
 import { cn } from '@/lib/utils'
+import { parseAmountInput, formatAmount, CURRENCY_CODES, type CurrencyCode } from '@/lib/currency'
 import { useCategories } from '@/hooks/use-categories'
 import { useTransactions } from '@/hooks/use-transactions'
 import type { Transaction, CreateTransactionInput, TransactionType } from '@/types/transaction'
@@ -30,27 +32,18 @@ function getTodayString(): string {
   return new Date().toISOString().split('T')[0]
 }
 
-// 숫자 문자열에서 콤마 제거 후 숫자로 변환
-function parseAmount(value: string): number {
-  return Number(value.replace(/,/g, ''))
-}
-
-// 숫자를 천 단위 콤마 포맷으로 변환
-function formatAmount(value: number | string): string {
-  const num = typeof value === 'string' ? parseAmount(value) : value
-  if (isNaN(num)) return ''
-  return num.toLocaleString('ko-KR')
-}
-
 export function TransactionForm({
   transaction,
   onSubmit,
   onCancel,
   isLoading = false,
 }: TransactionFormProps) {
+  const t = useTranslations('money.transactions')
+  const tc = useTranslations('common')
   const [type, setType] = useState<TransactionType>(transaction?.type ?? 'expense')
+  const [currency, setCurrency] = useState<CurrencyCode>(transaction?.currency ?? 'KRW')
   const [amountDisplay, setAmountDisplay] = useState<string>(
-    transaction ? formatAmount(transaction.amount) : ''
+    transaction ? formatAmount(transaction.amount, transaction.currency ?? 'KRW') : ''
   )
   const [date, setDate] = useState<string>(transaction?.date ?? getTodayString())
   const [categoryId, setCategoryId] = useState<string>(transaction?.category_id ?? '')
@@ -79,22 +72,28 @@ export function TransactionForm({
     }
   }, [type, filteredCategories, categoryId])
 
-  // 금액 입력 핸들러 — 숫자만 허용, 천 단위 콤마 자동 포맷
+  // 금액 입력 핸들러 — 통화에 따라 소수점 허용 여부 결정
   function handleAmountChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const raw = e.target.value.replace(/[^0-9]/g, '')
+    const raw = currency === 'KRW'
+      ? e.target.value.replace(/[^0-9]/g, '')
+      : e.target.value.replace(/[^0-9.]/g, '')
     if (raw === '') {
       setAmountDisplay('')
       return
     }
-    const num = parseInt(raw, 10)
-    setAmountDisplay(num.toLocaleString('ko-KR'))
+    const num = parseAmountInput(raw, currency)
+    if (!isNaN(num)) {
+      setAmountDisplay(formatAmount(num, currency))
+    }
     setAmountError('')
   }
 
   // 즐겨찾기 항목 선택 시 자동 입력
   function handleFavoriteSelect(favTransaction: Transaction) {
     setType(favTransaction.type)
-    setAmountDisplay(formatAmount(favTransaction.amount))
+    const favCurrency = favTransaction.currency ?? 'KRW'
+    setCurrency(favCurrency)
+    setAmountDisplay(formatAmount(favTransaction.amount, favCurrency))
     setCategoryId(favTransaction.category_id ?? '')
     setMemo(favTransaction.memo ?? '')
     setAmountError('')
@@ -104,9 +103,9 @@ export function TransactionForm({
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
 
-    const amount = parseAmount(amountDisplay)
+    const amount = parseAmountInput(amountDisplay, currency)
     if (!amountDisplay || isNaN(amount) || amount <= 0) {
-      setAmountError('금액을 올바르게 입력해주세요')
+      setAmountError(tc('amount'))
       return
     }
 
@@ -117,6 +116,7 @@ export function TransactionForm({
       memo: memo.trim() || undefined,
       date,
       is_favorite: isFavorite,
+      currency,
     }
 
     onSubmit(data)
@@ -143,8 +143,8 @@ export function TransactionForm({
                 )}
               >
                 {fav.category?.icon && <span>{fav.category.icon}</span>}
-                <span>{fav.category?.name ?? fav.memo ?? '미분류'}</span>
-                <span className="font-semibold">{formatAmount(fav.amount)}원</span>
+                <span>{fav.category?.name ?? fav.memo ?? tc('none')}</span>
+                <span className="font-semibold">{formatAmount(fav.amount, fav.currency ?? 'KRW')}</span>
               </button>
             ))}
           </div>
@@ -180,24 +180,33 @@ export function TransactionForm({
         </button>
       </div>
 
-      {/* 금액 입력 */}
+      {/* 금액 + 통화 입력 */}
       <div className="space-y-1.5">
         <Label htmlFor="amount">
           금액 <span className="text-destructive">*</span>
         </Label>
-        <div className="relative">
-          <Input
-            id="amount"
-            type="text"
-            inputMode="numeric"
-            placeholder="0"
-            value={amountDisplay}
-            onChange={handleAmountChange}
-            className={cn('pr-8', amountError && 'border-destructive')}
-          />
-          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">
-            원
-          </span>
+        <div className="flex gap-2">
+          <Select value={currency} onValueChange={(v) => setCurrency(v as CurrencyCode)}>
+            <SelectTrigger className="w-24 shrink-0">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {CURRENCY_CODES.map((code) => (
+                <SelectItem key={code} value={code}>{code}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <div className="relative flex-1">
+            <Input
+              id="amount"
+              type="text"
+              inputMode={currency === 'KRW' ? 'numeric' : 'decimal'}
+              placeholder="0"
+              value={amountDisplay}
+              onChange={handleAmountChange}
+              className={cn('pr-2', amountError && 'border-destructive')}
+            />
+          </div>
         </div>
         {amountError && (
           <p className="text-xs text-destructive">{amountError}</p>
@@ -287,7 +296,7 @@ export function TransactionForm({
               : 'bg-red-500 hover:bg-red-600 text-white'
           )}
         >
-          {isLoading ? '저장 중...' : transaction ? '수정하기' : '추가하기'}
+          {isLoading ? tc('loading') : transaction ? tc('update') : tc('add')}
         </Button>
       </div>
     </form>

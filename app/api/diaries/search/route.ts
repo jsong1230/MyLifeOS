@@ -1,4 +1,5 @@
 import { NextResponse, type NextRequest } from 'next/server'
+import { apiError } from '@/lib/api-errors'
 import { createClient } from '@/lib/supabase/server'
 import type { EmotionType } from '@/types/diary'
 
@@ -19,10 +20,7 @@ export async function GET(request: NextRequest) {
   } = await supabase.auth.getUser()
 
   if (authError || !user) {
-    return NextResponse.json(
-      { success: false, error: '인증이 필요합니다' },
-      { status: 401 }
-    )
+    return apiError('AUTH_REQUIRED')
   }
 
   const { searchParams } = new URL(request.url)
@@ -31,10 +29,7 @@ export async function GET(request: NextRequest) {
   // months 파라미터 파싱 (기본값 12, 최대 60)
   const months = monthsParam ? parseInt(monthsParam, 10) : 12
   if (isNaN(months) || months < 1 || months > 60) {
-    return NextResponse.json(
-      { success: false, error: 'months 파라미터는 1~60 사이의 정수여야 합니다' },
-      { status: 400 }
-    )
+    return apiError('VALIDATION_ERROR')
   }
 
   // N개월 전 시작일 계산
@@ -56,10 +51,7 @@ export async function GET(request: NextRequest) {
     .order('date', { ascending: false })
 
   if (error) {
-    return NextResponse.json(
-      { success: false, error: '일기 검색 조회에 실패했습니다' },
-      { status: 500 }
-    )
+    return apiError('SERVER_ERROR')
   }
 
   return NextResponse.json({ success: true, data: data as DiarySearchItem[] })

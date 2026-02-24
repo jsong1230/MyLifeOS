@@ -1,4 +1,5 @@
 import { NextResponse, type NextRequest } from 'next/server'
+import { apiError } from '@/lib/api-errors'
 import bcrypt from 'bcryptjs'
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
@@ -14,7 +15,7 @@ export async function GET() {
     const supabase = await createClient()
     const { data: { user }, error: authError } = await supabase.auth.getUser()
     if (authError || !user) {
-      return NextResponse.json({ error: '인증이 필요합니다' }, { status: 401 })
+      return apiError('AUTH_REQUIRED')
     }
 
     const adminClient = createAdminClient()
@@ -25,7 +26,7 @@ export async function GET() {
       .maybeSingle()
 
     if (error) {
-      return NextResponse.json({ error: '사용자 정보를 조회할 수 없습니다' }, { status: 500 })
+      return apiError('SERVER_ERROR')
     }
 
     // 레코드 없으면 PIN 미설정으로 간주
@@ -34,10 +35,7 @@ export async function GET() {
       data: { pinSet: Boolean(data?.pin_hash) },
     })
   } catch {
-    return NextResponse.json(
-      { error: '서버 오류가 발생했습니다' },
-      { status: 500 },
-    )
+    return apiError('SERVER_ERROR')
   }
 }
 
@@ -56,7 +54,7 @@ export async function POST(request: NextRequest) {
     // JWT 인증 확인
     const { data: { user }, error: authError } = await supabase.auth.getUser()
     if (authError || !user) {
-      return NextResponse.json({ error: '인증이 필요합니다' }, { status: 401 })
+      return apiError('AUTH_REQUIRED')
     }
 
     const body = await request.json()
@@ -68,7 +66,7 @@ export async function POST(request: NextRequest) {
 
     // 입력값 검증
     if (!pin || !confirmPin) {
-      return NextResponse.json({ error: 'PIN을 입력해주세요' }, { status: 400 })
+      return apiError('VALIDATION_ERROR')
     }
     if (!PIN_REGEX.test(pin)) {
       return NextResponse.json(
@@ -77,7 +75,7 @@ export async function POST(request: NextRequest) {
       )
     }
     if (pin !== confirmPin) {
-      return NextResponse.json({ error: 'PIN이 일치하지 않습니다' }, { status: 400 })
+      return apiError('VALIDATION_ERROR')
     }
 
     // 현재 사용자 PIN 정보 조회
@@ -88,7 +86,7 @@ export async function POST(request: NextRequest) {
       .maybeSingle()
 
     if (fetchError) {
-      return NextResponse.json({ error: '사용자 정보를 조회할 수 없습니다' }, { status: 500 })
+      return apiError('SERVER_ERROR')
     }
 
     const { pin_hash, pin_failed_count, pin_locked_until } = userData ?? {
@@ -130,7 +128,7 @@ export async function POST(request: NextRequest) {
       // 잠금 임박 시에도 현재 PIN 확인 허용
       const match = await bcrypt.compare(currentPin!, pin_hash)
       if (!match) {
-        return NextResponse.json({ error: '현재 PIN이 올바르지 않습니다' }, { status: 403 })
+        return apiError('FORBIDDEN')
       }
     }
 
@@ -161,7 +159,7 @@ export async function POST(request: NextRequest) {
       .upsert(upsertPayload)
 
     if (updateError) {
-      return NextResponse.json({ error: 'PIN 저장에 실패했습니다' }, { status: 500 })
+      return apiError('SERVER_ERROR')
     }
 
     return NextResponse.json({
@@ -169,6 +167,6 @@ export async function POST(request: NextRequest) {
       data: { pinSet: true, salt },
     })
   } catch {
-    return NextResponse.json({ error: '서버 오류가 발생했습니다' }, { status: 500 })
+    return apiError('SERVER_ERROR')
   }
 }

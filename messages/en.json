@@ -112,7 +112,10 @@
     "passwordMismatch": "Passwords do not match",
     "required": "This field is required",
     "invalidNumber": "Please enter a valid number",
-    "invalidDate": "Please enter a valid date"
+    "invalidDate": "Invalid date format",
+    "mustBePositive": "Must be greater than 0",
+    "mustBeNonNegative": "Must be 0 or greater",
+    "rangeMustBe": "Must be between {min} and {max}"
   },
   "errors": {
     "AUTH_REQUIRED": "Authentication required",
@@ -474,7 +477,11 @@
       "percentUnit": "%",
       "noData": "No body composition records",
       "trend": "Body composition trend",
-      "atLeastOne": "Please enter at least one of: weight, body fat, or muscle mass"
+      "atLeastOne": "Please enter at least one of: weight, body fat, or muscle mass",
+      "weightPlaceholder": "e.g. 70.5",
+      "bodyFatPlaceholder": "e.g. 20.5",
+      "musclePlaceholder": "e.g. 30.0",
+      "notePlaceholder": "e.g. Morning fasting measurement"
     },
     "exercise": {
       "title": "Exercise",
@@ -505,7 +512,21 @@
       "exerciseTypePlaceholder": "e.g. Running",
       "durationPlaceholder": "e.g. 30",
       "exerciseTypeRequired": "Please enter an exercise type",
-      "durationRequired": "Please enter duration (at least 1 min)"
+      "durationRequired": "Please enter duration (at least 1 min)",
+      "caloriesPlaceholder": "e.g. 300",
+      "notePlaceholder": "e.g. 5km trail run",
+      "commonExercises": {
+        "running": "Running",
+        "walking": "Walking",
+        "swimming": "Swimming",
+        "cycling": "Cycling",
+        "gym": "Gym",
+        "yoga": "Yoga",
+        "pilates": "Pilates",
+        "hiking": "Hiking",
+        "soccer": "Soccer",
+        "basketball": "Basketball"
+      }
     },
     "meals": {
       "title": "Meals",
@@ -558,7 +579,11 @@
       "proteinInvalid": "Protein must be 0 or greater",
       "carbsInvalid": "Carbs must be 0 or greater",
       "fatInvalid": "Fat must be 0 or greater",
-      "dateInvalid": "Invalid date format"
+      "dateInvalid": "Invalid date format",
+      "caloriesGoalPlaceholder": "e.g. 2000",
+      "proteinPlaceholder": "e.g. 60",
+      "carbsPlaceholder": "e.g. 250",
+      "fatPlaceholder": "e.g. 65"
     },
     "sleep": {
       "title": "Sleep",
@@ -636,7 +661,9 @@
       "alcoholLabel": "Alcohol (%)",
       "countLabel": "Drink count",
       "amountRequired": "Please enter the amount (ml)",
-      "alcoholInvalid": "Alcohol percentage must be between 0 and 100"
+      "amountPositive": "Amount must be greater than 0",
+      "alcoholInvalid": "Alcohol percentage must be between 0 and 100",
+      "drinkCountInvalid": "Drink count must be 0 or greater"
     }
   },
   "private": {

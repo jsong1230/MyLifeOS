@@ -1,17 +1,13 @@
 'use client'
 
+import { useTranslations } from 'next-intl'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
 import { MealItem } from '@/components/health/meal-item'
 import type { MealLog, MealType } from '@/types/health'
 
-// 식사 유형 섹션 순서 및 레이블
-const MEAL_TYPE_SECTIONS: { type: MealType; label: string }[] = [
-  { type: 'breakfast', label: '아침' },
-  { type: 'lunch', label: '점심' },
-  { type: 'dinner', label: '저녁' },
-  { type: 'snack', label: '간식' },
-]
+// 식사 유형 섹션 순서
+const MEAL_TYPE_ORDER: MealType[] = ['breakfast', 'lunch', 'dinner', 'snack']
 
 interface MealListProps {
   meals: MealLog[]
@@ -22,9 +18,11 @@ interface MealListProps {
 
 // 날짜별 식사 목록 컴포넌트 — 식사 유형별 섹션 그룹화 + 총 칼로리 합산
 export function MealList({ meals, onEdit, onDelete }: MealListProps) {
+  const t = useTranslations('health.meals')
+
   // 식사 유형별로 그룹화
-  const grouped = MEAL_TYPE_SECTIONS.reduce<Record<MealType, MealLog[]>>(
-    (acc, { type }) => {
+  const grouped = MEAL_TYPE_ORDER.reduce<Record<MealType, MealLog[]>>(
+    (acc, type) => {
       acc[type] = meals.filter((m) => m.meal_type === type)
       return acc
     },
@@ -41,15 +39,15 @@ export function MealList({ meals, onEdit, onDelete }: MealListProps) {
   if (!hasMeals) {
     return (
       <div className="flex flex-col items-center justify-center py-16 text-center">
-        <p className="text-muted-foreground text-sm">오늘 식사 기록이 없습니다</p>
-        <p className="text-muted-foreground text-xs mt-1">아래 추가 버튼을 눌러 식사를 기록하세요</p>
+        <p className="text-muted-foreground text-sm">{t('noFoodToday')}</p>
+        <p className="text-muted-foreground text-xs mt-1">{t('noFoodHint')}</p>
       </div>
     )
   }
 
   return (
     <div className="space-y-3">
-      {MEAL_TYPE_SECTIONS.map(({ type, label }) => {
+      {MEAL_TYPE_ORDER.map((type) => {
         const sectionMeals = grouped[type]
         if (sectionMeals.length === 0) return null
 
@@ -57,7 +55,7 @@ export function MealList({ meals, onEdit, onDelete }: MealListProps) {
           <Card key={type}>
             <CardHeader className="py-3 px-4">
               <CardTitle className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
-                {label}
+                {t(`types.${type}`)}
               </CardTitle>
             </CardHeader>
             <CardContent className="px-4 pb-2 pt-0">
@@ -75,7 +73,7 @@ export function MealList({ meals, onEdit, onDelete }: MealListProps) {
       {/* 총 칼로리 합산 표시 */}
       <Card className="border-primary/20 bg-primary/5">
         <CardContent className="px-4 py-3 flex items-center justify-between">
-          <span className="text-sm font-semibold">총 칼로리</span>
+          <span className="text-sm font-semibold">{t('totalCalories')}</span>
           <span className="text-lg font-bold tabular-nums">
             {Math.round(totalCalories).toLocaleString()} kcal
           </span>

@@ -1,4 +1,5 @@
 import { NextResponse, type NextRequest } from 'next/server'
+import { apiError } from '@/lib/api-errors'
 import { createClient } from '@/lib/supabase/server'
 
 // GET /api/transactions/monthly-stats?months=6
@@ -8,7 +9,7 @@ export async function GET(request: NextRequest) {
   const { data: { user }, error: authError } = await supabase.auth.getUser()
 
   if (authError || !user) {
-    return NextResponse.json({ success: false, error: '인증이 필요합니다' }, { status: 401 })
+    return apiError('AUTH_REQUIRED')
   }
 
   const { searchParams } = new URL(request.url)
@@ -27,7 +28,7 @@ export async function GET(request: NextRequest) {
     .order('date', { ascending: true })
 
   if (error) {
-    return NextResponse.json({ success: false, error: '거래 조회에 실패했습니다' }, { status: 500 })
+    return apiError('SERVER_ERROR')
   }
 
   // 월별 수입/지출 집계

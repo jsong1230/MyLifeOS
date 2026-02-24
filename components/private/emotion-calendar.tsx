@@ -1,8 +1,9 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
+import { useTranslations } from 'next-intl'
 import { cn } from '@/lib/utils'
-import { EMOTION_ICONS, EMOTION_LABELS, type EmotionType } from '@/types/diary'
+import { EMOTION_ICONS, type EmotionType } from '@/types/diary'
 
 // 월별 일기 목록 아이템 타입 (useDiaryList 반환값과 동일)
 interface DiaryListItem {
@@ -17,8 +18,8 @@ interface EmotionCalendarProps {
   diaries: DiaryListItem[]
 }
 
-// 요일 헤더 (일요일 시작)
-const WEEKDAY_LABELS = ['일', '월', '화', '수', '목', '금', '토']
+// 요일 키 (일요일 시작)
+const WEEKDAY_KEYS = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'] as const
 
 // 날짜 문자열 생성 헬퍼 ('YYYY-MM-DD')
 function toDateString(year: number, month: number, day: number): string {
@@ -89,6 +90,9 @@ function buildCalendarDays(year: number, month: number): CalendarDay[] {
 // 월간 캘린더 컴포넌트
 export function EmotionCalendar({ year, month, diaries }: EmotionCalendarProps) {
   const router = useRouter()
+  const tCalendar = useTranslations('time.calendar')
+  const te = useTranslations('private.emotions')
+
   const today = getTodayString()
 
   // 날짜 → 첫 번째 감정 태그 매핑
@@ -111,12 +115,12 @@ export function EmotionCalendar({ year, month, diaries }: EmotionCalendarProps) 
     <div className="w-full">
       {/* 요일 헤더 */}
       <div className="grid grid-cols-7 mb-1">
-        {WEEKDAY_LABELS.map((label) => (
+        {WEEKDAY_KEYS.map((key) => (
           <div
-            key={label}
+            key={key}
             className="text-center text-xs font-medium text-muted-foreground py-2"
           >
-            {label}
+            {tCalendar(`weekdays.${key}`)}
           </div>
         ))}
       </div>
@@ -157,7 +161,7 @@ export function EmotionCalendar({ year, month, diaries }: EmotionCalendarProps) 
                 <button
                   type="button"
                   onClick={() => handleDayClick(cell.date, true)}
-                  aria-label={`${cell.date} 일기 보기 - ${EMOTION_LABELS[emotion]}`}
+                  aria-label={`${cell.date} - ${te(emotion as Parameters<typeof te>[0])}`}
                   className={cn(
                     'text-xl leading-none rounded-full p-0.5 transition-transform',
                     'hover:scale-110 active:scale-95',

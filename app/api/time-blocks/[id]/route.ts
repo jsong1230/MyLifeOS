@@ -1,4 +1,5 @@
 import { NextResponse, type NextRequest } from 'next/server'
+import { apiError } from '@/lib/api-errors'
 import { createClient } from '@/lib/supabase/server'
 import type { UpdateTimeBlockInput, TimeBlock } from '@/types/time-block'
 
@@ -14,52 +15,34 @@ export async function PATCH(
   } = await supabase.auth.getUser()
 
   if (authError || !user) {
-    return NextResponse.json(
-      { success: false, error: '인증이 필요합니다' },
-      { status: 401 }
-    )
+    return apiError('AUTH_REQUIRED')
   }
 
   const { id } = await params
 
   if (!id) {
-    return NextResponse.json(
-      { success: false, error: '유효하지 않은 ID입니다' },
-      { status: 400 }
-    )
+    return apiError('VALIDATION_ERROR')
   }
 
   let body: UpdateTimeBlockInput
   try {
     body = await request.json() as UpdateTimeBlockInput
   } catch {
-    return NextResponse.json(
-      { success: false, error: '잘못된 요청 형식입니다' },
-      { status: 400 }
-    )
+    return apiError('VALIDATION_ERROR')
   }
 
   // 제목이 있으면 빈 문자열 방지
   if (body.title !== undefined && (typeof body.title !== 'string' || body.title.trim() === '')) {
-    return NextResponse.json(
-      { success: false, error: '제목은 비워둘 수 없습니다' },
-      { status: 400 }
-    )
+    return apiError('VALIDATION_ERROR')
   }
 
   // HH:MM 형식 검증 (제공된 경우)
   const timeRegex = /^\d{2}:\d{2}$/
   if (body.start_time && !timeRegex.test(body.start_time)) {
-    return NextResponse.json(
-      { success: false, error: '시작 시각 형식이 올바르지 않습니다 (HH:MM)' },
-      { status: 400 }
-    )
+    return apiError('VALIDATION_ERROR')
   }
   if (body.end_time && !timeRegex.test(body.end_time)) {
-    return NextResponse.json(
-      { success: false, error: '종료 시각 형식이 올바르지 않습니다 (HH:MM)' },
-      { status: 400 }
-    )
+    return apiError('VALIDATION_ERROR')
   }
 
   // 해당 시간 블록이 현재 사용자 소유인지 확인
@@ -71,20 +54,14 @@ export async function PATCH(
     .maybeSingle()
 
   if (!existing) {
-    return NextResponse.json(
-      { success: false, error: '시간 블록을 찾을 수 없습니다' },
-      { status: 404 }
-    )
+    return apiError('NOT_FOUND')
   }
 
   // 시작/종료 시각 일관성 검증 (둘 다 제공되거나 기존 값과 조합)
   const finalStart = body.start_time ?? (existing as { start_time: string }).start_time
   const finalEnd = body.end_time ?? (existing as { end_time: string }).end_time
   if (finalStart >= finalEnd) {
-    return NextResponse.json(
-      { success: false, error: '종료 시각은 시작 시각 이후여야 합니다' },
-      { status: 400 }
-    )
+    return apiError('VALIDATION_ERROR')
   }
 
   const updateData: Record<string, unknown> = {
@@ -106,10 +83,7 @@ export async function PATCH(
     .maybeSingle()
 
   if (error) {
-    return NextResponse.json(
-      { success: false, error: '시간 블록 수정에 실패했습니다' },
-      { status: 500 }
-    )
+    return apiError('SERVER_ERROR')
   }
 
   return NextResponse.json({ success: true, data: data as TimeBlock })
@@ -127,19 +101,13 @@ export async function DELETE(
   } = await supabase.auth.getUser()
 
   if (authError || !user) {
-    return NextResponse.json(
-      { success: false, error: '인증이 필요합니다' },
-      { status: 401 }
-    )
+    return apiError('AUTH_REQUIRED')
   }
 
   const { id } = await params
 
   if (!id) {
-    return NextResponse.json(
-      { success: false, error: '유효하지 않은 ID입니다' },
-      { status: 400 }
-    )
+    return apiError('VALIDATION_ERROR')
   }
 
   // 해당 시간 블록이 현재 사용자 소유인지 확인
@@ -151,10 +119,7 @@ export async function DELETE(
     .maybeSingle()
 
   if (!existing) {
-    return NextResponse.json(
-      { success: false, error: '시간 블록을 찾을 수 없습니다' },
-      { status: 404 }
-    )
+    return apiError('NOT_FOUND')
   }
 
   const { error } = await supabase
@@ -164,10 +129,7 @@ export async function DELETE(
     .eq('user_id', user.id)
 
   if (error) {
-    return NextResponse.json(
-      { success: false, error: '시간 블록 삭제에 실패했습니다' },
-      { status: 500 }
-    )
+    return apiError('SERVER_ERROR')
   }
 
   return NextResponse.json({ success: true, data: null })

@@ -112,7 +112,10 @@
     "passwordMismatch": "비밀번호가 일치하지 않습니다",
     "required": "필수 항목입니다",
     "invalidNumber": "올바른 숫자를 입력해주세요",
-    "invalidDate": "올바른 날짜를 입력해주세요"
+    "invalidDate": "날짜 형식이 올바르지 않습니다",
+    "mustBePositive": "0보다 커야 합니다",
+    "mustBeNonNegative": "0 이상이어야 합니다",
+    "rangeMustBe": "{min}~{max} 사이여야 합니다"
   },
   "errors": {
     "AUTH_REQUIRED": "인증이 필요합니다",
@@ -474,7 +477,11 @@
       "percentUnit": "%",
       "noData": "체성분 기록이 없습니다",
       "trend": "체중/체성분 추이",
-      "atLeastOne": "체중, 체지방률, 근육량 중 하나 이상 입력해주세요"
+      "atLeastOne": "체중, 체지방률, 근육량 중 하나 이상 입력해주세요",
+      "weightPlaceholder": "예: 70.5",
+      "bodyFatPlaceholder": "예: 20.5",
+      "musclePlaceholder": "예: 30.0",
+      "notePlaceholder": "예: 아침 공복 측정"
     },
     "exercise": {
       "title": "운동",
@@ -505,7 +512,21 @@
       "exerciseTypePlaceholder": "예: 달리기",
       "durationPlaceholder": "예: 30",
       "exerciseTypeRequired": "운동 종류를 입력해주세요",
-      "durationRequired": "운동 시간을 입력해주세요 (1분 이상)"
+      "durationRequired": "운동 시간을 입력해주세요 (1분 이상)",
+      "caloriesPlaceholder": "예: 300",
+      "notePlaceholder": "예: 한강 5km 코스",
+      "commonExercises": {
+        "running": "달리기",
+        "walking": "걷기",
+        "swimming": "수영",
+        "cycling": "자전거",
+        "gym": "헬스",
+        "yoga": "요가",
+        "pilates": "필라테스",
+        "hiking": "등산",
+        "soccer": "축구",
+        "basketball": "농구"
+      }
     },
     "meals": {
       "title": "식사",
@@ -558,7 +579,11 @@
       "proteinInvalid": "단백질은 0 이상의 숫자여야 합니다",
       "carbsInvalid": "탄수화물은 0 이상의 숫자여야 합니다",
       "fatInvalid": "지방은 0 이상의 숫자여야 합니다",
-      "dateInvalid": "날짜 형식이 올바르지 않습니다"
+      "dateInvalid": "날짜 형식이 올바르지 않습니다",
+      "caloriesGoalPlaceholder": "예: 2000",
+      "proteinPlaceholder": "예: 60",
+      "carbsPlaceholder": "예: 250",
+      "fatPlaceholder": "예: 65"
     },
     "sleep": {
       "title": "수면",
@@ -636,7 +661,9 @@
       "alcoholLabel": "도수 (%)",
       "countLabel": "잔 수",
       "amountRequired": "음주량(ml)을 입력하세요",
-      "alcoholInvalid": "도수는 0~100 사이여야 합니다"
+      "amountPositive": "음주량은 0보다 커야 합니다",
+      "alcoholInvalid": "도수는 0~100 사이여야 합니다",
+      "drinkCountInvalid": "잔 수는 0 이상이어야 합니다"
     }
   },
   "private": {

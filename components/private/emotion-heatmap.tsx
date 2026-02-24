@@ -1,6 +1,7 @@
 'use client'
 
-import { EMOTION_ICONS, EMOTION_LABELS, type EmotionType } from '@/types/diary'
+import { useTranslations } from 'next-intl'
+import { EMOTION_ICONS, type EmotionType } from '@/types/diary'
 import type { EmotionStatsData } from '@/app/api/diaries/emotion-stats/route'
 
 interface EmotionHeatmapProps {
@@ -9,8 +10,8 @@ interface EmotionHeatmapProps {
   stats: EmotionStatsData
 }
 
-// 요일 헤더 (일요일 시작)
-const WEEKDAY_LABELS = ['일', '월', '화', '수', '목', '금', '토']
+// 요일 키 (일요일 시작)
+const WEEKDAY_KEYS = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'] as const
 
 // 날짜 문자열 생성 헬퍼 ('YYYY-MM-DD')
 function toDateString(year: number, month: number, day: number): string {
@@ -78,6 +79,9 @@ function buildCalendarCells(year: number, month: number): HeatmapCell[] {
 
 // 요일별 감정 패턴 히트맵 컴포넌트 (Tailwind 전용)
 export function EmotionHeatmap({ year, month, stats }: EmotionHeatmapProps) {
+  const tCalendar = useTranslations('time.calendar')
+  const tEmotions = useTranslations('private.emotions')
+
   const cells = buildCalendarCells(year, month)
   const today = getTodayString()
 
@@ -104,17 +108,17 @@ export function EmotionHeatmap({ year, month, stats }: EmotionHeatmapProps) {
   }
 
   return (
-    <section aria-label="요일별 감정 패턴">
-      <h2 className="text-sm font-semibold text-foreground mb-3">요일별 감정 패턴</h2>
+    <section aria-label={tEmotions('weekdayPattern')}>
+      <h2 className="text-sm font-semibold text-foreground mb-3">{tEmotions('weekdayPattern')}</h2>
 
       {/* 요일 헤더 */}
       <div className="grid grid-cols-7 mb-1">
-        {WEEKDAY_LABELS.map((label) => (
+        {WEEKDAY_KEYS.map((key) => (
           <div
-            key={label}
+            key={key}
             className="text-center text-xs font-medium text-muted-foreground py-2"
           >
-            {label}
+            {tCalendar(`weekdays.${key}`)}
           </div>
         ))}
       </div>
@@ -153,8 +157,8 @@ export function EmotionHeatmap({ year, month, stats }: EmotionHeatmapProps) {
                 <span
                   className="text-base leading-none"
                   role="img"
-                  aria-label={EMOTION_LABELS[emotion]}
-                  title={EMOTION_LABELS[emotion]}
+                  aria-label={tEmotions(emotion as Parameters<typeof tEmotions>[0])}
+                  title={tEmotions(emotion as Parameters<typeof tEmotions>[0])}
                 >
                   {EMOTION_ICONS[emotion]}
                 </span>

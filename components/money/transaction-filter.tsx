@@ -1,5 +1,6 @@
 'use client'
 
+import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button'
 import {
   Select,
@@ -42,15 +43,17 @@ function shiftMonth(month: string, delta: number): string {
 
 type TypeTab = 'all' | 'income' | 'expense'
 
-const TYPE_TABS: { value: TypeTab; label: string }[] = [
-  { value: 'all', label: '전체' },
-  { value: 'income', label: '수입' },
-  { value: 'expense', label: '지출' },
-]
-
 export function TransactionFilterBar({ filter, onChange }: TransactionFilterProps) {
+  const t = useTranslations('money.transactions.filter')
+  const tc = useTranslations('common')
   const currentMonth = filter.month ?? getCurrentMonth()
   const currentType: TypeTab = filter.type ?? 'all'
+
+  const TYPE_TABS: { value: TypeTab; label: string }[] = [
+    { value: 'all', label: t('all') },
+    { value: 'income', label: t('income') },
+    { value: 'expense', label: t('expense') },
+  ]
 
   // 전체 카테고리 목록 조회
   const { data: categories = [] } = useCategories()

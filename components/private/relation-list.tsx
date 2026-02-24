@@ -1,21 +1,15 @@
 'use client'
 
 import { useState } from 'react'
+import { useTranslations } from 'next-intl'
 import { cn } from '@/lib/utils'
 import { RelationItem } from './relation-item'
-import { RELATIONSHIP_LABELS } from '@/types/relation'
 import type { RelationshipType, RelationDecrypted } from '@/types/relation'
 
 // 필터 탭 목록 — 'all'은 전체 보기
 type FilterTab = 'all' | RelationshipType
 
-const FILTER_TABS: { value: FilterTab; label: string }[] = [
-  { value: 'all', label: '전체' },
-  { value: 'family', label: RELATIONSHIP_LABELS.family },
-  { value: 'friend', label: RELATIONSHIP_LABELS.friend },
-  { value: 'colleague', label: RELATIONSHIP_LABELS.colleague },
-  { value: 'other', label: RELATIONSHIP_LABELS.other },
-]
+const FILTER_TAB_VALUES: FilterTab[] = ['all', 'family', 'friend', 'colleague', 'other']
 
 interface RelationListProps {
   relations: RelationDecrypted[]
@@ -25,6 +19,9 @@ interface RelationListProps {
 
 // 인간관계 목록 컴포넌트 — 관계 유형별 필터 탭 포함
 export function RelationList({ relations, onEdit, onDelete }: RelationListProps) {
+  const t = useTranslations('private.relations')
+  const tCommon = useTranslations('common')
+
   const [activeTab, setActiveTab] = useState<FilterTab>('all')
 
   // 선택된 탭에 따라 필터링
@@ -32,27 +29,32 @@ export function RelationList({ relations, onEdit, onDelete }: RelationListProps)
     ? relations
     : relations.filter((r) => r.relationship_type === activeTab)
 
+  function getTabLabel(tab: FilterTab): string {
+    if (tab === 'all') return tCommon('all')
+    return t(`types.${tab}`)
+  }
+
   return (
     <div className="space-y-0">
       {/* 관계 유형별 필터 탭 */}
       <div className="flex gap-1 pb-3 overflow-x-auto">
-        {FILTER_TABS.map((tab) => {
-          const count = tab.value === 'all'
+        {FILTER_TAB_VALUES.map((tab) => {
+          const count = tab === 'all'
             ? relations.length
-            : relations.filter((r) => r.relationship_type === tab.value).length
+            : relations.filter((r) => r.relationship_type === tab).length
 
           return (
             <button
-              key={tab.value}
-              onClick={() => setActiveTab(tab.value)}
+              key={tab}
+              onClick={() => setActiveTab(tab)}
               className={cn(
                 'px-3 py-1.5 text-xs font-medium rounded-full border transition-colors whitespace-nowrap',
-                activeTab === tab.value
+                activeTab === tab
                   ? 'bg-primary text-primary-foreground border-primary'
                   : 'border-border text-muted-foreground hover:text-foreground hover:bg-muted'
               )}
             >
-              {tab.label}
+              {getTabLabel(tab)}
               {count > 0 && (
                 <span className="ml-1 opacity-70">{count}</span>
               )}
@@ -64,10 +66,10 @@ export function RelationList({ relations, onEdit, onDelete }: RelationListProps)
       {/* 빈 상태 */}
       {filteredRelations.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-16 text-center">
-          <p className="text-sm text-muted-foreground">등록된 인물이 없습니다</p>
+          <p className="text-sm text-muted-foreground">{t('noData')}</p>
           {activeTab !== 'all' && (
             <p className="text-xs text-muted-foreground mt-1">
-              {RELATIONSHIP_LABELS[activeTab as RelationshipType]} 관계의 인물이 없습니다
+              {t('noRelationsOfType', { type: t(`types.${activeTab as RelationshipType}`) })}
             </p>
           )}
         </div>

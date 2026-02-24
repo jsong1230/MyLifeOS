@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -31,10 +32,15 @@ function getTodayString(): string {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
 }
 
-// 자주 쓰는 운동 목록
-const COMMON_EXERCISES = ['달리기', '걷기', '수영', '자전거', '헬스', '요가', '필라테스', '등산', '축구', '농구']
+const EXERCISE_KEYS = ['running', 'walking', 'swimming', 'cycling', 'gym', 'yoga', 'pilates', 'hiking', 'soccer', 'basketball'] as const
 
 export function ExerciseForm({ log, defaultDate, onSubmit, onCancel, isLoading = false }: ExerciseFormProps) {
+  const t = useTranslations('health.exercise')
+  const tc = useTranslations('common')
+
+  // 자주 쓰는 운동 목록 (로케일 기반)
+  const commonExercises = EXERCISE_KEYS.map(key => t(`commonExercises.${key}` as Parameters<typeof t>[0]))
+
   const [exerciseType, setExerciseType] = useState(log?.exercise_type ?? '')
   const [durationMin, setDurationMin] = useState(log ? String(log.duration_min) : '')
   const [intensity, setIntensity] = useState<ExerciseIntensity>(log?.intensity ?? 'moderate')
@@ -47,9 +53,9 @@ export function ExerciseForm({ log, defaultDate, onSubmit, onCancel, isLoading =
     e.preventDefault()
     const newErrors: Record<string, string> = {}
 
-    if (!exerciseType.trim()) newErrors.exerciseType = '운동 종류를 입력해주세요'
+    if (!exerciseType.trim()) newErrors.exerciseType = t('exerciseTypeRequired')
     const dur = parseInt(durationMin)
-    if (!durationMin || isNaN(dur) || dur <= 0) newErrors.duration = '운동 시간을 입력해주세요 (1분 이상)'
+    if (!durationMin || isNaN(dur) || dur <= 0) newErrors.duration = t('durationRequired')
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors)
@@ -71,7 +77,7 @@ export function ExerciseForm({ log, defaultDate, onSubmit, onCancel, isLoading =
     <form onSubmit={handleSubmit} className="space-y-4">
       {/* 날짜 */}
       <div className="space-y-1.5">
-        <Label htmlFor="ex-date">날짜</Label>
+        <Label htmlFor="ex-date">{tc('date')}</Label>
         <Input
           id="ex-date"
           type="date"
@@ -82,31 +88,31 @@ export function ExerciseForm({ log, defaultDate, onSubmit, onCancel, isLoading =
 
       {/* 운동 종류 */}
       <div className="space-y-1.5">
-        <Label htmlFor="exercise-type">운동 종류 <span className="text-destructive">*</span></Label>
+        <Label htmlFor="exercise-type">{t('exerciseTypeLabel')} <span className="text-destructive">*</span></Label>
         <Input
           id="exercise-type"
           type="text"
-          placeholder="예: 달리기"
+          placeholder={t('exerciseTypePlaceholder')}
           value={exerciseType}
           onChange={(e) => { setExerciseType(e.target.value); setErrors((p) => ({ ...p, exerciseType: '' })) }}
           className={errors.exerciseType ? 'border-destructive' : ''}
           list="exercise-suggestions"
         />
         <datalist id="exercise-suggestions">
-          {COMMON_EXERCISES.map((ex) => <option key={ex} value={ex} />)}
+          {commonExercises.map((ex) => <option key={ex} value={ex} />)}
         </datalist>
         {errors.exerciseType && <p className="text-xs text-destructive">{errors.exerciseType}</p>}
       </div>
 
       {/* 운동 시간 */}
       <div className="space-y-1.5">
-        <Label htmlFor="duration">운동 시간 (분) <span className="text-destructive">*</span></Label>
+        <Label htmlFor="duration">{t('durationLabel')} <span className="text-destructive">*</span></Label>
         <Input
           id="duration"
           type="number"
           min="1"
           max="1440"
-          placeholder="예: 30"
+          placeholder={t('durationPlaceholder')}
           value={durationMin}
           onChange={(e) => { setDurationMin(e.target.value); setErrors((p) => ({ ...p, duration: '' })) }}
           className={errors.duration ? 'border-destructive' : ''}
@@ -116,14 +122,16 @@ export function ExerciseForm({ log, defaultDate, onSubmit, onCancel, isLoading =
 
       {/* 강도 */}
       <div className="space-y-1.5">
-        <Label htmlFor="intensity">강도</Label>
+        <Label htmlFor="intensity">{t('intensityLabel')}</Label>
         <Select value={intensity} onValueChange={(v) => setIntensity(v as ExerciseIntensity)}>
           <SelectTrigger id="intensity">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            {(Object.entries(EXERCISE_INTENSITY_LABEL) as [ExerciseIntensity, string][]).map(([val, label]) => (
-              <SelectItem key={val} value={val}>{label}</SelectItem>
+            {(Object.keys(EXERCISE_INTENSITY_LABEL) as ExerciseIntensity[]).map((val) => (
+              <SelectItem key={val} value={val}>
+                {t(`intensities.${val}` as Parameters<typeof t>[0])}
+              </SelectItem>
             ))}
           </SelectContent>
         </Select>
@@ -131,12 +139,12 @@ export function ExerciseForm({ log, defaultDate, onSubmit, onCancel, isLoading =
 
       {/* 소모 칼로리 */}
       <div className="space-y-1.5">
-        <Label htmlFor="calories">소모 칼로리 (kcal, 선택)</Label>
+        <Label htmlFor="calories">{t('caloriesLabel')}</Label>
         <Input
           id="calories"
           type="number"
           min="0"
-          placeholder="예: 300"
+          placeholder={t('caloriesPlaceholder')}
           value={calories}
           onChange={(e) => setCalories(e.target.value)}
         />
@@ -144,11 +152,11 @@ export function ExerciseForm({ log, defaultDate, onSubmit, onCancel, isLoading =
 
       {/* 메모 */}
       <div className="space-y-1.5">
-        <Label htmlFor="ex-note">메모 (선택)</Label>
+        <Label htmlFor="ex-note">{t('noteLabel')}</Label>
         <Input
           id="ex-note"
           type="text"
-          placeholder="예: 한강 5km 코스"
+          placeholder={t('notePlaceholder')}
           value={note}
           onChange={(e) => setNote(e.target.value)}
           maxLength={100}
@@ -158,11 +166,11 @@ export function ExerciseForm({ log, defaultDate, onSubmit, onCancel, isLoading =
       <div className="flex gap-2 pt-2">
         {onCancel && (
           <Button type="button" variant="outline" onClick={onCancel} disabled={isLoading} className="flex-1">
-            취소
+            {tc('cancel')}
           </Button>
         )}
         <Button type="submit" disabled={isLoading} className="flex-1">
-          {isLoading ? '저장 중...' : log ? '수정하기' : '추가하기'}
+          {isLoading ? tc('saving') : log ? tc('update') : tc('add')}
         </Button>
       </div>
     </form>

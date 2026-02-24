@@ -1,9 +1,10 @@
 'use client'
 
+import { useTranslations } from 'next-intl'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Pencil, Trash2 } from 'lucide-react'
-import { EMOTION_LABELS, EMOTION_ICONS, type DiaryEntryDecrypted } from '@/types/diary'
+import { EMOTION_ICONS, type DiaryEntryDecrypted, type EmotionType } from '@/types/diary'
 
 interface DiaryViewProps {
   diary: DiaryEntryDecrypted
@@ -16,6 +17,10 @@ interface DiaryViewProps {
 // - 감정 태그 배지 표시
 // - 수정/삭제 버튼
 export function DiaryView({ diary, onEdit, onDelete, isDeleting = false }: DiaryViewProps) {
+  const t = useTranslations('private.diary')
+  const te = useTranslations('private.emotions')
+  const tCommon = useTranslations('common')
+
   return (
     <div className="space-y-4">
       {/* 감정 태그 배지 */}
@@ -23,7 +28,7 @@ export function DiaryView({ diary, onEdit, onDelete, isDeleting = false }: Diary
         {diary.emotion_tags.map((tag) => (
           <Badge key={tag} variant="secondary" className="gap-1 text-sm">
             <span aria-hidden="true">{EMOTION_ICONS[tag]}</span>
-            {EMOTION_LABELS[tag]}
+            {te(tag as Parameters<typeof te>[0])}
           </Badge>
         ))}
       </div>
@@ -31,7 +36,7 @@ export function DiaryView({ diary, onEdit, onDelete, isDeleting = false }: Diary
       {/* 일기 내용 */}
       <div
         className="text-sm leading-relaxed whitespace-pre-wrap min-h-[100px] text-foreground"
-        aria-label="일기 내용"
+        aria-label={t('contentLabel')}
       >
         {diary.content}
       </div>
@@ -47,7 +52,7 @@ export function DiaryView({ diary, onEdit, onDelete, isDeleting = false }: Diary
           className="gap-1.5"
         >
           <Pencil className="h-3.5 w-3.5" />
-          수정
+          {tCommon('edit')}
         </Button>
         <Button
           type="button"
@@ -58,7 +63,7 @@ export function DiaryView({ diary, onEdit, onDelete, isDeleting = false }: Diary
           className="gap-1.5 text-destructive hover:text-destructive"
         >
           <Trash2 className="h-3.5 w-3.5" />
-          {isDeleting ? '삭제 중...' : '삭제'}
+          {isDeleting ? tCommon('processing') : tCommon('delete')}
         </Button>
       </div>
     </div>

@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button'
 import { PinPad } from '@/components/auth/pin-pad'
 import { usePinStore } from '@/store/pin.store'
@@ -17,6 +18,8 @@ export function PinChange({ onComplete, onCancel }: PinChangeProps) {
   const [currentPin, setCurrentPin] = useState('')
   const [newPin, setNewPin] = useState('')
   const [error, setError] = useState('')
+  const t = useTranslations('pin')
+  const commonT = useTranslations('common')
 
   function handleCurrentPin(pin: string) {
     setCurrentPin(pin)
@@ -32,7 +35,7 @@ export function PinChange({ onComplete, onCancel }: PinChangeProps) {
 
   async function handleConfirmPin(confirmPin: string) {
     if (confirmPin !== newPin) {
-      setError('새 PIN이 일치하지 않습니다. 다시 입력해주세요')
+      setError(t('newPinMismatch'))
       setNewPin('')
       setStep('newPin')
       return
@@ -49,14 +52,14 @@ export function PinChange({ onComplete, onCancel }: PinChangeProps) {
       const json = await res.json()
 
       if (res.status === 403) {
-        setError('현재 PIN이 올바르지 않습니다')
+        setError(t('currentPinWrong'))
         setCurrentPin('')
         setStep('current')
         return
       }
 
       if (!res.ok) {
-        setError(json.error ?? '오류가 발생했습니다. 다시 시도해주세요')
+        setError(json.error ?? t('serverError'))
         setStep('current')
         setCurrentPin('')
         setNewPin('')
@@ -69,7 +72,7 @@ export function PinChange({ onComplete, onCancel }: PinChangeProps) {
       setPinVerified(true, newKey)
       onComplete()
     } catch {
-      setError('네트워크 오류가 발생했습니다. 다시 시도해주세요')
+      setError(t('networkError'))
       setStep('current')
       setCurrentPin('')
       setNewPin('')
@@ -80,18 +83,18 @@ export function PinChange({ onComplete, onCancel }: PinChangeProps) {
 
   const stepConfig: Record<PinStep, { title: string; subtitle: string; handler: (pin: string) => void }> = {
     current: {
-      title: '현재 PIN 입력',
-      subtitle: '현재 PIN을 입력해주세요',
+      title: t('currentPinTitle'),
+      subtitle: t('currentPinSubtitle'),
       handler: handleCurrentPin,
     },
     newPin: {
-      title: '새 PIN 설정',
-      subtitle: '새 PIN을 입력해주세요',
+      title: t('newPinTitle'),
+      subtitle: t('newPinSubtitle'),
       handler: handleNewPin,
     },
     confirm: {
-      title: '새 PIN 확인',
-      subtitle: '새 PIN을 다시 입력해주세요',
+      title: t('confirmNewPinTitle'),
+      subtitle: t('confirmNewPinSubtitle'),
       handler: handleConfirmPin,
     },
     input: {
@@ -120,11 +123,11 @@ export function PinChange({ onComplete, onCancel }: PinChangeProps) {
           onClick={onCancel}
           disabled={isLoading}
         >
-          취소
+          {commonT('cancel')}
         </Button>
       )}
       {isLoading && (
-        <p className="text-sm text-muted-foreground animate-pulse">처리 중...</p>
+        <p className="text-sm text-muted-foreground animate-pulse">{t('processing')}</p>
       )}
     </div>
   )

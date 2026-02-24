@@ -1,4 +1,5 @@
 // 정기 지출 관련 타입 정의
+import type { CurrencyCode } from '@/lib/currency'
 
 export type RecurringCycle = 'monthly' | 'yearly'
 
@@ -11,6 +12,7 @@ export interface RecurringExpense {
   cycle: RecurringCycle
   category_id?: string | null
   is_active: boolean
+  currency: CurrencyCode
   created_at: string
   updated_at: string
 }
@@ -21,6 +23,7 @@ export interface CreateRecurringInput {
   billing_day: number
   cycle: RecurringCycle
   category_id?: string
+  currency?: CurrencyCode
 }
 
 export interface UpdateRecurringInput {
@@ -30,4 +33,5 @@ export interface UpdateRecurringInput {
   cycle?: RecurringCycle
   category_id?: string | null
   is_active?: boolean
+  currency?: CurrencyCode
 }

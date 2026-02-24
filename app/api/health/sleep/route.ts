@@ -1,4 +1,5 @@
 import { NextResponse, type NextRequest } from 'next/server'
+import { apiError } from '@/lib/api-errors'
 import { createClient } from '@/lib/supabase/server'
 import type { CreateSleepInput, SleepLog } from '@/types/health'
 
@@ -41,10 +42,7 @@ export async function GET(request: NextRequest) {
   } = await supabase.auth.getUser()
 
   if (authError || !user) {
-    return NextResponse.json(
-      { success: false, error: '인증이 필요합니다' },
-      { status: 401 }
-    )
+    return apiError('AUTH_REQUIRED')
   }
 
   const { searchParams } = new URL(request.url)
@@ -54,10 +52,7 @@ export async function GET(request: NextRequest) {
   // 단일 날짜 조회 모드
   if (rawDate) {
     if (!DATE_PATTERN.test(rawDate)) {
-      return NextResponse.json(
-        { success: false, error: '날짜 형식이 올바르지 않습니다 (YYYY-MM-DD)' },
-        { status: 400 }
-      )
+      return apiError('VALIDATION_ERROR')
     }
 
     const { data, error } = await supabase
@@ -71,10 +66,7 @@ export async function GET(request: NextRequest) {
       .order('created_at', { ascending: true })
 
     if (error) {
-      return NextResponse.json(
-        { success: false, error: '수면 기록 조회에 실패했습니다' },
-        { status: 500 }
-      )
+      return apiError('SERVER_ERROR')
     }
 
     return NextResponse.json({ success: true, data: (data ?? []) as SleepLog[] })
@@ -82,10 +74,7 @@ export async function GET(request: NextRequest) {
 
   // 주간 조회 모드
   if (rawWeek && !DATE_PATTERN.test(rawWeek)) {
-    return NextResponse.json(
-      { success: false, error: '주 시작일 형식이 올바르지 않습니다 (YYYY-MM-DD)' },
-      { status: 400 }
-    )
+    return apiError('VALIDATION_ERROR')
   }
 
   const weekStart = getWeekStart(rawWeek ?? undefined)
@@ -106,10 +95,7 @@ export async function GET(request: NextRequest) {
     .order('date', { ascending: true })
 
   if (error) {
-    return NextResponse.json(
-      { success: false, error: '수면 기록 조회에 실패했습니다' },
-      { status: 500 }
-    )
+    return apiError('SERVER_ERROR')
   }
 
   const logs = (data ?? []) as SleepLog[]
@@ -150,54 +136,36 @@ export async function POST(request: NextRequest) {
   } = await supabase.auth.getUser()
 
   if (authError || !user) {
-    return NextResponse.json(
-      { success: false, error: '인증이 필요합니다' },
-      { status: 401 }
-    )
+    return apiError('AUTH_REQUIRED')
   }
 
   let body: CreateSleepInput
   try {
     body = (await request.json()) as CreateSleepInput
   } catch {
-    return NextResponse.json(
-      { success: false, error: '잘못된 요청 형식입니다' },
-      { status: 400 }
-    )
+    return apiError('VALIDATION_ERROR')
   }
 
   // time_start 필수 검증
   if (!body.time_start || !TIME_PATTERN.test(body.time_start)) {
-    return NextResponse.json(
-      { success: false, error: '취침 시각은 HH:MM 형식으로 입력해주세요' },
-      { status: 400 }
-    )
+    return apiError('VALIDATION_ERROR')
   }
 
   // time_end 필수 검증
   if (!body.time_end || !TIME_PATTERN.test(body.time_end)) {
-    return NextResponse.json(
-      { success: false, error: '기상 시각은 HH:MM 형식으로 입력해주세요' },
-      { status: 400 }
-    )
+    return apiError('VALIDATION_ERROR')
   }
 
   // 수면 질 범위 검증 (1-5)
   if (body.value2 !== undefined && body.value2 !== null) {
     if (typeof body.value2 !== 'number' || body.value2 < 1 || body.value2 > 5) {
-      return NextResponse.json(
-        { success: false, error: '수면 질은 1~5 사이의 값이어야 합니다' },
-        { status: 400 }
-      )
+      return apiError('VALIDATION_ERROR')
     }
   }
 
   // 날짜 형식 검증
   if (body.date && !DATE_PATTERN.test(body.date)) {
-    return NextResponse.json(
-      { success: false, error: '날짜 형식이 올바르지 않습니다 (YYYY-MM-DD)' },
-      { status: 400 }
-    )
+    return apiError('VALIDATION_ERROR')
   }
 
   // 수면 시간 자동 계산 (자정 초과 처리)
@@ -224,10 +192,7 @@ export async function POST(request: NextRequest) {
     .maybeSingle()
 
   if (error) {
-    return NextResponse.json(
-      { success: false, error: '수면 기록 생성에 실패했습니다' },
-      { status: 500 }
-    )
+    return apiError('SERVER_ERROR')
   }
 
   return NextResponse.json({ success: true, data: data as SleepLog }, { status: 201 })

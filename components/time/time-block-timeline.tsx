@@ -12,6 +12,7 @@ import {
 import { useDraggable } from '@dnd-kit/core'
 import { CSS } from '@dnd-kit/utilities'
 import { Pencil, Trash2 } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button'
 import type { TimeBlock } from '@/types/time-block'
 
@@ -57,6 +58,7 @@ interface DraggableBlockProps {
 }
 
 function DraggableBlock({ block, onEdit, onDelete, isDragging }: DraggableBlockProps) {
+  const t = useTranslations('time.blocks')
   const { attributes, listeners, setNodeRef, transform } = useDraggable({
     id: block.id,
     data: { block },
@@ -115,7 +117,7 @@ function DraggableBlock({ block, onEdit, onDelete, isDragging }: DraggableBlockP
             e.stopPropagation()
             onEdit(block)
           }}
-          aria-label="시간 블록 수정"
+          aria-label={t('editAriaLabel')}
         >
           <Pencil className="size-3" />
         </Button>
@@ -127,7 +129,7 @@ function DraggableBlock({ block, onEdit, onDelete, isDragging }: DraggableBlockP
             e.stopPropagation()
             onDelete(block)
           }}
-          aria-label="시간 블록 삭제"
+          aria-label={t('deleteAriaLabel')}
         >
           <Trash2 className="size-3" />
         </Button>

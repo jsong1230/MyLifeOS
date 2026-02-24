@@ -1,11 +1,12 @@
 'use client'
 
+import { useTranslations } from 'next-intl'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { cn } from '@/lib/utils'
 import type { DrinkLog } from '@/types/health'
 
-// 요일 레이블 (월~일)
-const DAY_LABELS = ['월', '화', '수', '목', '금', '토', '일'] as const
+// 요일 키 (월~일, Monday-first)
+const DAY_KEYS_MON_FIRST = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'] as const
 
 interface DrinkSummaryProps {
   logs: DrinkLog[]
@@ -24,10 +25,12 @@ const WHO_WEEKLY_LIMIT = 14
 const WHO_CAUTION_PCT = 0.8 // 80% 이상 시 주의
 
 // 이번 주 음주 기록 요약 카드 컴포넌트
-// - 음주 횟수 / 총 음주량(ml) / 총 잔수
-// - 요일별 음주량 막대 시각화 (div 기반)
-// - WHO 기준 초과/주의 경고 배너
 export function DrinkSummary({ logs, weekLabel }: DrinkSummaryProps) {
+  const t = useTranslations('health.drinks')
+  const tw = useTranslations('time.calendar.weekdays')
+
+  const DAY_LABELS = DAY_KEYS_MON_FIRST.map((key) => tw(key))
+
   // 요일별 음주량 집계 (인덱스 0=월 ~ 6=일)
   const dailyAmounts = Array.from({ length: 7 }, () => 0)
   for (const log of logs) {
@@ -54,18 +57,18 @@ export function DrinkSummary({ logs, weekLabel }: DrinkSummaryProps) {
   return (
     <Card>
       <CardHeader className="pb-3">
-        <CardTitle className="text-base font-medium">{weekLabel} 음주 요약</CardTitle>
+        <CardTitle className="text-base font-medium">{weekLabel}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         {/* 요약 통계 3개 카드 */}
         <div className="grid grid-cols-3 gap-3">
           <div className="text-center p-2 bg-muted/50 rounded-lg">
-            <p className="text-xs text-muted-foreground">음주 일수</p>
+            <p className="text-xs text-muted-foreground">{t('drinkDays')}</p>
             <p className="text-xl font-bold text-foreground">{drinkDays}</p>
-            <p className="text-xs text-muted-foreground">일</p>
+            <p className="text-xs text-muted-foreground">{t('dayUnit')}</p>
           </div>
           <div className="text-center p-2 bg-muted/50 rounded-lg">
-            <p className="text-xs text-muted-foreground">총 음주량</p>
+            <p className="text-xs text-muted-foreground">{t('totalAmountLabel')}</p>
             <p className="text-xl font-bold text-foreground">
               {totalMl >= 1000
                 ? `${(totalMl / 1000).toFixed(1)}L`
@@ -76,11 +79,11 @@ export function DrinkSummary({ logs, weekLabel }: DrinkSummaryProps) {
             </p>
           </div>
           <div className="text-center p-2 bg-muted/50 rounded-lg">
-            <p className="text-xs text-muted-foreground">총 잔수</p>
+            <p className="text-xs text-muted-foreground">{t('totalCountLabel')}</p>
             <p className="text-xl font-bold text-foreground">
               {totalCount > 0 ? totalCount.toFixed(totalCount % 1 === 0 ? 0 : 1) : '-'}
             </p>
-            <p className="text-xs text-muted-foreground">{totalCount > 0 ? '잔' : ''}</p>
+            <p className="text-xs text-muted-foreground">{totalCount > 0 ? t('unit') : ''}</p>
           </div>
         </div>
 
@@ -91,7 +94,7 @@ export function DrinkSummary({ logs, weekLabel }: DrinkSummaryProps) {
             'bg-red-50 text-red-700 border border-red-200',
             'dark:bg-red-900/20 dark:text-red-400 dark:border-red-800'
           )}>
-            ⚠️ WHO 주간 권장량({WHO_WEEKLY_LIMIT}잔) 초과 — 현재 {totalCount}잔 섭취
+            {t('whoExceed', { limit: WHO_WEEKLY_LIMIT, count: totalCount })}
           </div>
         )}
         {isNearLimit && (
@@ -100,13 +103,13 @@ export function DrinkSummary({ logs, weekLabel }: DrinkSummaryProps) {
             'bg-yellow-50 text-yellow-700 border border-yellow-200',
             'dark:bg-yellow-900/20 dark:text-yellow-400 dark:border-yellow-800'
           )}>
-            ⚡ WHO 주간 권장량 80% 근접 — 현재 {totalCount}잔 / 기준 {WHO_WEEKLY_LIMIT}잔
+            {t('whoNear', { count: totalCount, limit: WHO_WEEKLY_LIMIT })}
           </div>
         )}
 
         {/* 요일별 음주량 막대 그래프 (div 기반) */}
         <div>
-          <p className="text-xs text-muted-foreground mb-2">요일별 음주량</p>
+          <p className="text-xs text-muted-foreground mb-2">{t('weeklyAmountChart')}</p>
           <div className="flex items-end gap-1 h-16">
             {DAY_LABELS.map((dayLabel, idx) => {
               const amount = dailyAmounts[idx]
@@ -117,7 +120,7 @@ export function DrinkSummary({ logs, weekLabel }: DrinkSummaryProps) {
                 <div
                   key={dayLabel}
                   className="flex-1 flex flex-col items-center gap-1"
-                  title={hasData ? `${dayLabel}: ${amount}ml` : `${dayLabel}: 없음`}
+                  title={hasData ? `${dayLabel}: ${amount}ml` : `${dayLabel}: -`}
                 >
                   <div className="w-full flex items-end" style={{ height: '48px' }}>
                     <div
@@ -149,7 +152,7 @@ export function DrinkSummary({ logs, weekLabel }: DrinkSummaryProps) {
         {/* 기록이 없는 경우 안내 문구 */}
         {logs.length === 0 && (
           <p className="text-sm text-muted-foreground text-center py-1">
-            이번 주 음주 기록이 없습니다
+            {t('noDrinksThisWeek')}
           </p>
         )}
       </CardContent>

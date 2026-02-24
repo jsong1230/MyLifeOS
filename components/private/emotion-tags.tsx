@@ -1,7 +1,8 @@
 'use client'
 
+import { useTranslations } from 'next-intl'
 import { cn } from '@/lib/utils'
-import { EMOTION_LABELS, EMOTION_ICONS, type EmotionType } from '@/types/diary'
+import { EMOTION_ICONS, type EmotionType } from '@/types/diary'
 
 interface EmotionTagsProps {
   selected: EmotionType[]
@@ -17,6 +18,8 @@ const EMOTION_LIST: EmotionType[] = [
 
 // 10개 감정 아이콘 버튼 그리드 컴포넌트
 export function EmotionTags({ selected, onChange, disabled = false }: EmotionTagsProps) {
+  const t = useTranslations('private.emotions')
+
   // 감정 태그 토글 처리
   function handleToggle(emotion: EmotionType) {
     if (disabled) return
@@ -30,7 +33,7 @@ export function EmotionTags({ selected, onChange, disabled = false }: EmotionTag
   }
 
   return (
-    <div className="grid grid-cols-5 gap-2" role="group" aria-label="감정 태그 선택">
+    <div className="grid grid-cols-5 gap-2" role="group" aria-label={t('selectTagsLabel')}>
       {EMOTION_LIST.map((emotion) => {
         const isSelected = selected.includes(emotion)
         return (
@@ -40,7 +43,7 @@ export function EmotionTags({ selected, onChange, disabled = false }: EmotionTag
             onClick={() => handleToggle(emotion)}
             disabled={disabled}
             aria-pressed={isSelected}
-            aria-label={EMOTION_LABELS[emotion]}
+            aria-label={t(emotion as Parameters<typeof t>[0])}
             className={cn(
               'flex flex-col items-center gap-1 p-2 rounded-lg border text-xs font-medium transition-all',
               'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
@@ -53,7 +56,7 @@ export function EmotionTags({ selected, onChange, disabled = false }: EmotionTag
             <span className="text-lg leading-none" aria-hidden="true">
               {EMOTION_ICONS[emotion]}
             </span>
-            <span>{EMOTION_LABELS[emotion]}</span>
+            <span>{t(emotion as Parameters<typeof t>[0])}</span>
           </button>
         )
       })}

@@ -1,4 +1,5 @@
 import { NextResponse, type NextRequest } from 'next/server'
+import { apiError } from '@/lib/api-errors'
 import { createClient } from '@/lib/supabase/server'
 import type { Relation } from '@/types/relation'
 
@@ -24,37 +25,25 @@ export async function PATCH(
   } = await supabase.auth.getUser()
 
   if (authError || !user) {
-    return NextResponse.json(
-      { success: false, error: '인증이 필요합니다' },
-      { status: 401 }
-    )
+    return apiError('AUTH_REQUIRED')
   }
 
   const { id } = await params
 
   if (!id) {
-    return NextResponse.json(
-      { success: false, error: '유효하지 않은 ID입니다' },
-      { status: 400 }
-    )
+    return apiError('VALIDATION_ERROR')
   }
 
   let body: UpdateRelationBody
   try {
     body = await request.json() as UpdateRelationBody
   } catch {
-    return NextResponse.json(
-      { success: false, error: '잘못된 요청 형식입니다' },
-      { status: 400 }
-    )
+    return apiError('VALIDATION_ERROR')
   }
 
   // 이름이 있으면 빈 문자열 방지
   if (body.name !== undefined && (typeof body.name !== 'string' || body.name.trim() === '')) {
-    return NextResponse.json(
-      { success: false, error: '이름은 비워둘 수 없습니다' },
-      { status: 400 }
-    )
+    return apiError('VALIDATION_ERROR')
   }
 
   // 관계 유형 검증 (있는 경우)
@@ -62,20 +51,14 @@ export async function PATCH(
     if (!VALID_RELATIONSHIP_TYPES.includes(
       body.relationship_type as (typeof VALID_RELATIONSHIP_TYPES)[number]
     )) {
-      return NextResponse.json(
-        { success: false, error: '유효하지 않은 관계 유형입니다' },
-        { status: 400 }
-      )
+      return apiError('VALIDATION_ERROR')
     }
   }
 
   // 날짜 형식 검증 (입력된 경우)
   if (body.last_met_at != null && body.last_met_at !== '') {
     if (!/^\d{4}-\d{2}-\d{2}$/.test(body.last_met_at)) {
-      return NextResponse.json(
-        { success: false, error: '날짜 형식이 올바르지 않습니다 (YYYY-MM-DD)' },
-        { status: 400 }
-      )
+      return apiError('VALIDATION_ERROR')
     }
   }
 
@@ -88,10 +71,7 @@ export async function PATCH(
     .maybeSingle()
 
   if (!existing) {
-    return NextResponse.json(
-      { success: false, error: '인간관계 항목을 찾을 수 없습니다' },
-      { status: 404 }
-    )
+    return apiError('NOT_FOUND')
   }
 
   // 업데이트 데이터 빌드
@@ -121,10 +101,7 @@ export async function PATCH(
     .maybeSingle()
 
   if (error) {
-    return NextResponse.json(
-      { success: false, error: '인간관계 수정에 실패했습니다' },
-      { status: 500 }
-    )
+    return apiError('SERVER_ERROR')
   }
 
   return NextResponse.json({ success: true, data: data as Relation })
@@ -142,19 +119,13 @@ export async function DELETE(
   } = await supabase.auth.getUser()
 
   if (authError || !user) {
-    return NextResponse.json(
-      { success: false, error: '인증이 필요합니다' },
-      { status: 401 }
-    )
+    return apiError('AUTH_REQUIRED')
   }
 
   const { id } = await params
 
   if (!id) {
-    return NextResponse.json(
-      { success: false, error: '유효하지 않은 ID입니다' },
-      { status: 400 }
-    )
+    return apiError('VALIDATION_ERROR')
   }
 
   // 소유자 확인
@@ -166,10 +137,7 @@ export async function DELETE(
     .maybeSingle()
 
   if (!existing) {
-    return NextResponse.json(
-      { success: false, error: '인간관계 항목을 찾을 수 없습니다' },
-      { status: 404 }
-    )
+    return apiError('NOT_FOUND')
   }
 
   const { error } = await supabase
@@ -179,10 +147,7 @@ export async function DELETE(
     .eq('user_id', user.id)
 
   if (error) {
-    return NextResponse.json(
-      { success: false, error: '인간관계 삭제에 실패했습니다' },
-      { status: 500 }
-    )
+    return apiError('SERVER_ERROR')
   }
 
   return NextResponse.json({ success: true, data: null })

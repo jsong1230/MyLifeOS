@@ -1,4 +1,5 @@
 import { NextResponse, type NextRequest } from 'next/server'
+import { apiError } from '@/lib/api-errors'
 import { createClient } from '@/lib/supabase/server'
 import type { DietGoal, UpsertDietGoalInput } from '@/types/diet-goal'
 
@@ -11,10 +12,7 @@ export async function GET() {
   } = await supabase.auth.getUser()
 
   if (authError || !user) {
-    return NextResponse.json(
-      { success: false, error: '인증이 필요합니다' },
-      { status: 401 }
-    )
+    return apiError('AUTH_REQUIRED')
   }
 
   const { data, error } = await supabase
@@ -24,10 +22,7 @@ export async function GET() {
     .maybeSingle()
 
   if (error) {
-    return NextResponse.json(
-      { success: false, error: '식단 목표 조회에 실패했습니다' },
-      { status: 500 }
-    )
+    return apiError('SERVER_ERROR')
   }
 
   return NextResponse.json({ success: true, data: data as DietGoal | null })
@@ -42,36 +37,24 @@ export async function POST(request: NextRequest) {
   } = await supabase.auth.getUser()
 
   if (authError || !user) {
-    return NextResponse.json(
-      { success: false, error: '인증이 필요합니다' },
-      { status: 401 }
-    )
+    return apiError('AUTH_REQUIRED')
   }
 
   let body: UpsertDietGoalInput
   try {
     body = await request.json() as UpsertDietGoalInput
   } catch {
-    return NextResponse.json(
-      { success: false, error: '잘못된 요청 형식입니다' },
-      { status: 400 }
-    )
+    return apiError('VALIDATION_ERROR')
   }
 
   // 칼로리 목표 필수 검증
   if (body.calorie_goal === undefined || body.calorie_goal === null) {
-    return NextResponse.json(
-      { success: false, error: '칼로리 목표는 필수입니다' },
-      { status: 400 }
-    )
+    return apiError('VALIDATION_ERROR')
   }
 
   // 칼로리 목표 양수 검증
   if (typeof body.calorie_goal !== 'number' || body.calorie_goal <= 0 || !Number.isFinite(body.calorie_goal)) {
-    return NextResponse.json(
-      { success: false, error: '칼로리 목표는 양수여야 합니다' },
-      { status: 400 }
-    )
+    return apiError('VALIDATION_ERROR')
   }
 
   // 선택 영양소 검증 (입력된 경우 양수)
@@ -104,10 +87,7 @@ export async function POST(request: NextRequest) {
     .maybeSingle()
 
   if (error) {
-    return NextResponse.json(
-      { success: false, error: '식단 목표 저장에 실패했습니다' },
-      { status: 500 }
-    )
+    return apiError('SERVER_ERROR')
   }
 
   return NextResponse.json({ success: true, data: data as DietGoal }, { status: 200 })

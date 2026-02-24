@@ -1,4 +1,5 @@
 import { NextResponse, type NextRequest } from 'next/server'
+import { apiError } from '@/lib/api-errors'
 import { createClient } from '@/lib/supabase/server'
 import type { Category, CategoryType, CreateCategoryInput } from '@/types/category'
 
@@ -14,10 +15,7 @@ export async function GET(request: NextRequest) {
   } = await supabase.auth.getUser()
 
   if (authError || !user) {
-    return NextResponse.json(
-      { success: false, error: '인증이 필요합니다' },
-      { status: 401 }
-    )
+    return apiError('AUTH_REQUIRED')
   }
 
   const { searchParams } = new URL(request.url)
@@ -25,10 +23,7 @@ export async function GET(request: NextRequest) {
 
   // type 파라미터 유효성 검증
   if (typeParam !== null && !VALID_TYPES.includes(typeParam)) {
-    return NextResponse.json(
-      { success: false, error: '유효하지 않은 카테고리 타입입니다' },
-      { status: 400 }
-    )
+    return apiError('VALIDATION_ERROR')
   }
 
   // RLS 정책에 의해 시스템 카테고리(is_system=TRUE) + 본인 카테고리만 조회됨
@@ -46,10 +41,7 @@ export async function GET(request: NextRequest) {
   const { data, error } = await query
 
   if (error) {
-    return NextResponse.json(
-      { success: false, error: '카테고리 조회에 실패했습니다' },
-      { status: 500 }
-    )
+    return apiError('SERVER_ERROR')
   }
 
   // 마이그레이션 중복 실행 등으로 같은 이름+타입 카테고리가 중복될 경우 방어
@@ -73,44 +65,29 @@ export async function POST(request: NextRequest) {
   } = await supabase.auth.getUser()
 
   if (authError || !user) {
-    return NextResponse.json(
-      { success: false, error: '인증이 필요합니다' },
-      { status: 401 }
-    )
+    return apiError('AUTH_REQUIRED')
   }
 
   let body: CreateCategoryInput
   try {
     body = await request.json() as CreateCategoryInput
   } catch {
-    return NextResponse.json(
-      { success: false, error: '잘못된 요청 형식입니다' },
-      { status: 400 }
-    )
+    return apiError('VALIDATION_ERROR')
   }
 
   // 이름 필수 검증
   if (!body.name || typeof body.name !== 'string' || body.name.trim() === '') {
-    return NextResponse.json(
-      { success: false, error: '카테고리 이름은 필수입니다' },
-      { status: 400 }
-    )
+    return apiError('VALIDATION_ERROR')
   }
 
   // type 필수 검증
   if (!body.type || !VALID_TYPES.includes(body.type)) {
-    return NextResponse.json(
-      { success: false, error: '유효하지 않은 카테고리 타입입니다' },
-      { status: 400 }
-    )
+    return apiError('VALIDATION_ERROR')
   }
 
   // color HEX 형식 검증 (선택값)
   if (body.color && !/^#[0-9A-Fa-f]{6}$/.test(body.color)) {
-    return NextResponse.json(
-      { success: false, error: '색상은 #RRGGBB 형식이어야 합니다' },
-      { status: 400 }
-    )
+    return apiError('VALIDATION_ERROR')
   }
 
   // 현재 사용자의 최대 sort_order 조회 (시스템 제외)
@@ -141,10 +118,7 @@ export async function POST(request: NextRequest) {
     .maybeSingle()
 
   if (error) {
-    return NextResponse.json(
-      { success: false, error: '카테고리 생성에 실패했습니다' },
-      { status: 500 }
-    )
+    return apiError('SERVER_ERROR')
   }
 
   return NextResponse.json({ success: true, data: data as Category }, { status: 201 })

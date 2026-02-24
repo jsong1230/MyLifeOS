@@ -10,7 +10,9 @@ import {
   Legend,
   ResponsiveContainer,
 } from 'recharts'
+import { useTranslations } from 'next-intl'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { formatCurrency } from '@/lib/currency'
 
 interface MonthlyData {
   month: string    // YYYY-MM
@@ -36,6 +38,8 @@ function formatYAxis(value: number): string {
 }
 
 export function MonthlyTrendChart({ data }: MonthlyTrendChartProps) {
+  const t = useTranslations('money.charts')
+
   if (data.every((d) => d.income === 0 && d.expense === 0)) {
     return (
       <Card>
@@ -48,8 +52,8 @@ export function MonthlyTrendChart({ data }: MonthlyTrendChartProps) {
 
   const chartData = data.map((d) => ({
     month: formatMonth(d.month),
-    수입: d.income,
-    지출: d.expense,
+    income: d.income,
+    expense: d.expense,
   }))
 
   return (
@@ -76,7 +80,7 @@ export function MonthlyTrendChart({ data }: MonthlyTrendChartProps) {
             />
             <Tooltip
               formatter={(value: number | undefined, name: string | undefined) => [
-                value != null ? `${value.toLocaleString('ko-KR')}원` : '-',
+                value != null ? formatCurrency(value, 'KRW') : '-',
                 name ?? '',
               ]}
             />
@@ -85,8 +89,8 @@ export function MonthlyTrendChart({ data }: MonthlyTrendChartProps) {
               iconSize={8}
               formatter={(value) => <span className="text-xs">{value}</span>}
             />
-            <Bar dataKey="수입" fill="#22c55e" radius={[3, 3, 0, 0]} />
-            <Bar dataKey="지출" fill="#ef4444" radius={[3, 3, 0, 0]} />
+            <Bar dataKey="income" name={t('income')} fill="#22c55e" radius={[3, 3, 0, 0]} />
+            <Bar dataKey="expense" name={t('expense')} fill="#ef4444" radius={[3, 3, 0, 0]} />
           </BarChart>
         </ResponsiveContainer>
       </CardContent>

@@ -1,4 +1,5 @@
 import { NextResponse, type NextRequest } from 'next/server'
+import { apiError } from '@/lib/api-errors'
 import { createClient } from '@/lib/supabase/server'
 import type { BodyLog, CreateBodyLogInput } from '@/types/health'
 
@@ -8,7 +9,7 @@ export async function GET(request: NextRequest) {
   const supabase = await createClient()
   const { data: { user }, error: authError } = await supabase.auth.getUser()
   if (authError || !user) {
-    return NextResponse.json({ success: false, error: '인증이 필요합니다' }, { status: 401 })
+    return apiError('AUTH_REQUIRED')
   }
 
   const { searchParams } = new URL(request.url)
@@ -29,7 +30,7 @@ export async function GET(request: NextRequest) {
 
   const { data, error } = await query
   if (error) {
-    return NextResponse.json({ success: false, error: '체중 기록 조회에 실패했습니다' }, { status: 500 })
+    return apiError('SERVER_ERROR')
   }
 
   return NextResponse.json({ success: true, data: (data ?? []) as BodyLog[] })
@@ -40,18 +41,18 @@ export async function POST(request: NextRequest) {
   const supabase = await createClient()
   const { data: { user }, error: authError } = await supabase.auth.getUser()
   if (authError || !user) {
-    return NextResponse.json({ success: false, error: '인증이 필요합니다' }, { status: 401 })
+    return apiError('AUTH_REQUIRED')
   }
 
   let body: CreateBodyLogInput
   try {
     body = await request.json() as CreateBodyLogInput
   } catch {
-    return NextResponse.json({ success: false, error: '잘못된 요청 형식입니다' }, { status: 400 })
+    return apiError('VALIDATION_ERROR')
   }
 
   if (body.weight == null && body.body_fat == null && body.muscle_mass == null) {
-    return NextResponse.json({ success: false, error: '체중, 체지방률, 근육량 중 하나 이상 입력해주세요' }, { status: 400 })
+    return apiError('VALIDATION_ERROR')
   }
 
   const { data, error } = await supabase
@@ -68,7 +69,7 @@ export async function POST(request: NextRequest) {
     .single()
 
   if (error) {
-    return NextResponse.json({ success: false, error: '체중 기록 추가에 실패했습니다' }, { status: 500 })
+    return apiError('SERVER_ERROR')
   }
 
   return NextResponse.json({ success: true, data: data as BodyLog }, { status: 201 })

@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, type FormEvent } from 'react'
+import { useTranslations } from 'next-intl'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
@@ -14,14 +15,14 @@ import {
 import type { TimeBlock, CreateTimeBlockInput, UpdateTimeBlockInput } from '@/types/time-block'
 import type { Todo } from '@/types/todo'
 
-// 색상 프리셋 — HEX 값과 라벨
-const COLOR_PRESETS = [
-  { value: '#3b82f6', label: '파랑' },
-  { value: '#22c55e', label: '초록' },
-  { value: '#f59e0b', label: '주황' },
-  { value: '#ef4444', label: '빨강' },
-  { value: '#a855f7', label: '보라' },
-  { value: '#ec4899', label: '분홍' },
+// 색상 프리셋 — HEX 값과 번역 키
+const COLOR_PRESET_VALUES = [
+  { value: '#3b82f6', labelKey: 'colorBlue' },
+  { value: '#22c55e', labelKey: 'colorGreen' },
+  { value: '#f59e0b', labelKey: 'colorOrange' },
+  { value: '#ef4444', labelKey: 'colorRed' },
+  { value: '#a855f7', labelKey: 'colorPurple' },
+  { value: '#ec4899', labelKey: 'colorPink' },
 ] as const
 
 interface TimeBlockFormProps {
@@ -45,6 +46,9 @@ export function TimeBlockForm({
   onCancel,
   isLoading = false,
 }: TimeBlockFormProps) {
+  const t = useTranslations('time.blocks')
+  const tc = useTranslations('common')
+
   const isEditMode = Boolean(block)
 
   // 폼 상태
@@ -60,7 +64,7 @@ export function TimeBlockForm({
   function handleStartTimeChange(value: string) {
     setStartTime(value)
     if (value && endTime && value >= endTime) {
-      setTimeError('종료 시각은 시작 시각 이후여야 합니다')
+      setTimeError(t('endTimeError'))
     } else {
       setTimeError('')
     }
@@ -69,7 +73,7 @@ export function TimeBlockForm({
   function handleEndTimeChange(value: string) {
     setEndTime(value)
     if (startTime && value && startTime >= value) {
-      setTimeError('종료 시각은 시작 시각 이후여야 합니다')
+      setTimeError(t('endTimeError'))
     } else {
       setTimeError('')
     }
@@ -79,7 +83,7 @@ export function TimeBlockForm({
     e.preventDefault()
 
     if (startTime >= endTime) {
-      setTimeError('종료 시각은 시작 시각 이후여야 합니다')
+      setTimeError(t('endTimeError'))
       return
     }
 
@@ -100,12 +104,12 @@ export function TimeBlockForm({
       {/* 제목 */}
       <div className="flex flex-col gap-1.5">
         <Label htmlFor="block-title">
-          제목 <span className="text-destructive">*</span>
+          {t('titleLabel')} <span className="text-destructive">*</span>
         </Label>
         <Input
           id="block-title"
           type="text"
-          placeholder="블록 제목을 입력하세요"
+          placeholder={t('titleLabel')}
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           required
@@ -116,7 +120,7 @@ export function TimeBlockForm({
 
       {/* 날짜 */}
       <div className="flex flex-col gap-1.5">
-        <Label htmlFor="block-date">날짜</Label>
+        <Label htmlFor="block-date">{tc('date')}</Label>
         <Input
           id="block-date"
           type="date"
@@ -130,7 +134,7 @@ export function TimeBlockForm({
       <div className="grid grid-cols-2 gap-3">
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="block-start-time">
-            시작 시각 <span className="text-destructive">*</span>
+            {t('startTime')} <span className="text-destructive">*</span>
           </Label>
           <Input
             id="block-start-time"
@@ -143,7 +147,7 @@ export function TimeBlockForm({
         </div>
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="block-end-time">
-            종료 시각 <span className="text-destructive">*</span>
+            {t('endTime')} <span className="text-destructive">*</span>
           </Label>
           <Input
             id="block-end-time"
@@ -163,15 +167,15 @@ export function TimeBlockForm({
 
       {/* 색상 선택 */}
       <div className="flex flex-col gap-1.5">
-        <Label>색상</Label>
+        <Label>{t('colorLabel')}</Label>
         <div className="flex gap-2 flex-wrap">
-          {COLOR_PRESETS.map((preset) => (
+          {COLOR_PRESET_VALUES.map((preset) => (
             <button
               key={preset.value}
               type="button"
               onClick={() => setColor(preset.value)}
               disabled={isLoading}
-              aria-label={preset.label}
+              aria-label={t(preset.labelKey)}
               className={`size-8 rounded-full border-2 transition-all ${
                 color === preset.value
                   ? 'border-foreground scale-110'
@@ -186,17 +190,17 @@ export function TimeBlockForm({
       {/* 할일 연결 (선택사항) */}
       {todos.length > 0 && (
         <div className="flex flex-col gap-1.5">
-          <Label htmlFor="block-todo">할일 연결 (선택)</Label>
+          <Label htmlFor="block-todo">{t('linkTodoLabel')}</Label>
           <Select
             value={todoId}
             onValueChange={setTodoId}
             disabled={isLoading}
           >
             <SelectTrigger id="block-todo">
-              <SelectValue placeholder="연결할 할일을 선택하세요" />
+              <SelectValue placeholder={t('noTodoLink')} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">연결 안 함</SelectItem>
+              <SelectItem value="">{t('noTodoLink')}</SelectItem>
               {todos.map((todo) => (
                 <SelectItem key={todo.id} value={todo.id}>
                   {todo.title}
@@ -216,14 +220,14 @@ export function TimeBlockForm({
             onClick={onCancel}
             disabled={isLoading}
           >
-            취소
+            {tc('cancel')}
           </Button>
         )}
         <Button
           type="submit"
           disabled={isLoading || title.trim() === '' || Boolean(timeError)}
         >
-          {isLoading ? '저장 중...' : isEditMode ? '수정' : '추가'}
+          {isLoading ? tc('saving') : isEditMode ? tc('update') : tc('add')}
         </Button>
       </div>
     </form>

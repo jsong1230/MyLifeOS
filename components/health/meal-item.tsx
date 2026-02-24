@@ -1,16 +1,17 @@
 'use client'
 
+import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
 import type { MealLog, MealType } from '@/types/health'
 
-// 식사 유형 배지 스타일 및 레이블 정의
-const MEAL_TYPE_META: Record<MealType, { label: string; badgeClass: string }> = {
-  breakfast: { label: '아침', badgeClass: 'bg-orange-100 text-orange-700 border-orange-200' },
-  lunch:     { label: '점심', badgeClass: 'bg-green-100 text-green-700 border-green-200' },
-  dinner:    { label: '저녁', badgeClass: 'bg-blue-100 text-blue-700 border-blue-200' },
-  snack:     { label: '간식', badgeClass: 'bg-purple-100 text-purple-700 border-purple-200' },
+// 식사 유형 배지 스타일 정의
+const MEAL_TYPE_BADGE: Record<MealType, { badgeClass: string }> = {
+  breakfast: { badgeClass: 'bg-orange-100 text-orange-700 border-orange-200' },
+  lunch:     { badgeClass: 'bg-green-100 text-green-700 border-green-200' },
+  dinner:    { badgeClass: 'bg-blue-100 text-blue-700 border-blue-200' },
+  snack:     { badgeClass: 'bg-purple-100 text-purple-700 border-purple-200' },
 }
 
 interface MealItemProps {
@@ -21,13 +22,15 @@ interface MealItemProps {
 
 // 개별 식사 기록 항목 컴포넌트
 export function MealItem({ meal, onEdit, onDelete }: MealItemProps) {
-  const meta = MEAL_TYPE_META[meal.meal_type]
+  const t = useTranslations('health.meals')
+  const tCommon = useTranslations('common')
+  const badgeMeta = MEAL_TYPE_BADGE[meal.meal_type]
 
   // 영양소 중 null/undefined 가 아닌 값만 표시
-  const nutritionItems: { label: string; value: number }[] = []
-  if (meal.protein != null) nutritionItems.push({ label: '단백질', value: meal.protein })
-  if (meal.carbs != null) nutritionItems.push({ label: '탄수화물', value: meal.carbs })
-  if (meal.fat != null) nutritionItems.push({ label: '지방', value: meal.fat })
+  const nutritionItems: { labelKey: string; value: number }[] = []
+  if (meal.protein != null) nutritionItems.push({ labelKey: 'protein', value: meal.protein })
+  if (meal.carbs != null) nutritionItems.push({ labelKey: 'carbs', value: meal.carbs })
+  if (meal.fat != null) nutritionItems.push({ labelKey: 'fat', value: meal.fat })
 
   return (
     <div className="flex items-start justify-between py-3 px-1 gap-3">
@@ -35,9 +38,9 @@ export function MealItem({ meal, onEdit, onDelete }: MealItemProps) {
         {/* 식사 유형 배지 */}
         <Badge
           variant="outline"
-          className={cn('shrink-0 text-xs font-medium', meta.badgeClass)}
+          className={cn('shrink-0 text-xs font-medium', badgeMeta.badgeClass)}
         >
-          {meta.label}
+          {t(`types.${meal.meal_type}`)}
         </Badge>
 
         {/* 음식명 및 영양소 정보 */}
@@ -48,9 +51,9 @@ export function MealItem({ meal, onEdit, onDelete }: MealItemProps) {
           {nutritionItems.length > 0 && (
             <p className="text-xs text-muted-foreground mt-0.5">
               {nutritionItems.map((item, idx) => (
-                <span key={item.label}>
+                <span key={item.labelKey}>
                   {idx > 0 && ' · '}
-                  {item.label} {item.value}g
+                  {t(item.labelKey)} {item.value}g
                 </span>
               ))}
             </p>
@@ -72,9 +75,9 @@ export function MealItem({ meal, onEdit, onDelete }: MealItemProps) {
           size="sm"
           onClick={() => onEdit(meal)}
           className="h-8 px-2 text-xs text-muted-foreground hover:text-foreground"
-          aria-label={`${meal.food_name} 수정`}
+          aria-label={`${meal.food_name} ${tCommon('edit')}`}
         >
-          수정
+          {tCommon('edit')}
         </Button>
 
         {/* 삭제 버튼 */}
@@ -83,9 +86,9 @@ export function MealItem({ meal, onEdit, onDelete }: MealItemProps) {
           size="sm"
           onClick={() => onDelete(meal.id)}
           className="h-8 px-2 text-xs text-destructive hover:text-destructive hover:bg-destructive/10"
-          aria-label={`${meal.food_name} 삭제`}
+          aria-label={`${meal.food_name} ${tCommon('delete')}`}
         >
-          삭제
+          {tCommon('delete')}
         </Button>
       </div>
     </div>

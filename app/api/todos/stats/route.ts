@@ -1,4 +1,5 @@
 import { NextResponse, type NextRequest } from 'next/server'
+import { apiError } from '@/lib/api-errors'
 import { createClient } from '@/lib/supabase/server'
 
 export interface TodoStatsResponse {
@@ -23,7 +24,7 @@ export async function GET(request: NextRequest) {
   } = await supabase.auth.getUser()
 
   if (authError || !user) {
-    return NextResponse.json({ success: false, error: '인증이 필요합니다' }, { status: 401 })
+    return apiError('AUTH_REQUIRED')
   }
 
   const { searchParams } = new URL(request.url)
@@ -47,10 +48,7 @@ export async function GET(request: NextRequest) {
     startDate = `${month}-01`
     endDate = `${month}-${String(lastDay).padStart(2, '0')}`
   } else {
-    return NextResponse.json(
-      { success: false, error: 'week(YYYY-MM-DD) 또는 month(YYYY-MM) 파라미터가 필요합니다' },
-      { status: 400 }
-    )
+    return apiError('VALIDATION_ERROR')
   }
 
   const { data, error } = await supabase
@@ -62,7 +60,7 @@ export async function GET(request: NextRequest) {
     .lte('due_date', endDate)
 
   if (error) {
-    return NextResponse.json({ success: false, error: '통계 조회에 실패했습니다' }, { status: 500 })
+    return apiError('SERVER_ERROR')
   }
 
   const total = data.length

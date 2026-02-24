@@ -2,6 +2,7 @@
 
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend } from 'recharts'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { formatCurrency, formatCurrencyCompact } from '@/lib/currency'
 import { ASSET_TYPE_LABEL, type Asset, type AssetType } from '@/types/asset'
 
 interface AssetSummaryProps {
@@ -13,17 +14,6 @@ const ASSET_COLORS: Record<AssetType, string> = {
   deposit: '#3b82f6',
   investment: '#f59e0b',
   other: '#8b5cf6',
-}
-
-// 숫자를 원화 포맷으로 (1,234만원 / 1.2억원)
-function formatKRW(amount: number): string {
-  if (amount >= 100_000_000) {
-    return `${(amount / 100_000_000).toFixed(1)}억원`
-  }
-  if (amount >= 10_000) {
-    return `${Math.floor(amount / 10_000).toLocaleString('ko-KR')}만원`
-  }
-  return `${amount.toLocaleString('ko-KR')}원`
 }
 
 export function AssetSummary({ assets }: AssetSummaryProps) {
@@ -62,8 +52,8 @@ export function AssetSummary({ assets }: AssetSummaryProps) {
       <Card>
         <CardContent className="pt-5 pb-4">
           <p className="text-xs text-muted-foreground mb-1">총 자산</p>
-          <p className="text-2xl font-bold">{total.toLocaleString('ko-KR')}원</p>
-          <p className="text-sm text-muted-foreground mt-0.5">{formatKRW(total)}</p>
+          <p className="text-2xl font-bold">{formatCurrency(total, 'KRW')}</p>
+          <p className="text-sm text-muted-foreground mt-0.5">{formatCurrencyCompact(total, 'KRW')}</p>
         </CardContent>
       </Card>
 
@@ -91,7 +81,7 @@ export function AssetSummary({ assets }: AssetSummaryProps) {
                 </Pie>
                 <Tooltip
                   formatter={(value: number | undefined) => [
-                    value != null ? `${value.toLocaleString('ko-KR')}원` : '-',
+                    value != null ? formatCurrency(value, 'KRW') : '-',
                     '',
                   ]}
                 />
@@ -121,7 +111,7 @@ export function AssetSummary({ assets }: AssetSummaryProps) {
                   <span className="text-sm">{ASSET_TYPE_LABEL[type]}</span>
                 </div>
                 <div className="text-right">
-                  <span className="text-sm font-medium">{value.toLocaleString('ko-KR')}원</span>
+                  <span className="text-sm font-medium">{formatCurrency(value, 'KRW')}</span>
                   {total > 0 && (
                     <span className="text-xs text-muted-foreground ml-1.5">
                       {Math.round((value / total) * 100)}%

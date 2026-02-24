@@ -2,20 +2,22 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import { useTranslations } from 'next-intl'
 import { Home, Clock, Wallet, Heart, BookOpen, BarChart2 } from 'lucide-react'
 
 const NAV_ITEMS = [
-  { label: '홈', icon: Home, href: '/' },
-  { label: '시간', icon: Clock, href: '/time' },
-  { label: '금전', icon: Wallet, href: '/money' },
-  { label: '건강', icon: Heart, href: '/health' },
-  { label: '기록', icon: BookOpen, href: '/private' },
-  { label: '리포트', icon: BarChart2, href: '/reports' },
-] as const
+  { key: 'home' as const, icon: Home, href: '/' },
+  { key: 'time' as const, icon: Clock, href: '/time' },
+  { key: 'money' as const, icon: Wallet, href: '/money' },
+  { key: 'health' as const, icon: Heart, href: '/health' },
+  { key: 'private' as const, icon: BookOpen, href: '/private' },
+  { key: 'reports' as const, icon: BarChart2, href: '/reports' },
+]
 
 // 모바일 하단 네비게이션 바
 export function BottomNav() {
   const pathname = usePathname()
+  const t = useTranslations('nav')
 
   function isActive(href: string) {
     if (href === '/') return pathname === '/'
@@ -25,11 +27,11 @@ export function BottomNav() {
   return (
     <nav
       role="navigation"
-      aria-label="메인 메뉴"
+      aria-label={t('mainMenu')}
       className="bg-background border-t h-16 flex items-center"
       style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
     >
-      {NAV_ITEMS.map(({ label, icon: Icon, href }) => {
+      {NAV_ITEMS.map(({ key, icon: Icon, href }) => {
         const active = isActive(href)
         return (
           <Link
@@ -41,7 +43,7 @@ export function BottomNav() {
             }`}
           >
             <Icon className="w-5 h-5" aria-hidden="true" />
-            <span>{label}</span>
+            <span>{t(key)}</span>
           </Link>
         )
       })}

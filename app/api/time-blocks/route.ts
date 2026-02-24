@@ -1,4 +1,5 @@
 import { NextResponse, type NextRequest } from 'next/server'
+import { apiError } from '@/lib/api-errors'
 import { createClient } from '@/lib/supabase/server'
 import type { CreateTimeBlockInput, TimeBlock } from '@/types/time-block'
 
@@ -11,10 +12,7 @@ export async function GET(request: NextRequest) {
   } = await supabase.auth.getUser()
 
   if (authError || !user) {
-    return NextResponse.json(
-      { success: false, error: '인증이 필요합니다' },
-      { status: 401 }
-    )
+    return apiError('AUTH_REQUIRED')
   }
 
   const { searchParams } = new URL(request.url)
@@ -22,10 +20,7 @@ export async function GET(request: NextRequest) {
 
   // 날짜 파라미터 검증
   if (!date) {
-    return NextResponse.json(
-      { success: false, error: 'date 파라미터가 필요합니다 (YYYY-MM-DD)' },
-      { status: 400 }
-    )
+    return apiError('VALIDATION_ERROR')
   }
 
   const { data, error } = await supabase
@@ -36,10 +31,7 @@ export async function GET(request: NextRequest) {
     .order('start_time', { ascending: true })
 
   if (error) {
-    return NextResponse.json(
-      { success: false, error: '시간 블록 조회에 실패했습니다' },
-      { status: 500 }
-    )
+    return apiError('SERVER_ERROR')
   }
 
   return NextResponse.json({ success: true, data: data as TimeBlock[] })
@@ -54,52 +46,34 @@ export async function POST(request: NextRequest) {
   } = await supabase.auth.getUser()
 
   if (authError || !user) {
-    return NextResponse.json(
-      { success: false, error: '인증이 필요합니다' },
-      { status: 401 }
-    )
+    return apiError('AUTH_REQUIRED')
   }
 
   let body: CreateTimeBlockInput
   try {
     body = await request.json() as CreateTimeBlockInput
   } catch {
-    return NextResponse.json(
-      { success: false, error: '잘못된 요청 형식입니다' },
-      { status: 400 }
-    )
+    return apiError('VALIDATION_ERROR')
   }
 
   // 필수 필드 검증
   if (!body.title || typeof body.title !== 'string' || body.title.trim() === '') {
-    return NextResponse.json(
-      { success: false, error: '제목은 필수입니다' },
-      { status: 400 }
-    )
+    return apiError('VALIDATION_ERROR')
   }
 
   if (!body.start_time || !body.end_time) {
-    return NextResponse.json(
-      { success: false, error: '시작 시각과 종료 시각은 필수입니다' },
-      { status: 400 }
-    )
+    return apiError('VALIDATION_ERROR')
   }
 
   // HH:MM 형식 검증
   const timeRegex = /^\d{2}:\d{2}$/
   if (!timeRegex.test(body.start_time) || !timeRegex.test(body.end_time)) {
-    return NextResponse.json(
-      { success: false, error: '시각 형식이 올바르지 않습니다 (HH:MM)' },
-      { status: 400 }
-    )
+    return apiError('VALIDATION_ERROR')
   }
 
   // 시작 시각 < 종료 시각 검증
   if (body.start_time >= body.end_time) {
-    return NextResponse.json(
-      { success: false, error: '종료 시각은 시작 시각 이후여야 합니다' },
-      { status: 400 }
-    )
+    return apiError('VALIDATION_ERROR')
   }
 
   // 오늘 날짜 기본값
@@ -122,10 +96,7 @@ export async function POST(request: NextRequest) {
     .maybeSingle()
 
   if (error) {
-    return NextResponse.json(
-      { success: false, error: '시간 블록 생성에 실패했습니다' },
-      { status: 500 }
-    )
+    return apiError('SERVER_ERROR')
   }
 
   return NextResponse.json({ success: true, data: data as TimeBlock }, { status: 201 })

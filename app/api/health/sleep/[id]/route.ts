@@ -1,4 +1,5 @@
 import { NextResponse, type NextRequest } from 'next/server'
+import { apiError } from '@/lib/api-errors'
 import { createClient } from '@/lib/supabase/server'
 import type { UpdateSleepInput, SleepLog } from '@/types/health'
 
@@ -31,10 +32,7 @@ export async function PATCH(
   } = await supabase.auth.getUser()
 
   if (authError || !user) {
-    return NextResponse.json(
-      { success: false, error: '인증이 필요합니다' },
-      { status: 401 }
-    )
+    return apiError('AUTH_REQUIRED')
   }
 
   const { id } = await params
@@ -49,61 +47,40 @@ export async function PATCH(
     .maybeSingle()
 
   if (fetchError) {
-    return NextResponse.json(
-      { success: false, error: '수면 기록 조회에 실패했습니다' },
-      { status: 500 }
-    )
+    return apiError('SERVER_ERROR')
   }
 
   if (!existing) {
-    return NextResponse.json(
-      { success: false, error: '수면 기록을 찾을 수 없습니다' },
-      { status: 404 }
-    )
+    return apiError('NOT_FOUND')
   }
 
   let body: UpdateSleepInput
   try {
     body = (await request.json()) as UpdateSleepInput
   } catch {
-    return NextResponse.json(
-      { success: false, error: '잘못된 요청 형식입니다' },
-      { status: 400 }
-    )
+    return apiError('VALIDATION_ERROR')
   }
 
   // time_start 형식 검증
   if (body.time_start !== undefined && !TIME_PATTERN.test(body.time_start)) {
-    return NextResponse.json(
-      { success: false, error: '취침 시각은 HH:MM 형식으로 입력해주세요' },
-      { status: 400 }
-    )
+    return apiError('VALIDATION_ERROR')
   }
 
   // time_end 형식 검증
   if (body.time_end !== undefined && !TIME_PATTERN.test(body.time_end)) {
-    return NextResponse.json(
-      { success: false, error: '기상 시각은 HH:MM 형식으로 입력해주세요' },
-      { status: 400 }
-    )
+    return apiError('VALIDATION_ERROR')
   }
 
   // 수면 질 범위 검증 (1-5)
   if (body.value2 !== undefined && body.value2 !== null) {
     if (typeof body.value2 !== 'number' || body.value2 < 1 || body.value2 > 5) {
-      return NextResponse.json(
-        { success: false, error: '수면 질은 1~5 사이의 값이어야 합니다' },
-        { status: 400 }
-      )
+      return apiError('VALIDATION_ERROR')
     }
   }
 
   // 날짜 형식 검증
   if (body.date && !DATE_PATTERN.test(body.date)) {
-    return NextResponse.json(
-      { success: false, error: '날짜 형식이 올바르지 않습니다 (YYYY-MM-DD)' },
-      { status: 400 }
-    )
+    return apiError('VALIDATION_ERROR')
   }
 
   // time_start 또는 time_end 변경 시 수면 시간 재계산
@@ -136,10 +113,7 @@ export async function PATCH(
     .maybeSingle()
 
   if (error) {
-    return NextResponse.json(
-      { success: false, error: '수면 기록 수정에 실패했습니다' },
-      { status: 500 }
-    )
+    return apiError('SERVER_ERROR')
   }
 
   return NextResponse.json({ success: true, data: data as SleepLog })
@@ -157,10 +131,7 @@ export async function DELETE(
   } = await supabase.auth.getUser()
 
   if (authError || !user) {
-    return NextResponse.json(
-      { success: false, error: '인증이 필요합니다' },
-      { status: 401 }
-    )
+    return apiError('AUTH_REQUIRED')
   }
 
   const { id } = await params
@@ -175,10 +146,7 @@ export async function DELETE(
     .maybeSingle()
 
   if (!existing) {
-    return NextResponse.json(
-      { success: false, error: '수면 기록을 찾을 수 없습니다' },
-      { status: 404 }
-    )
+    return apiError('NOT_FOUND')
   }
 
   const { error } = await supabase
@@ -188,10 +156,7 @@ export async function DELETE(
     .eq('user_id', user.id)
 
   if (error) {
-    return NextResponse.json(
-      { success: false, error: '수면 기록 삭제에 실패했습니다' },
-      { status: 500 }
-    )
+    return apiError('SERVER_ERROR')
   }
 
   return NextResponse.json({ success: true })

@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useTranslations } from 'next-intl'
 import { PinPad } from '@/components/auth/pin-pad'
 import { usePinStore } from '@/store/pin.store'
 import { deriveKey } from '@/lib/crypto/encryption'
@@ -15,6 +16,7 @@ export function PinSetup({ onComplete }: PinSetupProps) {
   const [step, setStep] = useState<PinStep>('input')
   const [firstPin, setFirstPin] = useState('')
   const [error, setError] = useState('')
+  const t = useTranslations('pin')
 
   async function handleFirstPin(pin: string) {
     setFirstPin(pin)
@@ -24,7 +26,7 @@ export function PinSetup({ onComplete }: PinSetupProps) {
 
   async function handleConfirmPin(confirmPin: string) {
     if (confirmPin !== firstPin) {
-      setError('PIN이 일치하지 않습니다. 다시 설정해주세요')
+      setError(t('pinMismatchRetry'))
       setFirstPin('')
       setStep('input')
       return
@@ -41,7 +43,7 @@ export function PinSetup({ onComplete }: PinSetupProps) {
       const json = await res.json()
 
       if (!res.ok) {
-        setError(json.error ?? '오류가 발생했습니다. 다시 시도해주세요')
+        setError(json.error ?? t('serverError'))
         setStep('input')
         setFirstPin('')
         return
@@ -55,7 +57,7 @@ export function PinSetup({ onComplete }: PinSetupProps) {
       setPinVerified(true, key)
       onComplete()
     } catch {
-      setError('네트워크 오류가 발생했습니다. 다시 시도해주세요')
+      setError(t('networkError'))
       setStep('input')
       setFirstPin('')
     } finally {
@@ -67,22 +69,22 @@ export function PinSetup({ onComplete }: PinSetupProps) {
     <div className="flex flex-col items-center justify-center min-h-screen px-6">
       {step === 'input' ? (
         <PinPad
-          title="PIN 설정"
-          subtitle="PIN을 설정해주세요"
+          title={t('setupTitle')}
+          subtitle={t('setupSubtitle')}
           onComplete={handleFirstPin}
           error={error}
           disabled={isLoading}
         />
       ) : (
         <PinPad
-          title="PIN 확인"
-          subtitle="PIN을 다시 입력해주세요"
+          title={t('confirmPin')}
+          subtitle={t('confirmSubtitle')}
           onComplete={handleConfirmPin}
           disabled={isLoading}
         />
       )}
       {isLoading && (
-        <p className="mt-4 text-sm text-muted-foreground animate-pulse">처리 중...</p>
+        <p className="mt-4 text-sm text-muted-foreground animate-pulse">{t('processing')}</p>
       )}
     </div>
   )

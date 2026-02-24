@@ -1,4 +1,5 @@
 import { NextResponse, type NextRequest } from 'next/server'
+import { apiError } from '@/lib/api-errors'
 import { createClient } from '@/lib/supabase/server'
 import type { Todo } from '@/types/todo'
 import type { Routine } from '@/types/routine'
@@ -58,10 +59,7 @@ export async function GET(request: NextRequest) {
   } = await supabase.auth.getUser()
 
   if (authError || !user) {
-    return NextResponse.json(
-      { success: false, error: '인증이 필요합니다' },
-      { status: 401 }
-    )
+    return apiError('AUTH_REQUIRED')
   }
 
   const { searchParams } = new URL(request.url)
@@ -69,10 +67,7 @@ export async function GET(request: NextRequest) {
 
   // module 파라미터 필수 검증
   if (!moduleParam) {
-    return NextResponse.json(
-      { success: false, error: 'module 파라미터가 필요합니다' },
-      { status: 400 }
-    )
+    return apiError('VALIDATION_ERROR')
   }
 
   // 유효한 모듈 값 검증
@@ -180,10 +175,7 @@ export async function GET(request: NextRequest) {
       ].filter(Boolean)
 
       if (errors.length > 0) {
-        return NextResponse.json(
-          { success: false, error: '데이터 조회 중 오류가 발생했습니다' },
-          { status: 500 }
-        )
+        return apiError('SERVER_ERROR')
       }
 
       const exportData: ExportAllData = {
@@ -212,10 +204,7 @@ export async function GET(request: NextRequest) {
           .order('sort_order', { ascending: true })
 
         if (error) {
-          return NextResponse.json(
-            { success: false, error: '할일 데이터 조회에 실패했습니다' },
-            { status: 500 }
-          )
+          return apiError('SERVER_ERROR')
         }
         return NextResponse.json({ success: true, data: (data ?? []) as Todo[] })
       }
@@ -230,10 +219,7 @@ export async function GET(request: NextRequest) {
           .order('created_at', { ascending: true })
 
         if (error) {
-          return NextResponse.json(
-            { success: false, error: '루틴 데이터 조회에 실패했습니다' },
-            { status: 500 }
-          )
+          return apiError('SERVER_ERROR')
         }
         return NextResponse.json({ success: true, data: (data ?? []) as Routine[] })
       }
@@ -248,10 +234,7 @@ export async function GET(request: NextRequest) {
           .order('date', { ascending: false })
 
         if (error) {
-          return NextResponse.json(
-            { success: false, error: '수입/지출 데이터 조회에 실패했습니다' },
-            { status: 500 }
-          )
+          return apiError('SERVER_ERROR')
         }
         return NextResponse.json({ success: true, data: (data ?? []) as unknown as Transaction[] })
       }
@@ -266,10 +249,7 @@ export async function GET(request: NextRequest) {
           .order('date', { ascending: false })
 
         if (error) {
-          return NextResponse.json(
-            { success: false, error: '식사 기록 데이터 조회에 실패했습니다' },
-            { status: 500 }
-          )
+          return apiError('SERVER_ERROR')
         }
         return NextResponse.json({ success: true, data: (data ?? []) as MealLog[] })
       }
@@ -284,10 +264,7 @@ export async function GET(request: NextRequest) {
           .order('date', { ascending: false })
 
         if (error) {
-          return NextResponse.json(
-            { success: false, error: '음주 기록 데이터 조회에 실패했습니다' },
-            { status: 500 }
-          )
+          return apiError('SERVER_ERROR')
         }
         return NextResponse.json({ success: true, data: (data ?? []) as DrinkLog[] })
       }
@@ -304,10 +281,7 @@ export async function GET(request: NextRequest) {
           .order('date', { ascending: false })
 
         if (error) {
-          return NextResponse.json(
-            { success: false, error: '수면 기록 데이터 조회에 실패했습니다' },
-            { status: 500 }
-          )
+          return apiError('SERVER_ERROR')
         }
         return NextResponse.json({ success: true, data: (data ?? []) as SleepLog[] })
       }
@@ -323,10 +297,7 @@ export async function GET(request: NextRequest) {
           .order('date', { ascending: false })
 
         if (error) {
-          return NextResponse.json(
-            { success: false, error: '일기 데이터 조회에 실패했습니다' },
-            { status: 500 }
-          )
+          return apiError('SERVER_ERROR')
         }
         return NextResponse.json({ success: true, data: (data ?? []) as DiaryEntry[] })
       }
@@ -342,24 +313,15 @@ export async function GET(request: NextRequest) {
           .order('name', { ascending: true })
 
         if (error) {
-          return NextResponse.json(
-            { success: false, error: '인간관계 메모 데이터 조회에 실패했습니다' },
-            { status: 500 }
-          )
+          return apiError('SERVER_ERROR')
         }
         return NextResponse.json({ success: true, data: (data ?? []) as Relation[] })
       }
 
       default:
-        return NextResponse.json(
-          { success: false, error: '알 수 없는 모듈입니다' },
-          { status: 400 }
-        )
+        return apiError('VALIDATION_ERROR')
     }
   } catch {
-    return NextResponse.json(
-      { success: false, error: '서버 오류가 발생했습니다' },
-      { status: 500 }
-    )
+    return apiError('SERVER_ERROR')
   }
 }

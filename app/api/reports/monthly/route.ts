@@ -1,4 +1,5 @@
 import { NextResponse, type NextRequest } from 'next/server'
+import { apiError } from '@/lib/api-errors'
 import { createClient } from '@/lib/supabase/server'
 import type { MonthlyReport } from '@/types/report'
 
@@ -30,10 +31,7 @@ export async function GET(request: NextRequest) {
   } = await supabase.auth.getUser()
 
   if (authError || !user) {
-    return NextResponse.json(
-      { success: false, error: '인증이 필요합니다' },
-      { status: 401 }
-    )
+    return apiError('AUTH_REQUIRED')
   }
 
   const { searchParams } = new URL(request.url)
@@ -42,20 +40,14 @@ export async function GET(request: NextRequest) {
 
   // year, month 파라미터 검증
   if (!yearParam || !monthParam) {
-    return NextResponse.json(
-      { success: false, error: 'year, month 파라미터가 필요합니다' },
-      { status: 400 }
-    )
+    return apiError('VALIDATION_ERROR')
   }
 
   const year = parseInt(yearParam, 10)
   const month = parseInt(monthParam, 10)
 
   if (isNaN(year) || isNaN(month) || month < 1 || month > 12) {
-    return NextResponse.json(
-      { success: false, error: '유효하지 않은 연도 또는 월입니다' },
-      { status: 400 }
-    )
+    return apiError('VALIDATION_ERROR')
   }
 
   const { start: monthStart, end: monthEnd } = getMonthRange(year, month)
@@ -72,10 +64,7 @@ export async function GET(request: NextRequest) {
     .lte('due_date', monthEnd)
 
   if (todosError) {
-    return NextResponse.json(
-      { success: false, error: '할일 집계에 실패했습니다' },
-      { status: 500 }
-    )
+    return apiError('SERVER_ERROR')
   }
 
   const todoTotal = todosData?.length ?? 0
@@ -91,10 +80,7 @@ export async function GET(request: NextRequest) {
     .lte('date', monthEnd)
 
   if (transactionsError) {
-    return NextResponse.json(
-      { success: false, error: '거래 집계에 실패했습니다' },
-      { status: 500 }
-    )
+    return apiError('SERVER_ERROR')
   }
 
   const income = transactionsData
@@ -115,10 +101,7 @@ export async function GET(request: NextRequest) {
     .lte('date', prevEnd)
 
   if (prevTransError) {
-    return NextResponse.json(
-      { success: false, error: '전월 거래 집계에 실패했습니다' },
-      { status: 500 }
-    )
+    return apiError('SERVER_ERROR')
   }
 
   const prevExpense = prevTransData?.reduce((sum, t) => sum + Number(t.amount), 0) ?? 0
@@ -137,10 +120,7 @@ export async function GET(request: NextRequest) {
     .lte('date', monthEnd)
 
   if (sleepError) {
-    return NextResponse.json(
-      { success: false, error: '수면 집계에 실패했습니다' },
-      { status: 500 }
-    )
+    return apiError('SERVER_ERROR')
   }
 
   const sleepCount = sleepData?.length ?? 0
@@ -158,10 +138,7 @@ export async function GET(request: NextRequest) {
     .lte('date', monthEnd)
 
   if (drinkError) {
-    return NextResponse.json(
-      { success: false, error: '음주 집계에 실패했습니다' },
-      { status: 500 }
-    )
+    return apiError('SERVER_ERROR')
   }
 
   // 중복 날짜 제거 후 음주 일수 계산
@@ -176,10 +153,7 @@ export async function GET(request: NextRequest) {
     .lte('date', monthEnd)
 
   if (diariesError) {
-    return NextResponse.json(
-      { success: false, error: '일기 감정 집계에 실패했습니다' },
-      { status: 500 }
-    )
+    return apiError('SERVER_ERROR')
   }
 
   const emotions: Record<string, number> = {}

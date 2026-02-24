@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -23,24 +24,35 @@ interface AuthFormProps {
   error?: string | null
 }
 
-// mode별 UI 텍스트 설정
-const MODE_CONFIG = {
-  login: {
-    title: '로그인',
-    submitText: '로그인',
-  },
-  signup: {
-    title: '회원가입',
-    submitText: '회원가입',
-  },
-  reset: {
-    title: '비밀번호 재설정',
-    submitText: '재설정 이메일 발송',
-  },
-} as const
-
 export function AuthForm({ mode, onSubmit, isLoading = false, error }: AuthFormProps) {
+  const t = useTranslations()
+  const errorsT = useTranslations('errors')
+
+  // mode별 UI 텍스트 설정
+  const MODE_CONFIG = {
+    login: {
+      title: t('auth.login'),
+      submitText: t('auth.login'),
+    },
+    signup: {
+      title: t('auth.signup'),
+      submitText: t('auth.signup'),
+    },
+    reset: {
+      title: t('auth.resetPassword'),
+      submitText: t('auth.sendResetEmail'),
+    },
+  } as const
+
   const config = MODE_CONFIG[mode]
+
+  function translateError(err: string): string {
+    try {
+      return errorsT(err as Parameters<typeof errorsT>[0])
+    } catch {
+      return err
+    }
+  }
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -52,8 +64,9 @@ export function AuthForm({ mode, onSubmit, isLoading = false, error }: AuthFormP
     // 클라이언트 유효성 검사
     const emailError = validateEmail(email)
     if (emailError) {
-      // input의 native validation 활용
-      e.currentTarget.querySelector<HTMLInputElement>('[name="email"]')?.setCustomValidity(emailError)
+      e.currentTarget.querySelector<HTMLInputElement>('[name="email"]')?.setCustomValidity(
+        t(`validation.${emailError}` as Parameters<typeof t>[0])
+      )
       e.currentTarget.reportValidity()
       return
     }
@@ -61,7 +74,9 @@ export function AuthForm({ mode, onSubmit, isLoading = false, error }: AuthFormP
     if (mode !== 'reset' && password) {
       const passwordError = validatePassword(password)
       if (passwordError) {
-        e.currentTarget.querySelector<HTMLInputElement>('[name="password"]')?.setCustomValidity(passwordError)
+        e.currentTarget.querySelector<HTMLInputElement>('[name="password"]')?.setCustomValidity(
+          t(`validation.${passwordError}` as Parameters<typeof t>[0])
+        )
         e.currentTarget.reportValidity()
         return
       }
@@ -70,7 +85,9 @@ export function AuthForm({ mode, onSubmit, isLoading = false, error }: AuthFormP
     if (mode === 'signup' && password && confirmPassword) {
       const confirmError = validateConfirmPassword(password, confirmPassword)
       if (confirmError) {
-        e.currentTarget.querySelector<HTMLInputElement>('[name="confirmPassword"]')?.setCustomValidity(confirmError)
+        e.currentTarget.querySelector<HTMLInputElement>('[name="confirmPassword"]')?.setCustomValidity(
+          t(`validation.${confirmError}` as Parameters<typeof t>[0])
+        )
         e.currentTarget.reportValidity()
         return
       }
@@ -98,13 +115,13 @@ export function AuthForm({ mode, onSubmit, isLoading = false, error }: AuthFormP
         {/* 에러 메시지 */}
         {error && (
           <div className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">
-            {error}
+            {translateError(error)}
           </div>
         )}
 
         {/* 이메일 필드 */}
         <div className="space-y-2">
-          <Label htmlFor="email">이메일</Label>
+          <Label htmlFor="email">{t('auth.email')}</Label>
           <Input
             id="email"
             name="email"
@@ -121,13 +138,13 @@ export function AuthForm({ mode, onSubmit, isLoading = false, error }: AuthFormP
         {mode !== 'reset' && (
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <Label htmlFor="password">비밀번호</Label>
+              <Label htmlFor="password">{t('auth.password')}</Label>
               {mode === 'login' && (
                 <Link
                   href="/reset-password"
                   className="text-xs text-muted-foreground hover:text-foreground"
                 >
-                  비밀번호를 잊으셨나요?
+                  {t('auth.forgotPassword')}
                 </Link>
               )}
             </div>
@@ -147,7 +164,7 @@ export function AuthForm({ mode, onSubmit, isLoading = false, error }: AuthFormP
         {/* 비밀번호 확인 필드 (signup 모드 전용) */}
         {mode === 'signup' && (
           <div className="space-y-2">
-            <Label htmlFor="confirmPassword">비밀번호 확인</Label>
+            <Label htmlFor="confirmPassword">{t('auth.confirmPassword')}</Label>
             <Input
               id="confirmPassword"
               name="confirmPassword"
@@ -163,7 +180,7 @@ export function AuthForm({ mode, onSubmit, isLoading = false, error }: AuthFormP
 
         {/* 제출 버튼 */}
         <Button type="submit" className="w-full" disabled={isLoading}>
-          {isLoading ? '처리 중...' : config.submitText}
+          {isLoading ? t('auth.processing') : config.submitText}
         </Button>
 
         {/* Google OAuth 구분선 + 버튼 (login/signup 모드) */}
@@ -172,7 +189,7 @@ export function AuthForm({ mode, onSubmit, isLoading = false, error }: AuthFormP
             <div className="relative">
               <Separator />
               <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-card px-2 text-xs text-muted-foreground">
-                또는
+                {t('auth.or')}
               </span>
             </div>
             <GoogleOAuthButton />
@@ -184,24 +201,24 @@ export function AuthForm({ mode, onSubmit, isLoading = false, error }: AuthFormP
       <CardFooter className="flex flex-col gap-2 text-sm text-center text-muted-foreground">
         {mode === 'login' && (
           <p>
-            계정이 없으신가요?{' '}
+            {t('auth.noAccount')}{' '}
             <Link href="/signup" className="text-foreground font-medium hover:underline">
-              회원가입
+              {t('auth.signup')}
             </Link>
           </p>
         )}
         {mode === 'signup' && (
           <p>
-            이미 계정이 있으신가요?{' '}
+            {t('auth.haveAccount')}{' '}
             <Link href="/login" className="text-foreground font-medium hover:underline">
-              로그인
+              {t('auth.login')}
             </Link>
           </p>
         )}
         {mode === 'reset' && (
           <p>
             <Link href="/login" className="text-foreground font-medium hover:underline">
-              로그인으로 돌아가기
+              {t('auth.backToLogin')}
             </Link>
           </p>
         )}

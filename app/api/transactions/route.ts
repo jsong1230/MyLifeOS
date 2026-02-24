@@ -1,4 +1,5 @@
 import { NextResponse, type NextRequest } from 'next/server'
+import { apiError } from '@/lib/api-errors'
 import { createClient } from '@/lib/supabase/server'
 import type { CreateTransactionInput, Transaction } from '@/types/transaction'
 
@@ -12,10 +13,7 @@ export async function GET(request: NextRequest) {
   } = await supabase.auth.getUser()
 
   if (authError || !user) {
-    return NextResponse.json(
-      { success: false, error: '인증이 필요합니다' },
-      { status: 401 }
-    )
+    return apiError('AUTH_REQUIRED')
   }
 
   const { searchParams } = new URL(request.url)
@@ -28,7 +26,7 @@ export async function GET(request: NextRequest) {
   let query = supabase
     .from('transactions')
     .select(
-      'id, user_id, amount, type, category_id, memo, date, is_favorite, created_at, updated_at, category:categories(id, name, icon, color, type)'
+      'id, user_id, amount, type, category_id, memo, date, is_favorite, currency, created_at, updated_at, category:categories(id, name, icon, color, type)'
     )
     .eq('user_id', user.id)
     .order('date', { ascending: false })
@@ -61,10 +59,7 @@ export async function GET(request: NextRequest) {
   const { data, error } = await query
 
   if (error) {
-    return NextResponse.json(
-      { success: false, error: '거래 목록 조회에 실패했습니다' },
-      { status: 500 }
-    )
+    return apiError('SERVER_ERROR')
   }
 
   return NextResponse.json({ success: true, data: data as unknown as Transaction[] })
@@ -79,43 +74,28 @@ export async function POST(request: NextRequest) {
   } = await supabase.auth.getUser()
 
   if (authError || !user) {
-    return NextResponse.json(
-      { success: false, error: '인증이 필요합니다' },
-      { status: 401 }
-    )
+    return apiError('AUTH_REQUIRED')
   }
 
   let body: CreateTransactionInput
   try {
     body = await request.json()
   } catch {
-    return NextResponse.json(
-      { success: false, error: '잘못된 요청 형식입니다' },
-      { status: 400 }
-    )
+    return apiError('VALIDATION_ERROR')
   }
 
   // 금액 필수 검증
   if (body.amount === undefined || body.amount === null) {
-    return NextResponse.json(
-      { success: false, error: '금액은 필수입니다' },
-      { status: 400 }
-    )
+    return apiError('VALIDATION_ERROR')
   }
 
   if (typeof body.amount !== 'number' || body.amount <= 0) {
-    return NextResponse.json(
-      { success: false, error: '금액은 0보다 커야 합니다' },
-      { status: 400 }
-    )
+    return apiError('VALIDATION_ERROR')
   }
 
   // 거래 타입 검증
   if (!body.type || !['income', 'expense'].includes(body.type)) {
-    return NextResponse.json(
-      { success: false, error: '유효하지 않은 거래 타입입니다' },
-      { status: 400 }
-    )
+    return apiError('VALIDATION_ERROR')
   }
 
   const insertData = {
@@ -126,21 +106,19 @@ export async function POST(request: NextRequest) {
     memo: body.memo ?? null,
     date: body.date ?? new Date().toISOString().split('T')[0],
     is_favorite: body.is_favorite ?? false,
+    currency: body.currency ?? 'KRW',
   }
 
   const { data, error } = await supabase
     .from('transactions')
     .insert(insertData)
     .select(
-      'id, user_id, amount, type, category_id, memo, date, is_favorite, created_at, updated_at, category:categories(id, name, icon, color, type)'
+      'id, user_id, amount, type, category_id, memo, date, is_favorite, currency, created_at, updated_at, category:categories(id, name, icon, color, type)'
     )
     .maybeSingle()
 
   if (error) {
-    return NextResponse.json(
-      { success: false, error: '거래 생성에 실패했습니다' },
-      { status: 500 }
-    )
+    return apiError('SERVER_ERROR')
   }
 
   return NextResponse.json({ success: true, data: data as unknown as Transaction }, { status: 201 })
