@@ -2,7 +2,7 @@
  * lib/currency.ts 단위 테스트
  * 테스트 대상: formatCurrency, formatAmount, formatCurrencyCompact,
  *              parseAmountInput, getCurrencySymbol, getCurrencyDecimals,
- *              calcTotalsByCurrency
+ *              calcTotalsByCurrency, convertCurrency, convertTotalsToCurrency
  */
 import { describe, it, expect } from 'vitest'
 import {
@@ -13,8 +13,21 @@ import {
   getCurrencySymbol,
   getCurrencyDecimals,
   calcTotalsByCurrency,
+  convertCurrency,
+  convertTotalsToCurrency,
   type TxForTotals,
+  type CurrencyTotals,
 } from '@/lib/currency'
+import type { ExchangeRates } from '@/types/exchange-rate'
+
+// ─────────────────────────────────────────────
+// 공통 Mock 환율 데이터
+// ─────────────────────────────────────────────
+const mockRates: ExchangeRates = {
+  base: 'USD',
+  date: '2024-01-01',
+  rates: { KRW: 1350, CAD: 1.36, USD: 1 },
+}
 
 // ─────────────────────────────────────────────
 // formatCurrency
@@ -377,5 +390,99 @@ describe('calcTotalsByCurrency', () => {
     const result = calcTotalsByCurrency(txs)
     expect(result.USD.income).toBe(1_500)
     expect(result.USD.expense).toBeCloseTo(350.5, 2)
+  })
+})
+
+// ─────────────────────────────────────────────
+// convertCurrency
+// ─────────────────────────────────────────────
+describe('convertCurrency', () => {
+  it('같은 통화(KRW→KRW) 변환 시 동일 금액을 그대로 반환한다', () => {
+    expect(convertCurrency(100_000, 'KRW', 'KRW', mockRates)).toBe(100_000)
+  })
+
+  it('KRW → USD 변환 시 rates[KRW]로 나눠 환산한다', () => {
+    // 1_350_000 KRW / 1350 = 1000.00 USD
+    expect(convertCurrency(1_350_000, 'KRW', 'USD', mockRates)).toBe(1_000)
+  })
+
+  it('USD → KRW 변환 시 rates[KRW]를 곱해 환산한다', () => {
+    // 100 USD * 1350 = 135000 KRW
+    expect(convertCurrency(100, 'USD', 'KRW', mockRates)).toBe(135_000)
+  })
+
+  it('CAD → KRW 변환 시 USD 경유로 정확히 환산한다', () => {
+    // 1 CAD → 1/1.36 USD → (1/1.36)*1350 KRW ≈ 992.65 KRW
+    const result = convertCurrency(1, 'CAD', 'KRW', mockRates)
+    expect(result).toBeCloseTo(992.65, 2)
+  })
+
+  it('KRW → CAD 변환 시 USD 경유로 정확히 환산한다', () => {
+    // 1350 KRW → 1 USD → 1.36 CAD
+    const result = convertCurrency(1_350, 'KRW', 'CAD', mockRates)
+    expect(result).toBeCloseTo(1.36, 2)
+  })
+
+  it('USD → CAD 변환 시 rates[CAD]를 곱해 환산한다', () => {
+    // 100 USD * 1.36 = 136.00 CAD
+    expect(convertCurrency(100, 'USD', 'CAD', mockRates)).toBe(136)
+  })
+
+  it('환율 데이터에 없는 통화 변환 시 0을 반환한다', () => {
+    const ratesWithoutCAD: ExchangeRates = {
+      base: 'USD',
+      date: '2024-01-01',
+      rates: { KRW: 1350, USD: 1 }, // CAD 없음
+    }
+    expect(convertCurrency(100, 'CAD', 'KRW', ratesWithoutCAD)).toBe(0)
+  })
+
+  it('변환 결과를 소수점 2자리로 반올림하여 반환한다', () => {
+    // 1000 KRW / 1350 = 0.740740... USD → 0.74
+    const result = convertCurrency(1_000, 'KRW', 'USD', mockRates)
+    expect(result).toBe(0.74)
+  })
+})
+
+// ─────────────────────────────────────────────
+// convertTotalsToCurrency
+// ─────────────────────────────────────────────
+describe('convertTotalsToCurrency', () => {
+  it('단일 통화(KRW) 합계를 KRW 기준으로 변환 시 동일 값을 반환한다', () => {
+    const totals: Record<string, CurrencyTotals> = {
+      KRW: { income: 5_000_000, expense: 300_000 },
+    }
+    const result = convertTotalsToCurrency(totals, 'KRW', mockRates)
+    expect(result.income).toBe(5_000_000)
+    expect(result.expense).toBe(300_000)
+  })
+
+  it('복수 통화(KRW + USD) 합계를 KRW 기준으로 합산하여 반환한다', () => {
+    const totals: Record<string, CurrencyTotals> = {
+      KRW: { income: 1_350_000, expense: 0 },
+      USD: { income: 100, expense: 0 },
+      // 1_350_000 KRW = 1_350_000 KRW (변환 불필요)
+      // 100 USD * 1350 = 135_000 KRW
+    }
+    const result = convertTotalsToCurrency(totals, 'KRW', mockRates)
+    expect(result.income).toBeCloseTo(1_350_000 + 135_000, 0)
+    expect(result.expense).toBe(0)
+  })
+
+  it('income과 expense 각각 정확히 변환하여 반환한다', () => {
+    const totals: Record<string, CurrencyTotals> = {
+      USD: { income: 1_000, expense: 500 },
+    }
+    // 1000 USD * 1350 = 1_350_000 KRW (income)
+    // 500 USD * 1350 = 675_000 KRW (expense)
+    const result = convertTotalsToCurrency(totals, 'KRW', mockRates)
+    expect(result.income).toBe(1_350_000)
+    expect(result.expense).toBe(675_000)
+  })
+
+  it('빈 totals({})를 입력하면 income=0, expense=0을 반환한다', () => {
+    const result = convertTotalsToCurrency({}, 'KRW', mockRates)
+    expect(result.income).toBe(0)
+    expect(result.expense).toBe(0)
   })
 })
