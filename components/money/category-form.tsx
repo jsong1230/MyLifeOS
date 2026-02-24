@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -13,13 +14,6 @@ import {
 } from '@/components/ui/select'
 import { cn } from '@/lib/utils'
 import type { Category, CategoryType, CreateCategoryInput, UpdateCategoryInput } from '@/types/category'
-
-// 카테고리 타입 옵션
-const CATEGORY_TYPE_OPTIONS: { value: CategoryType; label: string }[] = [
-  { value: 'expense', label: '지출' },
-  { value: 'income', label: '수입' },
-  { value: 'both', label: '공통' },
-]
 
 // 기본 색상 팔레트
 const PRESET_COLORS = [
@@ -39,8 +33,18 @@ interface CategoryFormProps {
 // 카테고리 생성/수정 폼 컴포넌트
 // 시스템 카테고리는 모든 필드 읽기 전용으로 표시
 export function CategoryForm({ category, onSubmit, onCancel, isLoading = false }: CategoryFormProps) {
+  const t = useTranslations('money.categories')
+  const tc = useTranslations('common')
+
   const isSystemCategory = category?.is_system ?? false
   const isEditMode = !!category
+
+  // 카테고리 타입 옵션 (번역 포함)
+  const CATEGORY_TYPE_OPTIONS: { value: CategoryType; label: string }[] = [
+    { value: 'expense', label: t('expense') },
+    { value: 'income', label: t('income') },
+    { value: 'both', label: t('both') },
+  ]
 
   // 폼 상태
   const [name, setName] = useState(category?.name ?? '')
@@ -64,7 +68,7 @@ export function CategoryForm({ category, onSubmit, onCancel, isLoading = false }
 
     // 이름 유효성 검사
     if (!name.trim()) {
-      setNameError('카테고리 이름을 입력해주세요')
+      setNameError(t('nameRequired'))
       return
     }
 
@@ -94,14 +98,14 @@ export function CategoryForm({ category, onSubmit, onCancel, isLoading = false }
       {/* 시스템 카테고리 안내 */}
       {isSystemCategory && (
         <div className="rounded-md bg-muted px-3 py-2 text-sm text-muted-foreground">
-          시스템 기본 카테고리는 수정할 수 없습니다.
+          {t('systemNotEditable')}
         </div>
       )}
 
       {/* 이름 */}
       <div className="space-y-1.5">
         <Label htmlFor="category-name">
-          이름 <span className="text-destructive">*</span>
+          {t('nameLabel')} <span className="text-destructive">*</span>
         </Label>
         <Input
           id="category-name"
@@ -110,7 +114,7 @@ export function CategoryForm({ category, onSubmit, onCancel, isLoading = false }
             setName(e.target.value)
             if (nameError) setNameError('')
           }}
-          placeholder="카테고리 이름"
+          placeholder={t('nameLabel')}
           disabled={isSystemCategory || isLoading}
           aria-invalid={!!nameError}
           aria-describedby={nameError ? 'name-error' : undefined}
@@ -125,7 +129,7 @@ export function CategoryForm({ category, onSubmit, onCancel, isLoading = false }
 
       {/* 카테고리 타입 */}
       <div className="space-y-1.5">
-        <Label htmlFor="category-type">타입</Label>
+        <Label htmlFor="category-type">{t('typeLabel')}</Label>
         {isSystemCategory ? (
           <Input
             id="category-type"
@@ -140,7 +144,7 @@ export function CategoryForm({ category, onSubmit, onCancel, isLoading = false }
             disabled={isLoading}
           >
             <SelectTrigger id="category-type">
-              <SelectValue placeholder="타입 선택" />
+              <SelectValue placeholder={t('typeLabel')} />
             </SelectTrigger>
             <SelectContent>
               {CATEGORY_TYPE_OPTIONS.map((option) => (
@@ -155,7 +159,7 @@ export function CategoryForm({ category, onSubmit, onCancel, isLoading = false }
 
       {/* 이모지 아이콘 */}
       <div className="space-y-1.5">
-        <Label htmlFor="category-icon">아이콘 (이모지)</Label>
+        <Label htmlFor="category-icon">{t('iconLabel')}</Label>
         <div className="flex items-center gap-2">
           {/* 미리보기 */}
           <div
@@ -178,7 +182,7 @@ export function CategoryForm({ category, onSubmit, onCancel, isLoading = false }
 
       {/* 색상 */}
       <div className="space-y-1.5">
-        <Label htmlFor="category-color">색상</Label>
+        <Label htmlFor="category-color">{t('colorLabel')}</Label>
         <div className="space-y-2">
           {/* 직접 입력 */}
           <div className="flex items-center gap-2">
@@ -239,13 +243,11 @@ export function CategoryForm({ category, onSubmit, onCancel, isLoading = false }
               onClick={onCancel}
               disabled={isLoading}
             >
-              취소
+              {tc('cancel')}
             </Button>
           )}
           <Button type="submit" disabled={isLoading}>
-            {isLoading
-              ? isEditMode ? '수정 중...' : '추가 중...'
-              : isEditMode ? '수정' : '추가'}
+            {isLoading ? tc('saving') : isEditMode ? tc('update') : tc('add')}
           </Button>
         </div>
       )}
@@ -254,7 +256,7 @@ export function CategoryForm({ category, onSubmit, onCancel, isLoading = false }
       {isSystemCategory && onCancel && (
         <div className="flex justify-end pt-2">
           <Button type="button" variant="outline" onClick={onCancel}>
-            닫기
+            {tc('close')}
           </Button>
         </div>
       )}

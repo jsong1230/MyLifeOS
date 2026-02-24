@@ -1,6 +1,8 @@
 'use client'
 
+import { useTranslations } from 'next-intl'
 import { cn } from '@/lib/utils'
+import { formatCurrency } from '@/lib/currency'
 import type { BudgetStatus } from '@/types/budget'
 
 interface BudgetProgressProps {
@@ -13,6 +15,7 @@ interface BudgetProgressProps {
  * - Progress 바 색상: 0-80% 파랑, 80-100% 주황, 100%+ 빨강 (AC-03)
  */
 export function BudgetProgress({ budget }: BudgetProgressProps) {
+  const t = useTranslations('money.budget')
   const { category, amount, spent, remaining, percentage } = budget
 
   // 퍼센트를 바 너비로 클램프 (초과분은 100%로 표시)
@@ -21,11 +24,6 @@ export function BudgetProgress({ budget }: BudgetProgressProps) {
   // 경고 단계 판별
   const isWarning = percentage >= 80 && percentage < 100
   const isDanger = percentage >= 100
-
-  // 금액 포맷 (원화)
-  function formatKRW(value: number): string {
-    return new Intl.NumberFormat('ko-KR').format(Math.round(value))
-  }
 
   return (
     <div className="space-y-2">
@@ -39,7 +37,7 @@ export function BudgetProgress({ budget }: BudgetProgressProps) {
             </span>
           )}
           <span className="text-sm font-medium truncate">
-            {category?.name ?? '미분류'}
+            {category?.name ?? t('uncategorized')}
           </span>
         </div>
 
@@ -52,10 +50,10 @@ export function BudgetProgress({ budget }: BudgetProgressProps) {
               isWarning && 'text-orange-500'
             )}
           >
-            {formatKRW(spent)}원
+            {formatCurrency(spent, 'KRW')}
           </span>
           <span className="text-muted-foreground">/</span>
-          <span className="text-muted-foreground">{formatKRW(amount)}원</span>
+          <span className="text-muted-foreground">{formatCurrency(amount, 'KRW')}</span>
         </div>
       </div>
 
@@ -71,7 +69,7 @@ export function BudgetProgress({ budget }: BudgetProgressProps) {
           aria-valuenow={clampedPercentage}
           aria-valuemin={0}
           aria-valuemax={100}
-          aria-label={`예산 소진율 ${percentage}%`}
+          aria-label={t('usageLabel', { percentage })}
         >
           <div
             className={cn(
@@ -101,8 +99,8 @@ export function BudgetProgress({ budget }: BudgetProgressProps) {
         )}
       >
         {isDanger
-          ? `${formatKRW(Math.abs(remaining))}원 초과`
-          : `${formatKRW(remaining)}원 남음`}
+          ? t('exceededAmount', { amount: formatCurrency(Math.abs(remaining), 'KRW') })
+          : t('remainingAmount', { amount: formatCurrency(remaining, 'KRW') })}
       </p>
     </div>
   )

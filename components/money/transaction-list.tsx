@@ -1,7 +1,9 @@
 'use client'
 
+import { useTranslations, useLocale } from 'next-intl'
 import { Separator } from '@/components/ui/separator'
 import { TransactionItem } from './transaction-item'
+import { formatCurrency } from '@/lib/currency'
 import type { Transaction } from '@/types/transaction'
 
 interface TransactionListProps {
@@ -11,20 +13,15 @@ interface TransactionListProps {
   onToggleFavorite: (id: string, isFavorite: boolean) => void
 }
 
-// 날짜를 그룹 헤더용 포맷으로 변환 (예: 2024년 1월 15일 (월))
-function formatDateHeader(dateStr: string): string {
-  const date = new Date(dateStr)
-  const year = date.getFullYear()
-  const month = date.getMonth() + 1
-  const day = date.getDate()
-  const dayNames = ['일', '월', '화', '수', '목', '금', '토']
-  const dayName = dayNames[date.getDay()]
-  return `${year}년 ${month}월 ${day}일 (${dayName})`
-}
-
-// 금액을 원화 포맷으로 변환
-function formatCurrency(amount: number): string {
-  return `${amount.toLocaleString('ko-KR')}원`
+// 날짜를 그룹 헤더용 포맷으로 변환 (로케일 기반)
+function formatDateHeader(dateStr: string, locale: string): string {
+  const date = new Date(dateStr + 'T00:00:00')
+  return new Intl.DateTimeFormat(locale === 'ko' ? 'ko-KR' : 'en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    weekday: 'short',
+  }).format(date)
 }
 
 // 날짜별로 거래 목록 그룹화
@@ -47,13 +44,16 @@ export function TransactionList({
   onDelete,
   onToggleFavorite,
 }: TransactionListProps) {
+  const t = useTranslations('money.transactions')
+  const locale = useLocale()
+
   // 빈 상태 처리
   if (transactions.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-16 text-muted-foreground">
         <span className="text-4xl mb-3">💸</span>
-        <p className="text-sm">거래 내역이 없습니다</p>
-        <p className="text-xs mt-1">+ 버튼을 눌러 거래를 추가해보세요</p>
+        <p className="text-sm">{t('noData')}</p>
+        <p className="text-xs mt-1">{t('noDataHint')}</p>
       </div>
     )
   }
@@ -93,17 +93,17 @@ export function TransactionList({
             {/* 날짜 헤더 */}
             <div className="flex items-center justify-between px-4 py-2 bg-muted/50">
               <span className="text-xs font-medium text-muted-foreground">
-                {formatDateHeader(date)}
+                {formatDateHeader(date, locale)}
               </span>
               <div className="flex items-center gap-2 text-xs">
                 {dayIncome > 0 && (
                   <span className="text-green-600 font-medium">
-                    +{formatCurrency(dayIncome)}
+                    +{formatCurrency(dayIncome, 'KRW')}
                   </span>
                 )}
                 {dayExpense > 0 && (
                   <span className="text-red-600 font-medium">
-                    -{formatCurrency(dayExpense)}
+                    -{formatCurrency(dayExpense, 'KRW')}
                   </span>
                 )}
               </div>
@@ -131,18 +131,18 @@ export function TransactionList({
       <Separator className="my-2" />
       <div className="px-4 py-3 bg-muted/30">
         <div className="flex items-center justify-between text-sm mb-1">
-          <span className="text-muted-foreground">수입 합계</span>
-          <span className="text-green-600 font-medium">+{formatCurrency(totalIncome)}</span>
+          <span className="text-muted-foreground">{t('totalIncome')}</span>
+          <span className="text-green-600 font-medium">+{formatCurrency(totalIncome, 'KRW')}</span>
         </div>
         <div className="flex items-center justify-between text-sm mb-1">
-          <span className="text-muted-foreground">지출 합계</span>
-          <span className="text-red-600 font-medium">-{formatCurrency(totalExpense)}</span>
+          <span className="text-muted-foreground">{t('totalExpense')}</span>
+          <span className="text-red-600 font-medium">-{formatCurrency(totalExpense, 'KRW')}</span>
         </div>
         <Separator className="my-2" />
         <div className="flex items-center justify-between text-sm font-semibold">
-          <span>잔액</span>
+          <span>{t('balance')}</span>
           <span className={balance >= 0 ? 'text-green-600' : 'text-red-600'}>
-            {balance >= 0 ? '+' : ''}{formatCurrency(balance)}
+            {balance >= 0 ? '+' : ''}{formatCurrency(balance, 'KRW')}
           </span>
         </div>
       </div>

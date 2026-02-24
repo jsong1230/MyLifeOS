@@ -1,17 +1,11 @@
 'use client'
 
+import { useTranslations } from 'next-intl'
 import { Pencil, Trash2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 import { CategoryBadge } from './category-badge'
 import type { Category } from '@/types/category'
-
-// 카테고리 타입별 섹션 레이블
-const SECTION_LABELS: Record<Category['type'], string> = {
-  expense: '지출',
-  income: '수입',
-  both: '공통',
-}
 
 interface CategoryListProps {
   categories: Category[]
@@ -24,6 +18,15 @@ interface CategoryListProps {
 // 시스템 카테고리: 수정/삭제 버튼 숨김
 // 사용자 카테고리: 수정/삭제 버튼 표시
 export function CategoryList({ categories, onEdit, onDelete }: CategoryListProps) {
+  const t = useTranslations('money.categories')
+
+  // 카테고리 타입별 섹션 레이블
+  const SECTION_LABELS: Record<Category['type'], string> = {
+    expense: t('expense'),
+    income: t('income'),
+    both: t('both'),
+  }
+
   // 타입별로 그룹화
   const grouped = categories.reduce<Record<Category['type'], Category[]>>(
     (acc, category) => {
@@ -44,7 +47,7 @@ export function CategoryList({ categories, onEdit, onDelete }: CategoryListProps
   if (categories.length === 0) {
     return (
       <div className="py-8 text-center text-sm text-muted-foreground">
-        카테고리가 없습니다.
+        {t('noData')}
       </div>
     )
   }
@@ -52,7 +55,7 @@ export function CategoryList({ categories, onEdit, onDelete }: CategoryListProps
   return (
     <div className="space-y-6">
       {visibleSections.map((sectionType, sectionIndex) => (
-        <section key={sectionType} aria-label={`${SECTION_LABELS[sectionType]} 카테고리`}>
+        <section key={sectionType} aria-label={SECTION_LABELS[sectionType]}>
           {/* 섹션 구분선 (첫 섹션 제외) */}
           {sectionIndex > 0 && <Separator className="mb-6" />}
 
@@ -73,7 +76,7 @@ export function CategoryList({ categories, onEdit, onDelete }: CategoryListProps
 
                 {/* 시스템 카테고리 레이블 */}
                 {category.is_system ? (
-                  <span className="text-xs text-muted-foreground">기본</span>
+                  <span className="text-xs text-muted-foreground">{t('systemDefault')}</span>
                 ) : (
                   /* 사용자 카테고리: 수정/삭제 버튼 */
                   <div className="flex items-center gap-1">
@@ -82,7 +85,7 @@ export function CategoryList({ categories, onEdit, onDelete }: CategoryListProps
                       size="sm"
                       className="h-7 w-7 p-0 text-muted-foreground hover:text-foreground"
                       onClick={() => onEdit(category)}
-                      aria-label={`${category.name} 카테고리 수정`}
+                      aria-label={t('editAriaLabel', { name: category.name })}
                     >
                       <Pencil className="h-3.5 w-3.5" aria-hidden="true" />
                     </Button>
@@ -91,7 +94,7 @@ export function CategoryList({ categories, onEdit, onDelete }: CategoryListProps
                       size="sm"
                       className="h-7 w-7 p-0 text-muted-foreground hover:text-destructive"
                       onClick={() => onDelete(category.id)}
-                      aria-label={`${category.name} 카테고리 삭제`}
+                      aria-label={t('deleteAriaLabel', { name: category.name })}
                     >
                       <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />
                     </Button>

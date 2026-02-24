@@ -12,7 +12,9 @@ import {
   ReferenceLine,
   Cell,
 } from 'recharts'
+import { useTranslations } from 'next-intl'
 import { cn } from '@/lib/utils'
+import { formatCurrency } from '@/lib/currency'
 import type { BudgetStatus } from '@/types/budget'
 
 interface ExpenseBarChartProps {
@@ -30,8 +32,8 @@ function getBarColor(percentage: number): string {
 // 차트 데이터 타입
 interface ChartDataItem {
   name: string
-  예산: number
-  지출: number
+  budget: number
+  spent: number
   percentage: number
 }
 
@@ -61,7 +63,7 @@ function CustomTooltip({
       {payload.map((entry) => (
         <p key={entry.name} className="text-muted-foreground">
           <span className="font-medium text-foreground">{entry.name}: </span>
-          {entry.value.toLocaleString('ko-KR')}원
+          {formatCurrency(entry.value, 'KRW')}
         </p>
       ))}
     </div>
@@ -70,6 +72,9 @@ function CustomTooltip({
 
 // 카테고리별 예산 대비 지출 달성률 바 차트
 export function ExpenseBarChart({ budgets }: ExpenseBarChartProps) {
+  const t = useTranslations('money.charts')
+  const tb = useTranslations('money.budget')
+
   // 설정된 예산이 없을 경우 빈 상태 메시지 표시
   if (budgets.length === 0) {
     return (
@@ -79,16 +84,16 @@ export function ExpenseBarChart({ budgets }: ExpenseBarChartProps) {
           'text-sm text-muted-foreground'
         )}
       >
-        설정된 예산이 없습니다
+        {tb('noData')}
       </div>
     )
   }
 
   // 차트 데이터 변환
   const chartData: ChartDataItem[] = budgets.map((budget) => ({
-    name: budget.category?.name ?? '미분류',
-    예산: budget.amount,
-    지출: budget.spent,
+    name: budget.category?.name ?? tb('uncategorized'),
+    budget: budget.amount,
+    spent: budget.spent,
     percentage: budget.percentage,
   }))
 
@@ -121,9 +126,9 @@ export function ExpenseBarChart({ budgets }: ExpenseBarChartProps) {
         {/* 100% 기준선 — 예산 초과 시각화 */}
         <ReferenceLine y={0} stroke="#e5e7eb" />
         {/* 예산 바 (회색) */}
-        <Bar dataKey="예산" fill="#d1d5db" radius={[4, 4, 0, 0]} />
+        <Bar dataKey="budget" name={t('budget')} fill="#d1d5db" radius={[4, 4, 0, 0]} />
         {/* 지출 바 — 달성률에 따라 색상 동적 적용 */}
-        <Bar dataKey="지출" radius={[4, 4, 0, 0]}>
+        <Bar dataKey="spent" name={t('spent')} radius={[4, 4, 0, 0]}>
           {chartData.map((entry, index) => (
             <Cell
               key={`cell-${index}`}

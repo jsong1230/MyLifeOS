@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -35,6 +36,9 @@ export function BudgetForm({
   onCancel,
   isLoading = false,
 }: BudgetFormProps) {
+  const t = useTranslations('money.budget')
+  const tc = useTranslations('common')
+
   // 지출 카테고리 목록 조회
   const { data: categories, isLoading: isCategoriesLoading } = useCategories('expense')
 
@@ -57,7 +61,7 @@ export function BudgetForm({
 
     const parsedAmount = parseFloat(amount)
     if (!amount || isNaN(parsedAmount) || parsedAmount <= 0) {
-      newErrors.amount = '0보다 큰 예산 금액을 입력해주세요'
+      newErrors.amount = t('amountError')
     }
 
     setErrors(newErrors)
@@ -83,14 +87,14 @@ export function BudgetForm({
     <form onSubmit={handleSubmit} className="space-y-4">
       {/* 카테고리 선택 */}
       <div className="space-y-1.5">
-        <Label htmlFor="budget-category">카테고리</Label>
+        <Label htmlFor="budget-category">{tc('category')}</Label>
         <Select
           value={categoryId}
           onValueChange={setCategoryId}
           disabled={isLoading || isCategoriesLoading}
         >
           <SelectTrigger id="budget-category">
-            <SelectValue placeholder="카테고리 선택 (선택사항)" />
+            <SelectValue placeholder={tc('optional')} />
           </SelectTrigger>
           <SelectContent>
             {(categories ?? []).map((cat) => (
@@ -108,7 +112,7 @@ export function BudgetForm({
       {/* 예산 금액 */}
       <div className="space-y-1.5">
         <Label htmlFor="budget-amount">
-          예산 금액 (원) <span className="text-destructive">*</span>
+          {t('amountLabel')} <span className="text-destructive">*</span>
         </Label>
         <Input
           id="budget-amount"
@@ -138,11 +142,11 @@ export function BudgetForm({
             onClick={onCancel}
             disabled={isLoading}
           >
-            취소
+            {tc('cancel')}
           </Button>
         )}
         <Button type="submit" disabled={isLoading || isCategoriesLoading}>
-          {isLoading ? '저장 중...' : budget ? '수정' : '추가'}
+          {isLoading ? tc('saving') : budget ? tc('update') : tc('add')}
         </Button>
       </div>
     </form>

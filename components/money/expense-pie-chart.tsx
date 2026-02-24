@@ -8,7 +8,9 @@ import {
   Legend,
   ResponsiveContainer,
 } from 'recharts'
+import { useTranslations } from 'next-intl'
 import { cn } from '@/lib/utils'
+import { formatCurrency } from '@/lib/currency'
 import type { Transaction } from '@/types/transaction'
 
 interface ExpensePieChartProps {
@@ -93,7 +95,7 @@ function CustomTooltip({
     <div className="rounded-lg border bg-background px-3 py-2 shadow-md text-sm">
       <p className="font-medium text-foreground">{item.name}</p>
       <p className="text-muted-foreground">
-        {item.value.toLocaleString('ko-KR')}원
+        {formatCurrency(item.value, 'KRW')}
       </p>
     </div>
   )
@@ -101,12 +103,14 @@ function CustomTooltip({
 
 // 카테고리별 지출 비율 파이 차트
 export function ExpensePieChart({ transactions }: ExpensePieChartProps) {
+  const tt = useTranslations('money.transactions')
+
   // 지출 타입 거래만 카테고리별 집계
   const expenseByCategory = transactions
     .filter((t) => t.type === 'expense')
     .reduce<Record<string, { amount: number; color: string | null | undefined; name: string }>>((acc, t) => {
       const key = t.category_id ?? 'unknown'
-      const name = t.category?.name ?? '미분류'
+      const name = t.category?.name ?? tt('uncategorized')
       const color = t.category?.color
 
       if (!acc[key]) {

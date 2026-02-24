@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -38,6 +39,9 @@ export function RecurringForm({
   onCancel,
   isLoading = false,
 }: RecurringFormProps) {
+  const t = useTranslations('money.recurring')
+  const tc = useTranslations('common')
+
   // 지출 카테고리 목록 조회
   const { data: categories, isLoading: isCategoriesLoading } = useCategories('expense')
 
@@ -67,17 +71,17 @@ export function RecurringForm({
     const newErrors: Record<string, string> = {}
 
     if (!name.trim()) {
-      newErrors.name = '이름을 입력해주세요'
+      newErrors.name = t('nameRequired')
     }
 
     const parsedAmount = parseFloat(amount)
     if (!amount || isNaN(parsedAmount) || parsedAmount <= 0) {
-      newErrors.amount = '0보다 큰 금액을 입력해주세요'
+      newErrors.amount = t('amountRequired')
     }
 
     const parsedDay = parseInt(billingDay, 10)
     if (isNaN(parsedDay) || parsedDay < 1 || parsedDay > 31) {
-      newErrors.billingDay = '결제일은 1에서 31 사이의 값이어야 합니다'
+      newErrors.billingDay = t('billingDayInvalid')
     }
 
     setErrors(newErrors)
@@ -106,7 +110,7 @@ export function RecurringForm({
       {/* 이름 */}
       <div className="space-y-1.5">
         <Label htmlFor="recurring-name">
-          이름 <span className="text-destructive">*</span>
+          {tc('name')} <span className="text-destructive">*</span>
         </Label>
         <Input
           id="recurring-name"
@@ -125,7 +129,7 @@ export function RecurringForm({
       {/* 금액 */}
       <div className="space-y-1.5">
         <Label htmlFor="recurring-amount">
-          금액 (원) <span className="text-destructive">*</span>
+          {tc('amount')} <span className="text-destructive">*</span>
         </Label>
         <Input
           id="recurring-amount"
@@ -146,7 +150,7 @@ export function RecurringForm({
       {/* 결제일 */}
       <div className="space-y-1.5">
         <Label htmlFor="recurring-billing-day">
-          결제일 <span className="text-destructive">*</span>
+          {t('billingDay')} <span className="text-destructive">*</span>
         </Label>
         <Select
           value={billingDay}
@@ -154,12 +158,12 @@ export function RecurringForm({
           disabled={isLoading}
         >
           <SelectTrigger id="recurring-billing-day" aria-invalid={Boolean(errors.billingDay)}>
-            <SelectValue placeholder="결제일 선택" />
+            <SelectValue placeholder={t('billingDay')} />
           </SelectTrigger>
           <SelectContent>
             {BILLING_DAY_OPTIONS.map((day) => (
               <SelectItem key={day} value={String(day)}>
-                매월 {day}일
+                {t('billingDayOption', { day })}
               </SelectItem>
             ))}
           </SelectContent>
@@ -171,7 +175,7 @@ export function RecurringForm({
 
       {/* 주기 토글 */}
       <div className="space-y-1.5">
-        <Label>주기</Label>
+        <Label>{t('cycle')}</Label>
         <div className="flex rounded-md border overflow-hidden">
           <button
             type="button"
@@ -183,7 +187,7 @@ export function RecurringForm({
             onClick={() => setCycle('monthly')}
             disabled={isLoading}
           >
-            매월
+            {t('perMonth')}
           </button>
           <button
             type="button"
@@ -195,14 +199,14 @@ export function RecurringForm({
             onClick={() => setCycle('yearly')}
             disabled={isLoading}
           >
-            매년
+            {t('perYear')}
           </button>
         </div>
       </div>
 
       {/* 카테고리 (선택사항) */}
       <div className="space-y-1.5">
-        <Label htmlFor="recurring-category">카테고리</Label>
+        <Label htmlFor="recurring-category">{tc('category')}</Label>
         <Select
           value={categoryId}
           onValueChange={setCategoryId}
@@ -233,11 +237,11 @@ export function RecurringForm({
             onClick={onCancel}
             disabled={isLoading}
           >
-            취소
+            {tc('cancel')}
           </Button>
         )}
         <Button type="submit" disabled={isLoading || isCategoriesLoading}>
-          {isLoading ? '저장 중...' : expense ? '수정' : '추가'}
+          {isLoading ? tc('saving') : expense ? tc('update') : tc('add')}
         </Button>
       </div>
     </form>

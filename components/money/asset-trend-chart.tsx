@@ -9,7 +9,9 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from 'recharts'
+import { useTranslations } from 'next-intl'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { formatCurrency } from '@/lib/currency'
 import type { AssetMonthlyTotal } from '@/types/asset'
 
 interface AssetTrendChartProps {
@@ -30,11 +32,13 @@ function formatYAxis(value: number): string {
 }
 
 export function AssetTrendChart({ data }: AssetTrendChartProps) {
+  const t = useTranslations('money.assets')
+
   if (data.length === 0) {
     return (
       <Card>
         <CardContent className="py-8 text-center text-sm text-muted-foreground">
-          자산 추이 데이터가 없습니다
+          {t('noTrend')}
         </CardContent>
       </Card>
     )
@@ -48,7 +52,7 @@ export function AssetTrendChart({ data }: AssetTrendChartProps) {
   return (
     <Card>
       <CardHeader className="pb-2">
-        <CardTitle className="text-sm font-medium">월별 자산 추이</CardTitle>
+        <CardTitle className="text-sm font-medium">{t('trendTitle')}</CardTitle>
       </CardHeader>
       <CardContent>
         <ResponsiveContainer width="100%" height={180}>
@@ -69,8 +73,8 @@ export function AssetTrendChart({ data }: AssetTrendChartProps) {
             />
             <Tooltip
               formatter={(value: number | undefined) => [
-                value != null ? `${value.toLocaleString('ko-KR')}원` : '-',
-                '총 자산',
+                value != null ? formatCurrency(value, 'KRW') : '-',
+                t('totalAssets'),
               ]}
               labelFormatter={(label) => `${label}`}
             />

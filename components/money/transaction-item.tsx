@@ -1,8 +1,10 @@
 'use client'
 
+import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
+import { formatCurrency } from '@/lib/currency'
 import type { Transaction } from '@/types/transaction'
 
 interface TransactionItemProps {
@@ -10,11 +12,6 @@ interface TransactionItemProps {
   onEdit: (transaction: Transaction) => void
   onDelete: (id: string) => void
   onToggleFavorite: (id: string, isFavorite: boolean) => void
-}
-
-// 금액을 원화 포맷으로 변환
-function formatCurrency(amount: number): string {
-  return `${amount.toLocaleString('ko-KR')}원`
 }
 
 // 날짜 문자열을 MM/DD 형식으로 변환
@@ -31,8 +28,10 @@ export function TransactionItem({
   onDelete,
   onToggleFavorite,
 }: TransactionItemProps) {
+  const t = useTranslations('money.transactions')
+  const tc = useTranslations('common')
   const isIncome = transaction.type === 'income'
-  const displayLabel = transaction.memo || transaction.category?.name || '미분류'
+  const displayLabel = transaction.memo || transaction.category?.name || t('uncategorized')
 
   return (
     <div className="flex items-center gap-3 py-3 px-4 hover:bg-accent/30 transition-colors group">
@@ -82,7 +81,7 @@ export function TransactionItem({
             isIncome ? 'text-green-600' : 'text-red-600'
           )}
         >
-          {isIncome ? '+' : '-'}{formatCurrency(transaction.amount)}
+          {isIncome ? '+' : '-'}{formatCurrency(transaction.amount, transaction.currency ?? 'KRW')}
         </span>
 
         {/* 즐겨찾기 토글 버튼 */}
@@ -95,8 +94,8 @@ export function TransactionItem({
               ? 'text-yellow-500'
               : 'text-muted-foreground opacity-0 group-hover:opacity-100 hover:text-yellow-400'
           )}
-          aria-label={transaction.is_favorite ? '즐겨찾기 해제' : '즐겨찾기 추가'}
-          title={transaction.is_favorite ? '즐겨찾기 해제' : '즐겨찾기 추가'}
+          aria-label={transaction.is_favorite ? t('favoriteRemove') : t('favoriteAdd')}
+          title={transaction.is_favorite ? t('favoriteRemove') : t('favoriteAdd')}
         >
           {transaction.is_favorite ? '★' : '☆'}
         </button>
@@ -109,7 +108,7 @@ export function TransactionItem({
             onClick={() => onEdit(transaction)}
             className="h-7 px-2 text-xs text-muted-foreground hover:text-foreground"
           >
-            수정
+            {tc('update')}
           </Button>
           <Button
             variant="ghost"
@@ -117,7 +116,7 @@ export function TransactionItem({
             onClick={() => onDelete(transaction.id)}
             className="h-7 px-2 text-xs text-destructive hover:text-destructive hover:bg-destructive/10"
           >
-            삭제
+            {tc('delete')}
           </Button>
         </div>
       </div>

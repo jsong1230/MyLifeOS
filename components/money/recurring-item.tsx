@@ -1,19 +1,16 @@
 'use client'
 
+import { useTranslations } from 'next-intl'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
+import { formatCurrency } from '@/lib/currency'
 import type { RecurringExpense } from '@/types/recurring'
 
 interface RecurringItemProps {
   expense: RecurringExpense
   onEdit: (expense: RecurringExpense) => void
   onDelete: (id: string) => void
-}
-
-// 원화 금액 포맷
-function formatKRW(value: number): string {
-  return new Intl.NumberFormat('ko-KR').format(Math.round(value))
 }
 
 // 오늘부터 다음 결제일까지 남은 일수 계산
@@ -51,10 +48,12 @@ function calcDaysUntilBilling(billingDay: number): number {
 
 // D-Day 배지 컴포넌트
 function DDayBadge({ daysLeft }: { daysLeft: number }) {
+  const t = useTranslations('money.recurring')
+
   if (daysLeft === 0) {
     return (
       <Badge variant="destructive" className="text-xs shrink-0">
-        오늘!
+        {t('today')}
       </Badge>
     )
   }
@@ -81,9 +80,11 @@ function DDayBadge({ daysLeft }: { daysLeft: number }) {
  * - 수정/삭제 버튼
  */
 export function RecurringItem({ expense, onEdit, onDelete }: RecurringItemProps) {
+  const t = useTranslations('money.recurring')
+  const tc = useTranslations('common')
   const daysLeft = calcDaysUntilBilling(expense.billing_day)
 
-  const cycleLabel = expense.cycle === 'yearly' ? '매년' : '매월'
+  const cycleLabel = t(expense.cycle === 'yearly' ? 'perYear' : 'perMonth')
 
   return (
     <Card className={expense.is_active ? '' : 'opacity-50'}>
@@ -95,20 +96,20 @@ export function RecurringItem({ expense, onEdit, onDelete }: RecurringItemProps)
             {expense.is_active && <DDayBadge daysLeft={daysLeft} />}
             {!expense.is_active && (
               <Badge variant="outline" className="text-xs shrink-0 text-muted-foreground">
-                비활성
+                {t('inactive')}
               </Badge>
             )}
           </div>
 
           {/* 오른쪽: 금액 */}
           <span className="font-semibold text-sm shrink-0">
-            {formatKRW(expense.amount)}원
+            {formatCurrency(expense.amount, expense.currency ?? 'KRW')}
           </span>
         </div>
 
         {/* 결제일 + 주기 정보 */}
         <p className="text-xs text-muted-foreground mt-1">
-          {cycleLabel} {expense.billing_day}일 결제
+          {t('billingInfo', { cycle: cycleLabel, day: expense.billing_day })}
         </p>
 
         {/* 수정/삭제 버튼 */}
@@ -119,7 +120,7 @@ export function RecurringItem({ expense, onEdit, onDelete }: RecurringItemProps)
             onClick={() => onEdit(expense)}
             className="text-xs h-7 px-2"
           >
-            수정
+            {tc('update')}
           </Button>
           <Button
             variant="ghost"
@@ -127,7 +128,7 @@ export function RecurringItem({ expense, onEdit, onDelete }: RecurringItemProps)
             onClick={() => onDelete(expense.id)}
             className="text-xs h-7 px-2 text-destructive hover:text-destructive"
           >
-            삭제
+            {tc('delete')}
           </Button>
         </div>
       </CardContent>
