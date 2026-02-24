@@ -6,6 +6,8 @@ import { useTranslations } from 'next-intl'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { EmptyState } from '@/components/dashboard/empty-state'
 import { Wallet, ChevronRight, TrendingUp, TrendingDown } from 'lucide-react'
+import { formatCurrency } from '@/lib/currency'
+import { useSettings } from '@/hooks/use-settings'
 import type { Transaction } from '@/types/transaction'
 
 function getCurrentMonth(): string {
@@ -13,15 +15,13 @@ function getCurrentMonth(): string {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`
 }
 
-function formatAmount(amount: number): string {
-  return new Intl.NumberFormat('ko-KR').format(amount)
-}
-
 // 금전 모듈 요약 카드 — 이번 달 수입/지출 합계
 export function MoneySummaryCard() {
   const month = getCurrentMonth()
   const t = useTranslations('dashboard')
   const commonT = useTranslations('common')
+  const { data: settings } = useSettings()
+  const currency = settings?.default_currency ?? 'KRW'
 
   const { data: transactions, isLoading } = useQuery<Transaction[]>({
     queryKey: ['transactions', month],
@@ -55,11 +55,11 @@ export function MoneySummaryCard() {
               <p className="text-xs text-muted-foreground">{t('thisMonth')}</p>
               <div className="flex items-center gap-1">
                 <TrendingUp className="w-3 h-3 text-green-500" />
-                <span className="text-xs text-green-600">{t('income')} {formatAmount(income)}원</span>
+                <span className="text-xs text-green-600">{t('income')} {formatCurrency(income, currency)}</span>
               </div>
               <div className="flex items-center gap-1">
                 <TrendingDown className="w-3 h-3 text-red-500" />
-                <span className="text-xs text-red-600">{t('expense')} {formatAmount(expense)}원</span>
+                <span className="text-xs text-red-600">{t('expense')} {formatCurrency(expense, currency)}</span>
               </div>
               <div className="pt-1 border-t">
                 <span
@@ -68,7 +68,7 @@ export function MoneySummaryCard() {
                   }`}
                 >
                   {income - expense >= 0 ? '+' : ''}
-                  {formatAmount(income - expense)}원
+                  {formatCurrency(Math.abs(income - expense), currency)}
                 </span>
               </div>
             </div>
