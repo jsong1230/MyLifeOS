@@ -6,6 +6,8 @@
 - **dashboard**: 금전 요약 카드 `원` 하드코딩 → `formatCurrency` 교체 (₩/$/CA$ 동적 표시)
 - **money**: USD/CAD 거래 입력 시 소수점(cent) 입력 가능하도록 수정 (blur 시 포맷 적용)
 - **money**: 거래 목록 날짜 헤더·하단 합계에서 통화 혼합 합산 제거 → 통화별 분리 표시
+- **money**: 홈 Money 요약 카드·지출 현황 카드 통화 혼합 합산 전면 수정 → CAD/USD/KRW 완전 분리
+- **money**: `calcTotalsByCurrency` 공통 유틸로 추출 (`lib/currency.ts`), 3개 컴포넌트 재사용
 - **test**: validator 테스트를 i18n 에러 코드 기준으로 업데이트 (48 tests all passing)
 
 ### Added
