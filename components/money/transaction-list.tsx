@@ -3,22 +3,8 @@
 import { useTranslations, useLocale } from 'next-intl'
 import { Separator } from '@/components/ui/separator'
 import { TransactionItem } from './transaction-item'
-import { formatCurrency, type CurrencyCode } from '@/lib/currency'
+import { formatCurrency, calcTotalsByCurrency, type CurrencyCode } from '@/lib/currency'
 import type { Transaction } from '@/types/transaction'
-
-// 통화별 수입/지출 합계
-type CurrencyTotals = Record<string, { income: number; expense: number }>
-
-function calcTotalsByCurrency(txs: Transaction[]): CurrencyTotals {
-  const totals: CurrencyTotals = {}
-  for (const tx of txs) {
-    const c = tx.currency ?? 'KRW'
-    if (!totals[c]) totals[c] = { income: 0, expense: 0 }
-    if (tx.type === 'income') totals[c].income += tx.amount
-    else totals[c].expense += tx.amount
-  }
-  return totals
-}
 
 interface TransactionListProps {
   transactions: Transaction[]

@@ -111,3 +111,31 @@ export function getCurrencySymbol(currency: CurrencyCode): string {
 export function getCurrencyDecimals(currency: CurrencyCode): number {
   return CURRENCY_META[currency].decimals
 }
+
+/** 거래 타입 (currency 계산용 최소 인터페이스) */
+export interface TxForTotals {
+  type: 'income' | 'expense'
+  amount: number
+  currency?: string | null
+}
+
+/** 통화별 수입/지출 합계 */
+export interface CurrencyTotals {
+  income: number
+  expense: number
+}
+
+/**
+ * 거래 목록을 통화별로 분리해 수입/지출 합계 반환
+ * 반환 예: { KRW: { income: 6500000, expense: 300000 }, USD: { income: 0, expense: 12.99 } }
+ */
+export function calcTotalsByCurrency(txs: TxForTotals[]): Record<string, CurrencyTotals> {
+  const totals: Record<string, CurrencyTotals> = {}
+  for (const tx of txs) {
+    const c = tx.currency ?? 'KRW'
+    if (!totals[c]) totals[c] = { income: 0, expense: 0 }
+    if (tx.type === 'income') totals[c].income += tx.amount
+    else totals[c].expense += tx.amount
+  }
+  return totals
+}

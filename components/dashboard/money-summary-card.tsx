@@ -6,8 +6,7 @@ import { useTranslations } from 'next-intl'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { EmptyState } from '@/components/dashboard/empty-state'
 import { Wallet, ChevronRight, TrendingUp, TrendingDown } from 'lucide-react'
-import { formatCurrency } from '@/lib/currency'
-import { useSettings } from '@/hooks/use-settings'
+import { formatCurrency, calcTotalsByCurrency, type CurrencyCode } from '@/lib/currency'
 import type { Transaction } from '@/types/transaction'
 
 function getCurrentMonth(): string {
@@ -15,13 +14,11 @@ function getCurrentMonth(): string {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`
 }
 
-// 금전 모듈 요약 카드 — 이번 달 수입/지출 합계
+// 금전 모듈 요약 카드 — 이번 달 통화별 수입/지출 합계
 export function MoneySummaryCard() {
   const month = getCurrentMonth()
   const t = useTranslations('dashboard')
   const commonT = useTranslations('common')
-  const { data: settings } = useSettings()
-  const currency = settings?.default_currency ?? 'KRW'
 
   const { data: transactions, isLoading } = useQuery<Transaction[]>({
     queryKey: ['transactions', month],
@@ -33,9 +30,9 @@ export function MoneySummaryCard() {
     },
   })
 
-  const income = transactions?.filter((t) => t.type === 'income').reduce((s, t) => s + t.amount, 0) ?? 0
-  const expense = transactions?.filter((t) => t.type === 'expense').reduce((s, t) => s + t.amount, 0) ?? 0
   const hasData = (transactions?.length ?? 0) > 0
+  const totalsByCurrency = calcTotalsByCurrency(transactions ?? [])
+  const currencies = Object.keys(totalsByCurrency)
 
   return (
     <Link href="/money" className="block">
@@ -51,26 +48,41 @@ export function MoneySummaryCard() {
           {isLoading ? (
             <p className="text-xs text-muted-foreground">{commonT('loading')}</p>
           ) : hasData ? (
-            <div className="space-y-1.5">
+            <div className="space-y-2">
               <p className="text-xs text-muted-foreground">{t('thisMonth')}</p>
-              <div className="flex items-center gap-1">
-                <TrendingUp className="w-3 h-3 text-green-500" />
-                <span className="text-xs text-green-600">{t('income')} {formatCurrency(income, currency)}</span>
-              </div>
-              <div className="flex items-center gap-1">
-                <TrendingDown className="w-3 h-3 text-red-500" />
-                <span className="text-xs text-red-600">{t('expense')} {formatCurrency(expense, currency)}</span>
-              </div>
-              <div className="pt-1 border-t">
-                <span
-                  className={`text-sm font-semibold ${
-                    income - expense >= 0 ? 'text-green-600' : 'text-red-600'
-                  }`}
-                >
-                  {income - expense >= 0 ? '+' : ''}
-                  {formatCurrency(Math.abs(income - expense), currency)}
-                </span>
-              </div>
+              {currencies.map((currency) => {
+                const { income, expense } = totalsByCurrency[currency]
+                const balance = income - expense
+                return (
+                  <div key={currency} className="space-y-1">
+                    {currencies.length > 1 && (
+                      <p className="text-xs font-semibold text-muted-foreground">{currency}</p>
+                    )}
+                    {income > 0 && (
+                      <div className="flex items-center gap-1">
+                        <TrendingUp className="w-3 h-3 text-green-500" />
+                        <span className="text-xs text-green-600">
+                          {t('income')} {formatCurrency(income, currency as CurrencyCode)}
+                        </span>
+                      </div>
+                    )}
+                    {expense > 0 && (
+                      <div className="flex items-center gap-1">
+                        <TrendingDown className="w-3 h-3 text-red-500" />
+                        <span className="text-xs text-red-600">
+                          {t('expense')} {formatCurrency(expense, currency as CurrencyCode)}
+                        </span>
+                      </div>
+                    )}
+                    <div className="pt-0.5 border-t">
+                      <span className={`text-sm font-semibold ${balance >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                        {balance >= 0 ? '+' : ''}
+                        {formatCurrency(Math.abs(balance), currency as CurrencyCode)}
+                      </span>
+                    </div>
+                  </div>
+                )
+              })}
             </div>
           ) : (
             <EmptyState
