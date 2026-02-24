@@ -2,6 +2,12 @@
 
 ## [미정] - 2026-02-24
 
+### Fixed
+- **dashboard**: 금전 요약 카드 `원` 하드코딩 → `formatCurrency` 교체 (₩/$/CA$ 동적 표시)
+- **money**: USD/CAD 거래 입력 시 소수점(cent) 입력 가능하도록 수정 (blur 시 포맷 적용)
+- **money**: 거래 목록 날짜 헤더·하단 합계에서 통화 혼합 합산 제거 → 통화별 분리 표시
+- **test**: validator 테스트를 i18n 에러 코드 기준으로 업데이트 (48 tests all passing)
+
 ### Added
 - **i18n Phase 1-6: 영문 지원 + 다중 통화 (KRW/CAD/USD) 전체 구현 완성**
   - `next-intl` 쿠키 기반 설정 (URL 변경 없는 언어 전환)
