@@ -3,8 +3,22 @@
 import { useTranslations, useLocale } from 'next-intl'
 import { Separator } from '@/components/ui/separator'
 import { TransactionItem } from './transaction-item'
-import { formatCurrency } from '@/lib/currency'
+import { formatCurrency, type CurrencyCode } from '@/lib/currency'
 import type { Transaction } from '@/types/transaction'
+
+// 통화별 수입/지출 합계
+type CurrencyTotals = Record<string, { income: number; expense: number }>
+
+function calcTotalsByCurrency(txs: Transaction[]): CurrencyTotals {
+  const totals: CurrencyTotals = {}
+  for (const tx of txs) {
+    const c = tx.currency ?? 'KRW'
+    if (!totals[c]) totals[c] = { income: 0, expense: 0 }
+    if (tx.type === 'income') totals[c].income += tx.amount
+    else totals[c].expense += tx.amount
+  }
+  return totals
+}
 
 interface TransactionListProps {
   transactions: Transaction[]
@@ -61,32 +75,14 @@ export function TransactionList({
   // 날짜별 그룹화
   const groupedTransactions = groupTransactionsByDate(transactions)
 
-  // 수입/지출 합계 계산
-  let totalIncome = 0
-  let totalExpense = 0
-  for (const tx of transactions) {
-    if (tx.type === 'income') {
-      totalIncome += tx.amount
-    } else {
-      totalExpense += tx.amount
-    }
-  }
-  const balance = totalIncome - totalExpense
+  // 통화별 수입/지출 합계
+  const totalsByCurrency = calcTotalsByCurrency(transactions)
 
   return (
     <div className="flex flex-col">
       {/* 날짜별 그룹 렌더링 */}
       {Array.from(groupedTransactions.entries()).map(([date, dayTransactions]) => {
-        // 해당 날짜의 합계 계산
-        let dayIncome = 0
-        let dayExpense = 0
-        for (const tx of dayTransactions) {
-          if (tx.type === 'income') {
-            dayIncome += tx.amount
-          } else {
-            dayExpense += tx.amount
-          }
-        }
+        const dayTotals = calcTotalsByCurrency(dayTransactions)
 
         return (
           <div key={date}>
@@ -96,16 +92,20 @@ export function TransactionList({
                 {formatDateHeader(date, locale)}
               </span>
               <div className="flex items-center gap-2 text-xs">
-                {dayIncome > 0 && (
-                  <span className="text-green-600 font-medium">
-                    +{formatCurrency(dayIncome, 'KRW')}
+                {Object.entries(dayTotals).map(([currency, { income, expense }]) => (
+                  <span key={currency} className="flex gap-1">
+                    {income > 0 && (
+                      <span className="text-green-600 font-medium">
+                        +{formatCurrency(income, currency as CurrencyCode)}
+                      </span>
+                    )}
+                    {expense > 0 && (
+                      <span className="text-red-600 font-medium">
+                        -{formatCurrency(expense, currency as CurrencyCode)}
+                      </span>
+                    )}
                   </span>
-                )}
-                {dayExpense > 0 && (
-                  <span className="text-red-600 font-medium">
-                    -{formatCurrency(dayExpense, 'KRW')}
-                  </span>
-                )}
+                ))}
               </div>
             </div>
 
@@ -127,24 +127,38 @@ export function TransactionList({
         )
       })}
 
-      {/* 하단 합계 요약 */}
+      {/* 하단 합계 요약 — 통화별 분리 */}
       <Separator className="my-2" />
-      <div className="px-4 py-3 bg-muted/30">
-        <div className="flex items-center justify-between text-sm mb-1">
-          <span className="text-muted-foreground">{t('totalIncome')}</span>
-          <span className="text-green-600 font-medium">+{formatCurrency(totalIncome, 'KRW')}</span>
-        </div>
-        <div className="flex items-center justify-between text-sm mb-1">
-          <span className="text-muted-foreground">{t('totalExpense')}</span>
-          <span className="text-red-600 font-medium">-{formatCurrency(totalExpense, 'KRW')}</span>
-        </div>
-        <Separator className="my-2" />
-        <div className="flex items-center justify-between text-sm font-semibold">
-          <span>{t('balance')}</span>
-          <span className={balance >= 0 ? 'text-green-600' : 'text-red-600'}>
-            {balance >= 0 ? '+' : ''}{formatCurrency(balance, 'KRW')}
-          </span>
-        </div>
+      <div className="px-4 py-3 bg-muted/30 space-y-3">
+        {Object.entries(totalsByCurrency).map(([currency, { income, expense }]) => {
+          const balance = income - expense
+          return (
+            <div key={currency}>
+              {Object.keys(totalsByCurrency).length > 1 && (
+                <p className="text-xs font-semibold text-muted-foreground mb-1">{currency}</p>
+              )}
+              {income > 0 && (
+                <div className="flex items-center justify-between text-sm mb-1">
+                  <span className="text-muted-foreground">{t('totalIncome')}</span>
+                  <span className="text-green-600 font-medium">+{formatCurrency(income, currency as CurrencyCode)}</span>
+                </div>
+              )}
+              {expense > 0 && (
+                <div className="flex items-center justify-between text-sm mb-1">
+                  <span className="text-muted-foreground">{t('totalExpense')}</span>
+                  <span className="text-red-600 font-medium">-{formatCurrency(expense, currency as CurrencyCode)}</span>
+                </div>
+              )}
+              <Separator className="my-1" />
+              <div className="flex items-center justify-between text-sm font-semibold">
+                <span>{t('balance')}</span>
+                <span className={balance >= 0 ? 'text-green-600' : 'text-red-600'}>
+                  {balance >= 0 ? '+' : ''}{formatCurrency(Math.abs(balance), currency as CurrencyCode)}
+                </span>
+              </div>
+            </div>
+          )
+        })}
       </div>
     </div>
   )
