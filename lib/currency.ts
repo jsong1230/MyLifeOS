@@ -139,3 +139,44 @@ export function calcTotalsByCurrency(txs: TxForTotals[]): Record<string, Currenc
   }
   return totals
 }
+
+import type { ExchangeRates } from '@/types/exchange-rate'
+
+/**
+ * 통화 변환 (base=USD 환율 기준)
+ * - USD→X: amount * rates[X]
+ * - X→USD: amount / rates[X]
+ * - X→Y: amount * (rates[Y] / rates[X])
+ * - 동일 통화: amount 그대로
+ */
+export function convertCurrency(
+  amount: number,
+  from: CurrencyCode,
+  to: CurrencyCode,
+  rates: ExchangeRates
+): number {
+  if (from === to) return amount
+  const fromRate = from === 'USD' ? 1 : rates.rates[from]
+  const toRate = to === 'USD' ? 1 : rates.rates[to]
+  if (!fromRate || !toRate) return 0
+  const inUSD = amount / fromRate
+  const converted = inUSD * toRate
+  return Math.round(converted * 100) / 100
+}
+
+/**
+ * 통화별 합계를 기준 통화로 환산하여 단일 합계 반환
+ */
+export function convertTotalsToCurrency(
+  totalsByCurrency: Record<string, CurrencyTotals>,
+  targetCurrency: CurrencyCode,
+  rates: ExchangeRates
+): CurrencyTotals {
+  let income = 0
+  let expense = 0
+  for (const [currency, totals] of Object.entries(totalsByCurrency)) {
+    income += convertCurrency(totals.income, currency as CurrencyCode, targetCurrency, rates)
+    expense += convertCurrency(totals.expense, currency as CurrencyCode, targetCurrency, rates)
+  }
+  return { income, expense }
+}

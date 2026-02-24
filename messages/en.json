@@ -877,5 +877,16 @@
     "select": "Select currency",
     "defaultCurrency": "Default currency",
     "mixedNote": "Items with different currencies are not summed together"
+  },
+  "exchangeRates": {
+    "baseCurrency": "Base Currency",
+    "convertedTotal": "Converted Total",
+    "convertedTotalDesc": "Based on {currency}",
+    "rateInfo": "1 {from} = {rate} {to}",
+    "approximate": "≈ {amount}",
+    "loadingRates": "Loading exchange rates...",
+    "staleRate": "Exchange rate may be outdated",
+    "showConverted": "Show converted total",
+    "hideConverted": "Hide converted total"
   }
 }
