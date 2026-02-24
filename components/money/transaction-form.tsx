@@ -74,18 +74,29 @@ export function TransactionForm({
 
   // 금액 입력 핸들러 — 통화에 따라 소수점 허용 여부 결정
   function handleAmountChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const raw = currency === 'KRW'
-      ? e.target.value.replace(/[^0-9]/g, '')
-      : e.target.value.replace(/[^0-9.]/g, '')
-    if (raw === '') {
-      setAmountDisplay('')
-      return
-    }
-    const num = parseAmountInput(raw, currency)
-    if (!isNaN(num)) {
-      setAmountDisplay(formatAmount(num, currency))
+    if (currency === 'KRW') {
+      const raw = e.target.value.replace(/[^0-9]/g, '')
+      if (raw === '') { setAmountDisplay(''); return }
+      const num = parseAmountInput(raw, 'KRW')
+      if (!isNaN(num)) setAmountDisplay(formatAmount(num, 'KRW'))
+    } else {
+      // USD/CAD: 타이핑 중엔 raw 유지 (소수점 2자리까지만 허용)
+      const raw = e.target.value.replace(/[^0-9.]/g, '').replace(/^\./, '0.')
+      const parts = raw.split('.')
+      if (parts.length > 2) return // 소수점 2개 이상 무시
+      if (parts[1] !== undefined && parts[1].length > 2) return // 소수점 3자리 이상 무시
+      setAmountDisplay(raw)
     }
     setAmountError('')
+  }
+
+  // 포커스 아웃 시 포맷 적용 (USD/CAD: "12.5" → "12.50")
+  function handleAmountBlur() {
+    if (currency === 'KRW' || !amountDisplay) return
+    const num = parseAmountInput(amountDisplay, currency)
+    if (!isNaN(num) && num > 0) {
+      setAmountDisplay(formatAmount(num, currency))
+    }
   }
 
   // 즐겨찾기 항목 선택 시 자동 입력
@@ -204,6 +215,7 @@ export function TransactionForm({
               placeholder="0"
               value={amountDisplay}
               onChange={handleAmountChange}
+              onBlur={handleAmountBlur}
               className={cn('pr-2', amountError && 'border-destructive')}
             />
           </div>
