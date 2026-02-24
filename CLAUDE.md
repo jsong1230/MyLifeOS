@@ -60,7 +60,22 @@
 - ✅ 완료: F-20 완료율 통계 (할일 완료율 + 루틴 달성률 차트, 주간/월간 — 2026-02-23)
 - ✅ 확인: F-05~F-19, F-28~F-33 전체 (big commit `75372d4`에서 구현 완료)
 - 🎉 전체 기능 33개 모두 구현 완료 (F-01~F-33)
-- ⏭️ 다음: 전체 통합 테스트, Supabase 마이그레이션 SQL 실행, 배포 검증
+- ✅ 완료: Wave 1 — i18n 완성 + API 에러 표준화 + 차트/날짜 locale 처리 (2026-02-24)
+  - 컴포넌트 i18n 적용 (category-badge, recurring-summary, budget-list, theme-toggle 등)
+  - 폼 placeholder/aria-label 15개 키 다국어화
+  - 전체 Route Handler apiError() 표준화 완료 (잔존 0건)
+  - 차트 Y축 단위 locale 분기 (만/억 ↔ K/M), 날짜 포맷 9개 파일 locale-aware 전환
+  - lib/api-errors.ts CONFLICT(409), LOCKED(423) 코드 추가
+- ✅ 완료: Wave 2 — 테스트 확대 + quality-gate (2026-02-24)
+  - 단위 테스트 133개 PASS (convertCurrency, useExchangeRates 신규)
+  - E2E 테스트 56개 신규 (money, pin, time, health)
+  - quality-gate 리뷰 (HIGH 이슈 2건 발견 → Wave 3에서 수정)
+- ✅ 완료: Wave 3 — 보안/품질 HIGH 이슈 수정 (2026-02-24)
+  - PIN API salt 노출 제거 → 클라이언트 자체 생성(crypto.randomUUID) 방식 재설계
+  - money 컴포넌트 KRW 하드코딩 → useSettingsStore.defaultCurrency 교체
+- ✅ 완료: Supabase 마이그레이션 009 실행 (user_settings + currency 컬럼) (2026-02-24)
+- ✅ 완료: Vercel 배포 검증 — 전 페이지 정상, 환율 변환/언어 전환 동작 확인 (2026-02-24)
+- ⏭️ 다음: 신규 기능 개발 (AI 인사이트 / 푸시 알림 / 투자 트래킹 / 장기 목표 관리)
 
 ## 중요 결정사항
 - `middleware.ts` (루트) 사용 — Next.js가 자동 인식하는 파일명 (proxy.ts는 내부 명명 의도였음)
@@ -69,10 +84,11 @@
 - 폼 검증은 네이티브 함수 사용 (zod/react-hook-form은 복잡한 폼 기능 시 도입)
 
 ## Supabase 수동 선행 작업
-- [ ] `.env.local` 환경변수 입력 (Supabase URL, anon key)
-- [ ] Supabase Dashboard → Google OAuth Provider 활성화
-- [ ] Redirect URLs 등록: `http://localhost:3000/callback`
-- [ ] SQL Editor → `handle_new_user()` 트리거 실행
+- [x] `.env.local` 환경변수 입력 (Supabase URL, anon key)
+- [x] Supabase Dashboard → Google OAuth Provider 활성화
+- [x] Redirect URLs 등록: `http://localhost:3000/callback`
+- [x] SQL Editor → `handle_new_user()` 트리거 실행
+- [x] 009_user_settings_currency.sql 실행 (user_settings 테이블 + currency 컬럼)
 
 ## 프로젝트 관리
 - 방식: file
