@@ -12,7 +12,8 @@ import {
 } from 'recharts'
 import { useTranslations, useLocale } from 'next-intl'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { formatCurrency } from '@/lib/currency'
+import { formatCurrency, type CurrencyCode } from '@/lib/currency'
+import { useSettingsStore } from '@/store/settings.store'
 
 interface MonthlyData {
   month: string    // YYYY-MM
@@ -27,6 +28,7 @@ interface MonthlyTrendChartProps {
 export function MonthlyTrendChart({ data }: MonthlyTrendChartProps) {
   const t = useTranslations('money.charts')
   const locale = useLocale()
+  const defaultCurrency = useSettingsStore((s) => s.defaultCurrency) ?? 'KRW'
 
   // 로케일 기반 월 표시 (ko: "1월", en: "Jan")
   function formatMonthLabel(month: string): string {
@@ -86,7 +88,7 @@ export function MonthlyTrendChart({ data }: MonthlyTrendChartProps) {
             />
             <Tooltip
               formatter={(value: number | undefined, name: string | undefined) => [
-                value != null ? formatCurrency(value, 'KRW') : '-',
+                value != null ? formatCurrency(value, defaultCurrency as CurrencyCode) : '-',
                 name ?? '',
               ]}
             />

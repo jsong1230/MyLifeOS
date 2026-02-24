@@ -8,7 +8,6 @@ export interface PinApiResponse {
   success: boolean
   data: {
     pinSet: boolean
-    salt: string
   }
 }
 
@@ -17,7 +16,6 @@ export interface PinVerifyResponse {
   success: boolean
   data: {
     verified: boolean
-    salt?: string
     failedAttempts?: number
     maxAttempts?: number
     remainingAttempts?: number

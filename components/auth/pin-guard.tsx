@@ -74,8 +74,10 @@ export function PinGuard({ children }: PinGuardProps) {
         }
 
         if (res.ok && json.data?.verified) {
-          // 검증 성공
-          const key = deriveKey(pin, json.data.salt)
+          // 검증 성공: sessionStorage에 저장된 salt로 PBKDF2 키 파생
+          // (API 응답에서 salt를 받지 않아 서버 측 bcrypt salt 노출 방지)
+          const storedSalt = sessionStorage.getItem('pin_enc_salt') ?? crypto.randomUUID()
+          const key = deriveKey(pin, storedSalt)
           setFailedAttempts(0)
           setLockedUntil(null)
           setPinVerified(true, key)

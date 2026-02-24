@@ -49,8 +49,10 @@ export function PinSetup({ onComplete }: PinSetupProps) {
         return
       }
 
-      // PBKDF2 키 파생 (salt는 서버에서 받은 bcrypt salt)
-      const salt: string = json.data.salt
+      // PBKDF2 키 파생: 클라이언트에서 생성한 고유 salt 사용
+      // (API 응답에서 salt를 받지 않아 서버 측 bcrypt salt 노출 방지)
+      const salt = crypto.randomUUID()
+      sessionStorage.setItem('pin_enc_salt', salt)
       const key = deriveKey(firstPin, salt)
 
       setIsPinSet(true)

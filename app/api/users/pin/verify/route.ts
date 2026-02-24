@@ -80,7 +80,7 @@ export async function POST(request: NextRequest) {
 
       return NextResponse.json({
         success: true,
-        data: { verified: true, salt: pin_salt },
+        data: { verified: true },
       })
     }
 

@@ -30,7 +30,6 @@ interface PinStatusResponse {
 /** POST /api/users/pin/verify 성공 응답 타입 */
 interface PinVerifySuccessData {
   verified: boolean
-  salt?: string
 }
 
 interface PinVerifyResponse {
@@ -99,12 +98,11 @@ export default function PrivateLayout({ children }: { children: React.ReactNode 
       const json: PinVerifyResponse = await res.json()
 
       if (res.ok && json.success && json.data?.verified) {
-        // 암호화 키 파생: verify API가 반환하는 salt로 PBKDF2 키 생성
-        const salt = json.data.salt
-        if (salt) {
-          const encKey = deriveKey(pinInput, salt)
-          sessionStorage.setItem(ENC_KEY_SESSION, encKey)
-        }
+        // 암호화 키 파생: sessionStorage에 저장된 salt로 PBKDF2 키 생성
+        // (API 응답에서 salt를 받지 않아 서버 측 bcrypt salt 노출 방지)
+        const storedSalt = sessionStorage.getItem('pin_enc_salt') ?? crypto.randomUUID()
+        const encKey = deriveKey(pinInput, storedSalt)
+        sessionStorage.setItem(ENC_KEY_SESSION, encKey)
         sessionStorage.setItem(SESSION_KEY, '1')
         setVerified(true)
       } else {

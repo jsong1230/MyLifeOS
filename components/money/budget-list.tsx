@@ -6,7 +6,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
 import { BudgetProgress } from '@/components/money/budget-progress'
 import { ChevronLeftIcon, ChevronRightIcon, PlusIcon } from 'lucide-react'
-import { formatCurrency } from '@/lib/currency'
+import { formatCurrency, type CurrencyCode } from '@/lib/currency'
+import { useSettingsStore } from '@/store/settings.store'
 import type { BudgetStatus, Budget } from '@/types/budget'
 
 interface BudgetListProps {
@@ -37,6 +38,7 @@ export function BudgetList({
   const tCommon = useTranslations('common')
   const tFilter = useTranslations('money.transactions.filter')
   const locale = useLocale()
+  const defaultCurrency = useSettingsStore((s) => s.defaultCurrency) ?? 'KRW'
 
   // month(YYYY-MM)를 로케일 기반 표시용 문자열로 변환
   function formatMonthLabel(yearMonth: string): string {
@@ -100,7 +102,7 @@ export function BudgetList({
             </CardTitle>
           </CardHeader>
           <CardContent className="pb-3 px-3">
-            <p className="text-sm font-semibold">{formatCurrency(totalBudget, 'KRW')}</p>
+            <p className="text-sm font-semibold">{formatCurrency(totalBudget, defaultCurrency as CurrencyCode)}</p>
           </CardContent>
         </Card>
         <Card>
@@ -110,7 +112,7 @@ export function BudgetList({
             </CardTitle>
           </CardHeader>
           <CardContent className="pb-3 px-3">
-            <p className="text-sm font-semibold">{formatCurrency(totalSpent, 'KRW')}</p>
+            <p className="text-sm font-semibold">{formatCurrency(totalSpent, defaultCurrency as CurrencyCode)}</p>
           </CardContent>
         </Card>
         <Card>
@@ -125,7 +127,7 @@ export function BudgetList({
                 totalRemaining < 0 ? 'text-destructive' : ''
               }`}
             >
-              {formatCurrency(totalRemaining, 'KRW')}
+              {formatCurrency(totalRemaining, defaultCurrency as CurrencyCode)}
             </p>
           </CardContent>
         </Card>

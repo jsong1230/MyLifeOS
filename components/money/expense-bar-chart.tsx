@@ -14,7 +14,8 @@ import {
 } from 'recharts'
 import { useTranslations, useLocale } from 'next-intl'
 import { cn } from '@/lib/utils'
-import { formatCurrency } from '@/lib/currency'
+import { formatCurrency, type CurrencyCode } from '@/lib/currency'
+import { useSettingsStore } from '@/store/settings.store'
 import type { BudgetStatus } from '@/types/budget'
 
 interface ExpenseBarChartProps {
@@ -44,10 +45,12 @@ function CustomTooltip({
   active,
   payload,
   label,
+  currency,
 }: {
   active?: boolean
   payload?: Array<{ name: string; value: number }>
   label?: string
+  currency: CurrencyCode
 }) {
   if (!active || !payload || payload.length === 0) return null
 
@@ -57,7 +60,7 @@ function CustomTooltip({
       {payload.map((entry) => (
         <p key={entry.name} className="text-muted-foreground">
           <span className="font-medium text-foreground">{entry.name}: </span>
-          {formatCurrency(entry.value, 'KRW')}
+          {formatCurrency(entry.value, currency)}
         </p>
       ))}
     </div>
@@ -69,6 +72,7 @@ export function ExpenseBarChart({ budgets }: ExpenseBarChartProps) {
   const t = useTranslations('money.charts')
   const tb = useTranslations('money.budget')
   const locale = useLocale()
+  const defaultCurrency = useSettingsStore((s) => s.defaultCurrency) ?? 'KRW'
 
   // 금액 축 포맷터 — 로케일 기반 단위로 축약
   function formatYAxis(value: number): string {
@@ -123,7 +127,7 @@ export function ExpenseBarChart({ budgets }: ExpenseBarChartProps) {
           axisLine={false}
           width={45}
         />
-        <Tooltip content={<CustomTooltip />} />
+        <Tooltip content={<CustomTooltip currency={defaultCurrency as CurrencyCode} />} />
         <Legend
           formatter={(value) => (
             <span className="text-sm text-foreground">{value}</span>

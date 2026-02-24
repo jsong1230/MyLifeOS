@@ -2,7 +2,8 @@
 
 import { useTranslations } from 'next-intl'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { formatCurrency } from '@/lib/currency'
+import { formatCurrency, type CurrencyCode } from '@/lib/currency'
+import { useSettingsStore } from '@/store/settings.store'
 import type { RecurringExpense } from '@/types/recurring'
 
 interface RecurringSummaryProps {
@@ -16,6 +17,7 @@ interface RecurringSummaryProps {
  */
 export function RecurringSummary({ expenses }: RecurringSummaryProps) {
   const t = useTranslations('money.recurring')
+  const defaultCurrency = useSettingsStore((s) => s.defaultCurrency) ?? 'KRW'
 
   // 활성 항목만 필터링하여 월 환산 총액 계산
   const activeExpenses = expenses.filter((e) => e.is_active)
@@ -48,11 +50,11 @@ export function RecurringSummary({ expenses }: RecurringSummaryProps) {
         </CardHeader>
         <CardContent className="pb-4 px-4">
           <p className="text-2xl font-bold">
-            {formatCurrency(monthlyTotal, 'KRW')}
+            {formatCurrency(monthlyTotal, defaultCurrency as CurrencyCode)}
             <span className="text-sm font-normal text-muted-foreground ml-1">{t('perMonthSuffix')}</span>
           </p>
           <p className="text-xs text-muted-foreground mt-1">
-            {t('yearlyEquivalentLabel', { amount: formatCurrency(monthlyTotal * 12, 'KRW') })}
+            {t('yearlyEquivalentLabel', { amount: formatCurrency(monthlyTotal * 12, defaultCurrency as CurrencyCode) })}
           </p>
         </CardContent>
       </Card>
@@ -82,7 +84,7 @@ export function RecurringSummary({ expenses }: RecurringSummaryProps) {
       {/* 연간 총액 */}
       {yearlyCount > 0 && (
         <p className="text-xs text-muted-foreground px-1">
-          {t('yearlyNoteWithTotal', { count: yearlyCount, amount: formatCurrency(yearlyTotal, 'KRW') })}
+          {t('yearlyNoteWithTotal', { count: yearlyCount, amount: formatCurrency(yearlyTotal, defaultCurrency as CurrencyCode) })}
         </p>
       )}
     </div>

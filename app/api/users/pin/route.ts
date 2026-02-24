@@ -151,7 +151,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      data: { pinSet: true, salt },
+      data: { pinSet: true },
     })
   } catch {
     return apiError('SERVER_ERROR')
