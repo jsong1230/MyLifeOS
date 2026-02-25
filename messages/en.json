@@ -59,7 +59,8 @@
     "saving": "Saving...",
     "profile": "Profile",
     "user": "User",
-    "comingSoon": "Coming soon"
+    "comingSoon": "Coming soon",
+    "dashboard": "Dashboard"
   },
   "nav": {
     "home": "Home",
@@ -724,7 +725,9 @@
       "amountMlPlaceholder": "e.g. 355",
       "alcoholPctPlaceholder": "e.g. 5.0",
       "drinkCountPlaceholder": "e.g. 2"
-    }
+    },
+    "detailLink": "View details",
+    "dietGoalTab": "Diet goal"
   },
   "private": {
     "title": "Journal",
@@ -749,7 +752,7 @@
       "emotion": "Emotion",
       "search": "Search diary",
       "searchPlaceholder": "Search by keyword",
-      "noData": "No diary entries",
+      "noData": "No diary entries yet",
       "addFirst": "Write your first diary entry",
       "encrypted": "Encrypted",
       "searchResults": "Search results",
@@ -771,7 +774,6 @@
       "decryptionHint2": "You can delete this entry and write a new one.",
       "deleteByDate": "Delete this entry",
       "deleting": "Deleting...",
-      "noData": "No diary entries yet",
       "writeEntry": "Write an entry",
       "deleteTitle": "Delete Entry",
       "deleteConfirm": "This diary entry will be permanently deleted. Are you sure?"

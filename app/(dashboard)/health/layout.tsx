@@ -2,20 +2,22 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import { useTranslations } from 'next-intl'
 
 const HEALTH_NAV_ITEMS = [
-  { label: '대시보드', href: '/health' },
-  { label: '식사', href: '/health/meals' },
-  { label: '음주', href: '/health/drinks' },
-  { label: '수면', href: '/health/sleep' },
-  { label: '체중', href: '/health/body' },
-  { label: '운동', href: '/health/exercise' },
-  { label: '목표', href: '/health/diet-goal' },
+  { labelKey: 'common.dashboard', href: '/health' },
+  { labelKey: 'health.meals.title', href: '/health/meals' },
+  { labelKey: 'health.drinks.title', href: '/health/drinks' },
+  { labelKey: 'health.sleep.title', href: '/health/sleep' },
+  { labelKey: 'health.body.title', href: '/health/body' },
+  { labelKey: 'health.exercise.title', href: '/health/exercise' },
+  { labelKey: 'health.dietGoalTab', href: '/health/diet-goal' },
 ] as const
 
 // 건강 관리 모듈 레이아웃 — 서브 네비게이션 포함
 export default function HealthLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
+  const t = useTranslations()
 
   function isActive(href: string) {
     if (href === '/health') return pathname === '/health'
@@ -26,7 +28,7 @@ export default function HealthLayout({ children }: { children: React.ReactNode }
     <div className="flex flex-col h-full w-full min-w-0">
       <div className="border-b bg-background sticky top-0 z-10">
         <nav className="flex px-4 overflow-x-auto" aria-label="건강 관리 서브메뉴">
-          {HEALTH_NAV_ITEMS.map(({ label, href }) => {
+          {HEALTH_NAV_ITEMS.map(({ labelKey, href }) => {
             const active = isActive(href)
             return (
               <Link
@@ -39,7 +41,7 @@ export default function HealthLayout({ children }: { children: React.ReactNode }
                 }`}
                 aria-current={active ? 'page' : undefined}
               >
-                {label}
+                {t(labelKey as Parameters<typeof t>[0])}
               </Link>
             )
           })}

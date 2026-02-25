@@ -61,6 +61,7 @@ function CardSkeleton() {
 
 // 바로가기 링크 컴포넌트
 function DetailLink({ href, label }: { href: string; label: string }) {
+  const t = useTranslations()
   return (
     <Link
       href={href}
@@ -69,7 +70,7 @@ function DetailLink({ href, label }: { href: string; label: string }) {
         'border-t border-border mt-2'
       )}
     >
-      {label} &rarr; 자세히 보기
+      {label} &rarr; {t('health.detailLink')}
     </Link>
   )
 }

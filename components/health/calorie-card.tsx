@@ -1,6 +1,6 @@
 'use client'
 
-import { useTranslations } from 'next-intl'
+import { useTranslations, useLocale } from 'next-intl'
 import { cn } from '@/lib/utils'
 import {
   Card,
@@ -30,6 +30,8 @@ interface CalorieCardProps {
 // 오늘 총 칼로리 섭취량 카드
 export function CalorieCard({ meals, date }: CalorieCardProps) {
   const t = useTranslations('health.meals')
+  const tCommon = useTranslations()
+  const locale = useLocale()
 
   // 총 칼로리 합산
   const totalCalories = meals.reduce((sum, meal) => sum + (meal.calories ?? 0), 0)
@@ -45,9 +47,11 @@ export function CalorieCard({ meals, date }: CalorieCardProps) {
     { breakfast: 0, lunch: 0, dinner: 0, snack: 0 }
   )
 
-  // 날짜 포맷 (YYYY-MM-DD → MM월 DD일)
+  // 날짜 포맷 (YYYY-MM-DD → locale 기반)
   const [, month, day] = date.split('-')
-  const dateLabel = `${parseInt(month)}월 ${parseInt(day)}일`
+  const dateLabel = locale === 'ko'
+    ? `${parseInt(month)}월 ${parseInt(day)}일`
+    : new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric' }).format(new Date(date + 'T00:00:00'))
 
   return (
     <Card>
@@ -56,7 +60,7 @@ export function CalorieCard({ meals, date }: CalorieCardProps) {
           <span className="text-lg">🍽️</span>
           {t('caloriesTodayTitle')}
         </CardTitle>
-        <CardDescription>{dateLabel} 기준</CardDescription>
+        <CardDescription>{tCommon('health.dashboardDateRef', { date: dateLabel })}</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         {meals.length === 0 ? (

@@ -2,18 +2,20 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import { useTranslations } from 'next-intl'
 
 const TIME_NAV_ITEMS = [
-  { label: '할일', href: '/time' },
-  { label: '캘린더', href: '/time/calendar' },
-  { label: '루틴', href: '/time/routines' },
-  { label: '타임블록', href: '/time/blocks' },
-  { label: '통계', href: '/time/stats' },
+  { labelKey: 'time.todos.title', href: '/time' },
+  { labelKey: 'time.calendar.title', href: '/time/calendar' },
+  { labelKey: 'time.routines.title', href: '/time/routines' },
+  { labelKey: 'time.blocks.title', href: '/time/blocks' },
+  { labelKey: 'time.stats.title', href: '/time/stats' },
 ] as const
 
 // 시간 관리 모듈 레이아웃 — 서브 네비게이션 포함
 export default function TimeLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
+  const t = useTranslations()
 
   function isActive(href: string) {
     if (href === '/time') return pathname === '/time'
@@ -25,7 +27,7 @@ export default function TimeLayout({ children }: { children: React.ReactNode }) 
       {/* 서브 네비게이션 탭 */}
       <div className="border-b bg-background sticky top-0 z-10">
         <nav className="flex px-4" aria-label="시간 관리 서브메뉴">
-          {TIME_NAV_ITEMS.map(({ label, href }) => {
+          {TIME_NAV_ITEMS.map(({ labelKey, href }) => {
             const active = isActive(href)
             return (
               <Link
@@ -38,7 +40,7 @@ export default function TimeLayout({ children }: { children: React.ReactNode }) 
                 }`}
                 aria-current={active ? 'page' : undefined}
               >
-                {label}
+                {t(labelKey as Parameters<typeof t>[0])}
               </Link>
             )
           })}

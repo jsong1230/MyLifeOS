@@ -2,19 +2,21 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import { useTranslations } from 'next-intl'
 
 const MONEY_NAV_ITEMS = [
-  { label: '대시보드', href: '/money' },
-  { label: '수입/지출', href: '/money/transactions' },
-  { label: '예산', href: '/money/budget' },
-  { label: '자산', href: '/money/assets' },
-  { label: '정기지출', href: '/money/recurring' },
-  { label: '카테고리', href: '/money/categories' },
+  { labelKey: 'common.dashboard', href: '/money' },
+  { labelKey: 'money.transactions.title', href: '/money/transactions' },
+  { labelKey: 'money.budget.title', href: '/money/budget' },
+  { labelKey: 'money.assets.title', href: '/money/assets' },
+  { labelKey: 'money.recurring.title', href: '/money/recurring' },
+  { labelKey: 'money.categories.title', href: '/money/categories' },
 ] as const
 
 // 금전 관리 모듈 레이아웃 — 서브 네비게이션 포함
 export default function MoneyLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
+  const t = useTranslations()
 
   function isActive(href: string) {
     if (href === '/money') return pathname === '/money'
@@ -26,7 +28,7 @@ export default function MoneyLayout({ children }: { children: React.ReactNode })
       {/* 서브 네비게이션 탭 */}
       <div className="border-b bg-background sticky top-0 z-10">
         <nav className="flex px-4 overflow-x-auto" aria-label="금전 관리 서브메뉴">
-          {MONEY_NAV_ITEMS.map(({ label, href }) => {
+          {MONEY_NAV_ITEMS.map(({ labelKey, href }) => {
             const active = isActive(href)
             return (
               <Link
@@ -39,7 +41,7 @@ export default function MoneyLayout({ children }: { children: React.ReactNode })
                 }`}
                 aria-current={active ? 'page' : undefined}
               >
-                {label}
+                {t(labelKey as Parameters<typeof t>[0])}
               </Link>
             )
           })}

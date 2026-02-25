@@ -59,7 +59,8 @@
     "saving": "저장 중...",
     "profile": "프로필",
     "user": "사용자",
-    "comingSoon": "준비 중입니다"
+    "comingSoon": "준비 중입니다",
+    "dashboard": "대시보드"
   },
   "nav": {
     "home": "홈",
@@ -724,7 +725,9 @@
       "amountMlPlaceholder": "예: 355",
       "alcoholPctPlaceholder": "예: 5.0",
       "drinkCountPlaceholder": "예: 2"
-    }
+    },
+    "detailLink": "자세히 보기",
+    "dietGoalTab": "식단 목표"
   },
   "private": {
     "title": "사적 기록",
@@ -749,7 +752,7 @@
       "emotion": "감정",
       "search": "일기 검색",
       "searchPlaceholder": "키워드로 검색",
-      "noData": "일기가 없습니다",
+      "noData": "아직 작성된 일기가 없습니다",
       "addFirst": "첫 번째 일기를 작성해보세요",
       "encrypted": "암호화 저장됨",
       "searchResults": "검색 결과",
@@ -771,7 +774,6 @@
       "decryptionHint2": "이 날짜의 일기를 삭제하고 다시 작성할 수 있습니다.",
       "deleteByDate": "이 날짜 일기 삭제",
       "deleting": "삭제 중...",
-      "noData": "아직 작성된 일기가 없습니다",
       "writeEntry": "일기 작성하기",
       "deleteTitle": "일기 삭제",
       "deleteConfirm": "이 일기를 삭제하면 복구할 수 없습니다. 정말 삭제하시겠습니까?"
