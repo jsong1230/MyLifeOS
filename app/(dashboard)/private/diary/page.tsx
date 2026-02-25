@@ -59,6 +59,19 @@ export default function DiaryPage() {
   const createMutation = useCreateDiary()
   const updateMutation = useUpdateDiary()
   const deleteMutation = useDeleteDiary()
+  const [isResetting, setIsResetting] = useState(false)
+
+  // 복호화 실패한 날짜의 일기를 삭제 (손상된 암호화 데이터 초기화)
+  async function handleResetEncrypted() {
+    if (!confirm('이 날짜의 일기를 삭제하시겠습니까? 복구할 수 없습니다.')) return
+    setIsResetting(true)
+    try {
+      await fetch(`/api/diaries?date=${currentDate}`, { method: 'DELETE' })
+      window.location.reload()
+    } finally {
+      setIsResetting(false)
+    }
+  }
 
   // 날짜 이전/다음 이동
   function goToPrevDay() {
@@ -166,10 +179,26 @@ export default function DiaryPage() {
         )}
 
         {!isLoading && error && (
-          <div className="flex flex-col items-center justify-center min-h-[200px] gap-3 text-center">
+          <div className="flex flex-col items-center justify-center min-h-[200px] gap-3 text-center px-4">
             <p className="text-sm text-destructive" role="alert">
               {error.message}
             </p>
+            {error.message.includes('복호화') && (
+              <div className="space-y-2">
+                <p className="text-xs text-muted-foreground">
+                  앱 업데이트로 인해 기존 일기를 읽을 수 없습니다.<br />
+                  이 날짜의 일기를 삭제하고 다시 작성할 수 있습니다.
+                </p>
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  onClick={handleResetEncrypted}
+                  disabled={isResetting}
+                >
+                  {isResetting ? '삭제 중...' : '이 날짜 일기 삭제'}
+                </Button>
+              </div>
+            )}
           </div>
         )}
 

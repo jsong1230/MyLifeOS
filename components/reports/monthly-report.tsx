@@ -4,6 +4,7 @@ import { TrendingUp, TrendingDown, Minus } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { EMOTION_ICONS, EMOTION_LABELS, type EmotionType } from '@/types/diary'
 import { formatCurrency } from '@/lib/currency'
+import { useSettingsStore } from '@/store/settings.store'
 import type { MonthlyReport } from '@/types/report'
 
 interface MonthlyReportProps {
@@ -67,6 +68,7 @@ function SpendingTrend({ changePct, sameLabel, vsLabel }: { changePct: number; s
 // 월간 리포트 컴포넌트
 export function MonthlyReportView({ report }: MonthlyReportProps) {
   const t = useTranslations('reports')
+  const currency = useSettingsStore((s) => s.defaultCurrency)
   const { todos, spending, health, emotions } = report
 
   // 감정 분포: 횟수 내림차순 정렬
@@ -112,7 +114,7 @@ export function MonthlyReportView({ report }: MonthlyReportProps) {
             <div>
               <p className="text-xs text-muted-foreground mb-0.5">{t('thisMonthExpense')}</p>
               <p className="text-xl font-bold text-red-500">
-                {formatCurrency(spending.expense, 'KRW')}
+                {formatCurrency(spending.expense, currency)}
               </p>
             </div>
             <SpendingTrend changePct={spending.change_pct} sameLabel={t('sameAsPrev')} vsLabel={t('vsLastMonth')} />
@@ -121,13 +123,13 @@ export function MonthlyReportView({ report }: MonthlyReportProps) {
             <div>
               <p className="text-xs text-muted-foreground mb-0.5">{t('income')}</p>
               <p className="text-sm font-semibold text-emerald-600 dark:text-emerald-400">
-                +{formatCurrency(spending.income, 'KRW')}
+                +{formatCurrency(spending.income, currency)}
               </p>
             </div>
             <div>
               <p className="text-xs text-muted-foreground mb-0.5">{t('prevMonthExpense')}</p>
               <p className="text-sm font-semibold text-muted-foreground">
-                {formatCurrency(spending.prev_expense, 'KRW')}
+                {formatCurrency(spending.prev_expense, currency)}
               </p>
             </div>
           </div>

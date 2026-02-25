@@ -3,6 +3,7 @@
 import { useTranslations } from 'next-intl'
 import { EMOTION_ICONS, EMOTION_LABELS, type EmotionType } from '@/types/diary'
 import { formatCurrency } from '@/lib/currency'
+import { useSettingsStore } from '@/store/settings.store'
 import type { WeeklyReport } from '@/types/report'
 
 interface WeeklyReportProps {
@@ -59,6 +60,7 @@ function CircularProgress({ rate, ariaLabel }: { rate: number; ariaLabel: string
 // 주간 리포트 컴포넌트
 export function WeeklyReportView({ report }: WeeklyReportProps) {
   const t = useTranslations('reports')
+  const currency = useSettingsStore((s) => s.defaultCurrency)
   const { todos, spending, health, emotions } = report
 
   // 감정 분포: 횟수 내림차순 정렬
@@ -109,13 +111,13 @@ export function WeeklyReportView({ report }: WeeklyReportProps) {
           <div>
             <p className="text-xs text-muted-foreground mb-1">{t('income')}</p>
             <p className="text-base font-bold text-emerald-600 dark:text-emerald-400">
-              +{formatCurrency(spending.income, 'KRW')}
+              +{formatCurrency(spending.income, currency)}
             </p>
           </div>
           <div>
             <p className="text-xs text-muted-foreground mb-1">{t('expense')}</p>
             <p className="text-base font-bold text-red-500">
-              -{formatCurrency(spending.expense, 'KRW')}
+              -{formatCurrency(spending.expense, currency)}
             </p>
           </div>
         </div>

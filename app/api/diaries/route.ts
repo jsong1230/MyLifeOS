@@ -111,3 +111,31 @@ export async function POST(request: NextRequest) {
 
   return NextResponse.json({ success: true, data: data as DiaryEntry }, { status: 201 })
 }
+
+// DELETE /api/diaries?date=YYYY-MM-DD — 특정 날짜 일기 삭제 (복호화 실패 복구용)
+export async function DELETE(request: NextRequest) {
+  const userId = request.headers.get('x-user-id')
+  if (!userId) {
+    return apiError('AUTH_REQUIRED')
+  }
+  const supabase = await createClient()
+
+  const { searchParams } = new URL(request.url)
+  const date = searchParams.get('date')
+
+  if (!date || !/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+    return apiError('VALIDATION_ERROR')
+  }
+
+  const { error } = await supabase
+    .from('diaries')
+    .delete()
+    .eq('user_id', userId)
+    .eq('date', date)
+
+  if (error) {
+    return apiError('SERVER_ERROR')
+  }
+
+  return NextResponse.json({ success: true })
+}
