@@ -20,7 +20,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
-    const { pin } = body as { pin: string }
+    const { pin, localEncSalt } = body as { pin: string; localEncSalt?: string | null }
 
     if (!pin) {
       return apiError('VALIDATION_ERROR')
@@ -30,7 +30,7 @@ export async function POST(request: NextRequest) {
     const adminClient = createAdminClient()
     const { data: userData, error: fetchError } = await adminClient
       .from('users')
-      .select('pin_hash, pin_salt, pin_failed_count, pin_locked_until')
+      .select('pin_hash, pin_salt, pin_failed_count, pin_locked_until, enc_salt')
       .eq('id', userId)
       .maybeSingle()
 
@@ -38,8 +38,8 @@ export async function POST(request: NextRequest) {
       return apiError('SERVER_ERROR')
     }
 
-    const { pin_hash, pin_salt, pin_locked_until } = userData ?? {
-      pin_hash: null, pin_salt: null, pin_failed_count: 0, pin_locked_until: null,
+    const { pin_hash, pin_salt, pin_locked_until, enc_salt } = userData ?? {
+      pin_hash: null, pin_salt: null, pin_failed_count: 0, pin_locked_until: null, enc_salt: null,
     }
     let { pin_failed_count } = userData ?? { pin_failed_count: 0 }
 
@@ -68,15 +68,20 @@ export async function POST(request: NextRequest) {
     const match = await bcrypt.compare(pin, pin_hash)
 
     if (match) {
-      // 성공: 실패 횟수 초기화
+      // 성공: 실패 횟수 초기화 + enc_salt 마이그레이션 (서버에 없고 클라이언트가 보낸 경우)
+      const updatePayload: Record<string, unknown> = { pin_failed_count: 0, pin_locked_until: null }
+      const resolvedEncSalt = enc_salt ?? (localEncSalt || null)
+      if (!enc_salt && localEncSalt) {
+        updatePayload.enc_salt = localEncSalt
+      }
       await adminClient
         .from('users')
-        .update({ pin_failed_count: 0, pin_locked_until: null })
+        .update(updatePayload)
         .eq('id', userId)
 
       return NextResponse.json({
         success: true,
-        data: { verified: true },
+        data: { verified: true, encSalt: resolvedEncSalt },
       })
     }
 

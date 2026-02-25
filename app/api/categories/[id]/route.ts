@@ -90,7 +90,7 @@ export async function PATCH(
     .update(updateData)
     .eq('id', id)
     .eq('user_id', userId)
-    .select('id, user_id, name, icon, color, type, is_system, sort_order, created_at')
+    .select('id, user_id, name, name_key, icon, color, type, is_system, sort_order, created_at')
     .maybeSingle()
 
   if (error) {

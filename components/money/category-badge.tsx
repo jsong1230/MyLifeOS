@@ -14,6 +14,7 @@ interface CategoryBadgeProps {
 // category가 없으면 '미분류' 표시
 export function CategoryBadge({ category, size = 'md', className }: CategoryBadgeProps) {
   const t = useTranslations('money.transactions')
+  const tSys = useTranslations('money.categories.system')
   const isSmall = size === 'sm'
 
   // 카테고리 없을 때 미분류 배지
@@ -48,12 +49,14 @@ export function CategoryBadge({ category, size = 'md', className }: CategoryBadg
         color: bgColor,
         border: `1px solid ${bgColor}66`,  // 40% 불투명도 테두리
       }}
-      title={category.name}
+      title={category.name_key ? tSys(category.name_key as Parameters<typeof tSys>[0]) : category.name}
     >
       {category.icon && (
         <span aria-hidden="true">{category.icon}</span>
       )}
-      <span>{category.name}</span>
+      <span>
+        {category.name_key ? tSys(category.name_key as Parameters<typeof tSys>[0]) : category.name}
+      </span>
     </span>
   )
 }

@@ -24,6 +24,7 @@ interface PinStatusResponse {
 /** POST /api/users/pin/verify 성공 응답 타입 */
 interface PinVerifySuccessData {
   verified: boolean
+  encSalt?: string | null
 }
 
 interface PinVerifyResponse {
@@ -85,22 +86,24 @@ export default function PrivateLayout({ children }: { children: React.ReactNode 
     setLoading(true)
     setError('')
     try {
+      // localStorage에 저장된 salt가 있으면 서버 마이그레이션용으로 함께 전송
+      const localEncSalt = localStorage.getItem('pin_enc_salt')
       const res = await fetch('/api/users/pin/verify', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ pin: pinInput }),
+        body: JSON.stringify({ pin: pinInput, localEncSalt }),
       })
       const json: PinVerifyResponse = await res.json()
 
       if (res.ok && json.success && json.data?.verified) {
-        // 암호화 키 파생: localStorage에서 salt 조회 (없으면 생성 후 저장)
-        // salt는 localStorage에 영속 저장 — PIN 없이는 복호화 불가하므로 안전
-        let storedSalt = localStorage.getItem('pin_enc_salt')
-        if (!storedSalt) {
-          storedSalt = crypto.randomUUID()
-          localStorage.setItem('pin_enc_salt', storedSalt)
+        // 암호화 키 파생: 서버에서 받은 enc_salt 사용 (기기/브라우저 변경에도 동일한 키 유지)
+        // 서버 enc_salt가 없으면 localStorage fallback (구버전 계정용)
+        let salt = json.data.encSalt ?? localEncSalt
+        if (!salt) {
+          salt = crypto.randomUUID()
+          localStorage.setItem('pin_enc_salt', salt)
         }
-        const encKey = deriveKey(pinInput, storedSalt)
+        const encKey = deriveKey(pinInput, salt)
         sessionStorage.setItem(ENC_KEY_SESSION, encKey)
         sessionStorage.setItem(SESSION_KEY, '1')
         setVerified(true)

@@ -4,6 +4,7 @@ import { useState, useCallback } from 'react'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { useLocale, useTranslations } from 'next-intl'
 import { useWeeklyReport, useMonthlyReport } from '@/hooks/use-reports'
+import { useSettings } from '@/hooks/use-settings'
 import { WeeklyReportView } from '@/components/reports/weekly-report'
 import { MonthlyReportView } from '@/components/reports/monthly-report'
 
@@ -47,6 +48,7 @@ type TabType = 'weekly' | 'monthly'
 export default function ReportsPage() {
   const locale = useLocale()
   const t = useTranslations()
+  useSettings() // Zustand defaultCurrency 동기화
   const [activeTab, setActiveTab] = useState<TabType>('weekly')
 
   // 주간 — 현재 주 시작일 상태

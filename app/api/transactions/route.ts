@@ -22,7 +22,7 @@ export async function GET(request: NextRequest) {
   let query = supabase
     .from('transactions')
     .select(
-      'id, user_id, amount, type, category_id, memo, date, is_favorite, currency, created_at, updated_at, category:categories(id, name, icon, color, type)'
+      'id, user_id, amount, type, category_id, memo, date, is_favorite, currency, created_at, updated_at, category:categories(id, name, name_key, icon, color, type)'
     )
     .eq('user_id', userId)
     .order('date', { ascending: false })
@@ -105,7 +105,7 @@ export async function POST(request: NextRequest) {
     .from('transactions')
     .insert(insertData)
     .select(
-      'id, user_id, amount, type, category_id, memo, date, is_favorite, currency, created_at, updated_at, category:categories(id, name, icon, color, type)'
+      'id, user_id, amount, type, category_id, memo, date, is_favorite, currency, created_at, updated_at, category:categories(id, name, name_key, icon, color, type)'
     )
     .maybeSingle()
 

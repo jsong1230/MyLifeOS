@@ -55,7 +55,7 @@ export async function GET(request: NextRequest) {
     const { data: budgets, error: budgetsError } = await supabase
       .from('budgets')
       .select(
-        'id, user_id, category_id, amount, year_month, currency, created_at, updated_at, category:categories(id, name, icon, color, type, is_system, sort_order, created_at)'
+        'id, user_id, category_id, amount, year_month, currency, created_at, updated_at, category:categories(id, name, name_key, icon, color, type, is_system, sort_order, created_at)'
       )
       .eq('user_id', userId)
       .eq('year_month', targetMonth)
@@ -185,7 +185,7 @@ export async function POST(request: NextRequest) {
         }
       )
       .select(
-        'id, user_id, category_id, amount, year_month, currency, created_at, updated_at, category:categories(id, name, icon, color, type, is_system, sort_order, created_at)'
+        'id, user_id, category_id, amount, year_month, currency, created_at, updated_at, category:categories(id, name, name_key, icon, color, type, is_system, sort_order, created_at)'
       )
       .maybeSingle()
 

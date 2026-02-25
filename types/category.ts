@@ -4,6 +4,7 @@ export interface Category {
   id: string
   user_id?: string | null  // null이면 시스템 기본 카테고리
   name: string
+  name_key?: string | null // 시스템 카테고리 i18n 키 (예: 'food', 'transport')
   icon?: string | null     // 이모지 또는 아이콘 코드
   color?: string | null    // HEX 색상 코드
   type: CategoryType

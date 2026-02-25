@@ -25,7 +25,7 @@ export async function GET(request: NextRequest) {
   // RLS 정책에 의해 시스템 카테고리(is_system=TRUE) + 본인 카테고리만 조회됨
   let query = supabase
     .from('categories')
-    .select('id, user_id, name, icon, color, type, is_system, sort_order, created_at')
+    .select('id, user_id, name, name_key, icon, color, type, is_system, sort_order, created_at')
     .or(`is_system.eq.true,user_id.eq.${userId}`)
     .order('sort_order', { ascending: true })
 
@@ -106,7 +106,7 @@ export async function POST(request: NextRequest) {
   const { data, error } = await supabase
     .from('categories')
     .insert(insertData)
-    .select('id, user_id, name, icon, color, type, is_system, sort_order, created_at')
+    .select('id, user_id, name, name_key, icon, color, type, is_system, sort_order, created_at')
     .maybeSingle()
 
   if (error) {

@@ -124,12 +124,27 @@ export async function POST(request: NextRequest) {
     const salt = await bcrypt.genSalt(12)
     const newHash = await bcrypt.hash(pin, salt)
 
+    // enc_salt: 최초 설정 시에만 생성 (PIN 변경 시에는 기존 enc_salt 유지 — 기존 암호화 데이터 보호)
+    const existingEncSalt = userData
+      ? await (async () => {
+          const adminClient2 = createAdminClient()
+          const { data } = await adminClient2
+            .from('users')
+            .select('enc_salt')
+            .eq('id', user.id)
+            .maybeSingle()
+          return data?.enc_salt ?? null
+        })()
+      : null
+    const encSalt = existingEncSalt ?? crypto.randomUUID()
+
     // service_role로 RLS 우회하여 PIN 저장
     const adminClient = createAdminClient()
     const upsertPayload: Record<string, unknown> = {
       id: user.id,
       pin_hash: newHash,
       pin_salt: salt,
+      enc_salt: encSalt,
       pin_failed_count: 0,
       pin_locked_until: null,
       updated_at: new Date().toISOString(),

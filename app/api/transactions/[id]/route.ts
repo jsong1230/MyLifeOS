@@ -60,7 +60,7 @@ export async function PATCH(
     .eq('id', id)
     .eq('user_id', userId)
     .select(
-      'id, user_id, amount, type, category_id, memo, date, is_favorite, created_at, updated_at, category:categories(id, name, icon, color, type)'
+      'id, user_id, amount, type, category_id, memo, date, is_favorite, created_at, updated_at, category:categories(id, name, name_key, icon, color, type)'
     )
     .maybeSingle()
 
