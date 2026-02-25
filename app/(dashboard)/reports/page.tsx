@@ -92,7 +92,7 @@ export default function ReportsPage() {
   )
 
   return (
-    <div className="max-w-lg mx-auto">
+    <div className="px-4 max-w-lg mx-auto">
       <h1 className="text-xl font-bold mb-5">리포트</h1>
 
       {/* ── 탭 전환 ── */}

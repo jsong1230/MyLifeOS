@@ -22,7 +22,7 @@ export function AppShell({ children }: AppShellProps) {
       <div className="flex-1 md:ml-64 flex flex-col">
         <Header />
         <main
-          className="flex-1 px-4 pt-4 pb-24 md:pb-8"
+          className="flex-1 pt-4 pb-24 md:pb-8"
           style={{ paddingBottom: 'calc(6rem + env(safe-area-inset-bottom, 0px))' }}
         >
           {children}

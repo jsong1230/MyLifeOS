@@ -7,7 +7,7 @@ import { PrivateSummaryCard } from '@/components/dashboard/private-summary-card'
 // 메인 대시보드 — 4개 모듈 요약 카드
 export default function DashboardPage() {
   return (
-    <div className="max-w-2xl mx-auto">
+    <div className="px-4 max-w-2xl mx-auto">
       <GreetingHeader />
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 lg:gap-6">
         <TimeSummaryCard />
