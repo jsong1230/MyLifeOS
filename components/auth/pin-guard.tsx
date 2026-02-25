@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useEffect } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { usePinStore } from '@/store/pin.store'
 import { usePinLock } from '@/hooks/use-pin-lock'
@@ -56,9 +56,12 @@ export function PinGuard({ children }: PinGuardProps) {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
+  const [isVerifying, setIsVerifying] = useState(false)
+
   // PIN 검증 처리
   const handlePinVerify = useCallback(
     async (pin: string) => {
+      setIsVerifying(true)
       try {
         const res = await fetch('/api/users/pin/verify', {
           method: 'POST',
@@ -89,6 +92,8 @@ export function PinGuard({ children }: PinGuardProps) {
         setFailedAttempts(attempts)
       } catch {
         // 네트워크 오류 무시
+      } finally {
+        setIsVerifying(false)
       }
     },
     [failedAttempts, setFailedAttempts, setLockedUntil, setPinVerified],
@@ -137,6 +142,7 @@ export function PinGuard({ children }: PinGuardProps) {
           subtitle={t('enterPinSubtitle')}
           onComplete={handlePinVerify}
           error={getPinError()}
+          verifying={isVerifying}
         />
       </div>
     )

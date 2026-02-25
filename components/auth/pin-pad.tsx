@@ -2,7 +2,7 @@
 
 import { memo, useCallback, useEffect, useState } from 'react'
 import { Button } from '@/components/ui/button'
-import { Delete } from 'lucide-react'
+import { Delete, Loader2 } from 'lucide-react'
 import type { PinPadProps } from '@/types/pin'
 
 /** 숫자 키패드 버튼 (불필요한 재렌더링 방지) */
@@ -37,23 +37,27 @@ export function PinPad({
   onComplete,
   error,
   disabled = false,
+  verifying = false,
   title,
   subtitle,
 }: PinPadProps) {
   const [pin, setPin] = useState('')
 
-  // 입력 완료 감지
+  // 입력 완료 감지 — 150ms 딜레이로 완료 도트를 잠깐 보여준 뒤 콜백 호출
   useEffect(() => {
     if (pin.length === length) {
-      onComplete(pin)
-      setPin('')
+      const timer = setTimeout(() => {
+        onComplete(pin)
+        setPin('')
+      }, 150)
+      return () => clearTimeout(timer)
     }
   }, [pin, length, onComplete])
 
   // 숫자 키 입력
   const handlePress = useCallback(
     (digit: string) => {
-      if (disabled) return
+      if (disabled || verifying) return
       setPin((prev) => {
         if (prev.length >= length) return prev
         const next = prev + digit
@@ -68,14 +72,14 @@ export function PinPad({
 
   // 백스페이스
   const handleDelete = useCallback(() => {
-    if (disabled) return
+    if (disabled || verifying) return
     setPin((prev) => prev.slice(0, -1))
   }, [disabled])
 
   // 물리 키보드 지원
   useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {
-      if (disabled) return
+      if (disabled || verifying) return
       if (/^[0-9]$/.test(e.key)) {
         handlePress(e.key)
       } else if (e.key === 'Backspace') {
@@ -98,18 +102,26 @@ export function PinPad({
         </div>
       )}
 
-      {/* PIN 도트 표시 */}
-      <div className="flex gap-3">
-        {Array.from({ length }).map((_, i) => (
-          <div
-            key={i}
-            className={`w-4 h-4 rounded-full border-2 transition-colors ${
-              i < pin.length
-                ? 'bg-primary border-primary'
-                : 'bg-transparent border-muted-foreground'
-            }`}
-          />
-        ))}
+      {/* PIN 도트 표시 — verifying 중에는 스피너로 교체 */}
+      <div className="flex items-center justify-center h-6">
+        {verifying ? (
+          <Loader2 className="w-5 h-5 animate-spin text-primary" />
+        ) : (
+          <div className="flex gap-3">
+            {Array.from({ length }).map((_, i) => (
+              <div
+                key={i}
+                className={`w-4 h-4 rounded-full border-2 transition-colors duration-100 ${
+                  i < pin.length
+                    ? pin.length === length
+                      ? 'bg-green-500 border-green-500'   // 입력 완료
+                      : 'bg-primary border-primary'       // 입력 중
+                    : 'bg-transparent border-muted-foreground'
+                }`}
+              />
+            ))}
+          </div>
+        )}
       </div>
 
       {/* 에러 메시지 */}
@@ -124,7 +136,7 @@ export function PinPad({
             key={d}
             label={d}
             onClick={() => handlePress(d)}
-            disabled={disabled}
+            disabled={disabled || verifying}
           />
         ))}
         {/* 빈칸 */}
@@ -132,12 +144,12 @@ export function PinPad({
         <PadButton
           label="0"
           onClick={() => handlePress('0')}
-          disabled={disabled}
+          disabled={disabled || verifying}
         />
         <PadButton
           label={<Delete className="w-5 h-5" />}
           onClick={handleDelete}
-          disabled={disabled}
+          disabled={disabled || verifying}
         />
       </div>
     </div>

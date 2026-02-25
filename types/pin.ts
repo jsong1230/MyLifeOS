@@ -39,6 +39,8 @@ export interface PinPadProps {
   error?: string
   /** 비활성화 여부 */
   disabled?: boolean
+  /** 검증 진행 중 여부 — 도트 스피너 + 키패드 잠금 */
+  verifying?: boolean
   /** 상단 제목 */
   title?: string
   /** 상단 부제목 */
