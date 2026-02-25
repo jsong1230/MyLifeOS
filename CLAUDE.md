@@ -75,6 +75,12 @@
   - money 컴포넌트 KRW 하드코딩 → useSettingsStore.defaultCurrency 교체
 - ✅ 완료: Supabase 마이그레이션 009 실행 (user_settings + currency 컬럼) (2026-02-24)
 - ✅ 완료: Vercel 배포 검증 — 전 페이지 정상, 환율 변환/언어 전환 동작 확인 (2026-02-24)
+- ✅ 완료: Wave 4 — i18n 완전 완성 (2026-02-25)
+  - 40개 파일 전수 수정: 하드코딩 한글 0건 달성
+  - EMOTION_LABELS, ASSET_TYPE_LABEL, EXERCISE_INTENSITY_LABEL 타입 상수 → useTranslations 교체
+  - layout aria-label, error.tsx, categories page, emotion/stats, reports nav 번역 키 적용
+  - auth/layout getTranslations 서버사이드 처리, dialog.tsx sr-only 번역 키 적용
+  - messages에 20+ 신규 키 추가 (ko/en 완전 동기화), 타입 체크 0 오류
 - ⏭️ 다음: 신규 기능 개발 (AI 인사이트 / 푸시 알림 / 투자 트래킹 / 장기 목표 관리)
 
 ## 중요 결정사항
