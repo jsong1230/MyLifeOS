@@ -10,7 +10,9 @@ import {
 } from 'recharts'
 import { useTranslations } from 'next-intl'
 import { cn } from '@/lib/utils'
-import { formatCurrency } from '@/lib/currency'
+import { formatCurrency, convertCurrency, type CurrencyCode } from '@/lib/currency'
+import { useSettingsStore } from '@/store/settings.store'
+import { useExchangeRates } from '@/hooks/use-exchange-rates'
 import type { Transaction } from '@/types/transaction'
 
 // ExpensePieChart는 'money.charts' 번역 네임스페이스를 사용
@@ -82,13 +84,15 @@ function renderCustomizedLabel({
   ) : null
 }
 
-// 툴팁 커스터마이징
+// 툴팁 커스터마이징 (currency prop 수신)
 function CustomTooltip({
   active,
   payload,
+  currency,
 }: {
   active?: boolean
   payload?: Array<{ name: string; value: number; payload: { fill: string } }>
+  currency: CurrencyCode
 }) {
   if (!active || !payload || payload.length === 0) return null
 
@@ -97,7 +101,7 @@ function CustomTooltip({
     <div className="rounded-lg border bg-background px-3 py-2 shadow-md text-sm">
       <p className="font-medium text-foreground">{item.name}</p>
       <p className="text-muted-foreground">
-        {formatCurrency(item.value, 'KRW')}
+        {formatCurrency(item.value, currency)}
       </p>
     </div>
   )
@@ -107,8 +111,10 @@ function CustomTooltip({
 export function ExpensePieChart({ transactions }: ExpensePieChartProps) {
   const tt = useTranslations('money.transactions')
   const tc = useTranslations('money.charts')
+  const currency = useSettingsStore((s) => s.defaultCurrency)
+  const { data: rates } = useExchangeRates()
 
-  // 지출 타입 거래만 카테고리별 집계
+  // 지출 타입 거래만 카테고리별 집계 (목표 통화로 환산)
   const expenseByCategory = transactions
     .filter((t) => t.type === 'expense')
     .reduce<Record<string, { amount: number; color: string | null | undefined; name: string }>>((acc, t) => {
@@ -119,7 +125,11 @@ export function ExpensePieChart({ transactions }: ExpensePieChartProps) {
       if (!acc[key]) {
         acc[key] = { amount: 0, color, name }
       }
-      acc[key].amount += t.amount
+      const from = (t.currency ?? 'KRW') as CurrencyCode
+      const converted = rates
+        ? convertCurrency(t.amount, from, currency, rates)
+        : (from === currency ? t.amount : 0)
+      acc[key].amount += converted
       return acc
     }, {})
 
@@ -162,7 +172,7 @@ export function ExpensePieChart({ transactions }: ExpensePieChartProps) {
             />
           ))}
         </Pie>
-        <Tooltip content={<CustomTooltip />} />
+        <Tooltip content={<CustomTooltip currency={currency} />} />
         <Legend
           formatter={(value) => (
             <span className="text-sm text-foreground">{value}</span>

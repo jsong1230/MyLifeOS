@@ -11,14 +11,15 @@ import {
 } from 'recharts'
 import { useTranslations, useLocale } from 'next-intl'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { formatCurrency } from '@/lib/currency'
+import { formatCurrency, type CurrencyCode } from '@/lib/currency'
 import type { AssetMonthlyTotal } from '@/types/asset'
 
 interface AssetTrendChartProps {
   data: AssetMonthlyTotal[]
+  currency?: CurrencyCode
 }
 
-export function AssetTrendChart({ data }: AssetTrendChartProps) {
+export function AssetTrendChart({ data, currency = 'KRW' }: AssetTrendChartProps) {
   const t = useTranslations('money.assets')
   const tc = useTranslations('money.charts')
   const locale = useLocale()
@@ -29,9 +30,9 @@ export function AssetTrendChart({ data }: AssetTrendChartProps) {
     return new Intl.DateTimeFormat(locale === 'ko' ? 'ko-KR' : 'en-US', { month: 'short' }).format(date)
   }
 
-  // 금액 축 포맷 (로케일 기반 단위)
+  // 금액 축 포맷 (KRW+한국어: 만/억, 그 외: K/M)
   function formatYAxis(value: number): string {
-    if (locale === 'ko') {
+    if (currency === 'KRW' && locale === 'ko') {
       if (value >= 100_000_000) return `${(value / 100_000_000).toFixed(0)}${tc('unitEok')}`
       if (value >= 10_000) return `${Math.floor(value / 10_000)}${tc('unitMan')}`
       return `${value}`
@@ -80,7 +81,7 @@ export function AssetTrendChart({ data }: AssetTrendChartProps) {
             />
             <Tooltip
               formatter={(value: number | undefined) => [
-                value != null ? formatCurrency(value, 'KRW') : '-',
+                value != null ? formatCurrency(value, currency) : '-',
                 t('totalAssets'),
               ]}
               labelFormatter={(label) => `${label}`}

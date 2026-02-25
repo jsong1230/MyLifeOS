@@ -40,6 +40,8 @@ import {
   useUpdateAsset,
   useDeleteAsset,
 } from '@/hooks/use-assets'
+import { useSettings } from '@/hooks/use-settings'
+import { useSettingsStore } from '@/store/settings.store'
 import { ASSET_TYPE_LABEL, type Asset, type CreateAssetInput, type UpdateAssetInput } from '@/types/asset'
 
 // 현재 월을 YYYY-MM 형식으로
@@ -76,9 +78,12 @@ export default function AssetsPage() {
   const [editTarget, setEditTarget] = useState<Asset | null>(null)
   const [deleteTarget, setDeleteTarget] = useState<Asset | null>(null)
 
+  useSettings() // Zustand defaultCurrency 동기화
+  const currency = useSettingsStore((s) => s.defaultCurrency)
+
   // 데이터 조회
   const { data: assets = [], isLoading } = useAssets(month)
-  const { data: trendData = [] } = useAssetTrend(6)
+  const { data: trendData = [] } = useAssetTrend(6, currency)
 
   // 뮤테이션
   const createMutation = useCreateAsset()
@@ -166,7 +171,7 @@ export default function AssetsPage() {
       )}
 
       {/* 월별 자산 추이 차트 */}
-      {trendData.length > 1 && <AssetTrendChart data={trendData} />}
+      {trendData.length > 1 && <AssetTrendChart data={trendData} currency={currency} />}
 
       {/* 자산 목록 헤더 */}
       <div className="flex items-center justify-between">

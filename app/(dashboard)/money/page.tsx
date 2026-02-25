@@ -11,6 +11,8 @@ import { SummaryCards } from '@/components/money/summary-cards'
 import { useTransactions } from '@/hooks/use-transactions'
 import { useBudgets } from '@/hooks/use-budgets'
 import { useMonthlyStats } from '@/hooks/use-assets'
+import { useSettings } from '@/hooks/use-settings'
+import { useSettingsStore } from '@/store/settings.store'
 import { cn } from '@/lib/utils'
 
 // YYYY-MM 문자열에서 { year, month } 파싱
@@ -67,6 +69,8 @@ const MonthlyTrendChart = dynamic(
 export default function MoneyPage() {
   const locale = useLocale()
   const t = useTranslations('money.overview')
+  useSettings() // Zustand defaultCurrency 동기화
+  const currency = useSettingsStore((s) => s.defaultCurrency)
   const [currentMonth, setCurrentMonth] = useState<string>(getCurrentMonth)
 
   const {
@@ -94,7 +98,7 @@ export default function MoneyPage() {
     setCurrentMonth((prev) => shiftMonth(prev, +1))
   }
 
-  const { data: monthlyStats = [] } = useMonthlyStats(6)
+  const { data: monthlyStats = [] } = useMonthlyStats(6, currency)
 
   const isLoading = isLoadingTransactions || isLoadingBudgets
   const hasError = transactionsError ?? budgetsError

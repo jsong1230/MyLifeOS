@@ -1,6 +1,7 @@
 'use client'
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import type { CurrencyCode } from '@/lib/currency'
 import type { Asset, CreateAssetInput, UpdateAssetInput, AssetMonthlyTotal } from '@/types/asset'
 
 interface ApiResponse<T> {
@@ -24,11 +25,11 @@ export function useAssets(month: string) {
 }
 
 // 월별 자산 합계 트렌드 (최근 N개월)
-export function useAssetTrend(months = 6) {
+export function useAssetTrend(months = 6, currency: CurrencyCode = 'KRW') {
   return useQuery<AssetMonthlyTotal[]>({
-    queryKey: ['assets', 'trend', months],
+    queryKey: ['assets', 'trend', months, currency],
     queryFn: async () => {
-      const res = await fetch(`/api/assets?trend=${months}`)
+      const res = await fetch(`/api/assets?trend=${months}&currency=${currency}`)
       const json = await res.json() as ApiResponse<AssetMonthlyTotal[]>
       if (!json.success) throw new Error(json.error ?? '자산 트렌드 조회 실패')
       return json.data
@@ -98,11 +99,11 @@ export function useDeleteAsset() {
 }
 
 // 월별 지출 추이 (F-22)
-export function useMonthlyStats(months = 6) {
+export function useMonthlyStats(months = 6, currency: CurrencyCode = 'KRW') {
   return useQuery<{ month: string; income: number; expense: number }[]>({
-    queryKey: ['transactions', 'monthly-stats', months],
+    queryKey: ['transactions', 'monthly-stats', months, currency],
     queryFn: async () => {
-      const res = await fetch(`/api/transactions/monthly-stats?months=${months}`)
+      const res = await fetch(`/api/transactions/monthly-stats?months=${months}&currency=${currency}`)
       const json = await res.json() as ApiResponse<{ month: string; income: number; expense: number }[]>
       if (!json.success) throw new Error(json.error ?? '월별 통계 조회 실패')
       return json.data

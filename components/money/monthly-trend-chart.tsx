@@ -36,9 +36,9 @@ export function MonthlyTrendChart({ data }: MonthlyTrendChartProps) {
     return new Intl.DateTimeFormat(locale === 'ko' ? 'ko-KR' : 'en-US', { month: 'short' }).format(date)
   }
 
-  // 금액 축 포맷 (로케일 기반 단위)
+  // 금액 축 포맷 (KRW+한국어: 만/억, 그 외: K/M)
   function formatYAxis(value: number): string {
-    if (locale === 'ko') {
+    if (defaultCurrency === 'KRW' && locale === 'ko') {
       if (value >= 10_000_000) return `${(value / 10_000_000).toFixed(0)}${t('unitChonMan')}`
       if (value >= 10_000) return `${Math.floor(value / 10_000)}${t('unitMan')}`
       return `${value}`

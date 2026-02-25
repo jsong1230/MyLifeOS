@@ -1,6 +1,8 @@
 import { NextResponse, type NextRequest } from 'next/server'
 import { apiError } from '@/lib/api-errors'
 import { createClient } from '@/lib/supabase/server'
+import { fetchExchangeRatesServer } from '@/lib/exchange-rates.server'
+import { convertCurrency, type CurrencyCode } from '@/lib/currency'
 import type { Asset, CreateAssetInput } from '@/types/asset'
 
 const VALID_ASSET_TYPES = ['cash', 'deposit', 'investment', 'other'] as const
@@ -17,25 +19,31 @@ export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url)
   const month = searchParams.get('month')
   const trendParam = searchParams.get('trend')
+  const currencyParam = (searchParams.get('currency') ?? 'KRW') as CurrencyCode
 
   // 월별 합계 트렌드 조회 (최근 N개월)
   if (trendParam) {
     const months = Math.min(Math.max(parseInt(trendParam) || 6, 1), 24)
 
-    const { data, error } = await supabase
-      .from('assets')
-      .select('month, amount')
-      .eq('user_id', userId)
-      .order('month', { ascending: true })
+    const [assetsResult, rates] = await Promise.all([
+      supabase
+        .from('assets')
+        .select('month, amount, currency')
+        .eq('user_id', userId)
+        .order('month', { ascending: true }),
+      fetchExchangeRatesServer(),
+    ])
 
-    if (error) {
+    if (assetsResult.error) {
       return apiError('SERVER_ERROR')
     }
 
-    // 월별 합계 집계
+    // 월별 합계 집계 (목표 통화로 환산)
     const monthMap = new Map<string, number>()
-    for (const row of data ?? []) {
-      monthMap.set(row.month, (monthMap.get(row.month) ?? 0) + Number(row.amount))
+    for (const row of assetsResult.data ?? []) {
+      const from = (row.currency ?? 'KRW') as CurrencyCode
+      const converted = convertCurrency(Number(row.amount), from, currencyParam, rates)
+      monthMap.set(row.month, (monthMap.get(row.month) ?? 0) + converted)
     }
 
     // 최근 N개월만 반환 (내림차순 정렬 후 슬라이스)
