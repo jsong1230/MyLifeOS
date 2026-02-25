@@ -22,7 +22,7 @@ export default function MoneyLayout({ children }: { children: React.ReactNode })
   }
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-full w-full min-w-0">
       {/* 서브 네비게이션 탭 */}
       <div className="border-b bg-background sticky top-0 z-10">
         <nav className="flex px-4 overflow-x-auto" aria-label="금전 관리 서브메뉴">
@@ -47,7 +47,7 @@ export default function MoneyLayout({ children }: { children: React.ReactNode })
       </div>
 
       {/* 콘텐츠 영역 */}
-      <div className="flex-1 overflow-y-auto overflow-x-hidden">
+      <div className="flex-1 min-h-0">
         {children}
       </div>
     </div>

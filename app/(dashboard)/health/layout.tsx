@@ -23,7 +23,7 @@ export default function HealthLayout({ children }: { children: React.ReactNode }
   }
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-full w-full min-w-0">
       <div className="border-b bg-background sticky top-0 z-10">
         <nav className="flex px-4 overflow-x-auto" aria-label="건강 관리 서브메뉴">
           {HEALTH_NAV_ITEMS.map(({ label, href }) => {
@@ -45,7 +45,7 @@ export default function HealthLayout({ children }: { children: React.ReactNode }
           })}
         </nav>
       </div>
-      <div className="flex-1 overflow-y-auto overflow-x-hidden">
+      <div className="flex-1 min-h-0">
         {children}
       </div>
     </div>

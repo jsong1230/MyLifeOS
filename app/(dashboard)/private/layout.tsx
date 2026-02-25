@@ -173,7 +173,7 @@ export default function PrivateLayout({ children }: { children: React.ReactNode 
 
   // PIN 인증 완료 → 콘텐츠 표시
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-full w-full min-w-0">
       <div className="border-b bg-background sticky top-0 z-10">
         <nav className="flex px-4 overflow-x-auto" aria-label="사적 기록 서브메뉴">
           {PRIVATE_NAV_ITEMS.map(({ label, href }) => {
@@ -195,7 +195,7 @@ export default function PrivateLayout({ children }: { children: React.ReactNode 
           })}
         </nav>
       </div>
-      <div className="flex-1 overflow-y-auto overflow-x-hidden">{children}</div>
+      <div className="flex-1 min-h-0">{children}</div>
     </div>
   )
 }

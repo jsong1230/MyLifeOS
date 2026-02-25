@@ -19,7 +19,7 @@ export function AppShell({ children }: AppShellProps) {
       </aside>
 
       {/* 메인 영역 */}
-      <div className="flex-1 md:ml-64 flex flex-col">
+      <div className="flex-1 md:ml-64 flex flex-col min-w-0">
         <Header />
         <main
           className="flex-1 pt-4 pb-24 md:pb-8"
