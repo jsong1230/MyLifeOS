@@ -22,8 +22,6 @@ export default async function AuthLayout({ children }: { children: React.ReactNo
         <p className="mt-6 text-center text-xs text-gray-400">
           <a
             href={manualHref}
-            target="_blank"
-            rel="noopener noreferrer"
             className="underline underline-offset-4 hover:text-gray-600 transition-colors"
           >
             {manualLabel}

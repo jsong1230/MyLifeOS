@@ -198,7 +198,7 @@ export function AuthForm({ mode, onSubmit, isLoading = false, error }: AuthFormP
       </CardContent>
 
       {/* 하단 링크 */}
-      <CardFooter className="flex flex-col gap-2 text-sm text-center text-muted-foreground">
+      <CardFooter className="flex flex-col gap-2 text-sm text-center text-muted-foreground pt-6">
         {mode === 'login' && (
           <p>
             {t('auth.noAccount')}{' '}
