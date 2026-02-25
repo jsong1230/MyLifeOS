@@ -28,25 +28,27 @@ export function BottomNav() {
     <nav
       role="navigation"
       aria-label={t('mainMenu')}
-      className="bg-background border-t h-16 flex items-center"
+      className="bg-background border-t"
       style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
     >
-      {NAV_ITEMS.map(({ key, icon: Icon, href }) => {
-        const active = isActive(href)
-        return (
-          <Link
-            key={href}
-            href={href}
-            aria-current={active ? 'page' : undefined}
-            className={`flex flex-col items-center justify-center flex-1 gap-1 text-xs transition-colors ${
-              active ? 'text-primary font-medium' : 'text-muted-foreground'
-            }`}
-          >
-            <Icon className="w-5 h-5" aria-hidden="true" />
-            <span>{t(key)}</span>
-          </Link>
-        )
-      })}
+      <div className="h-16 flex items-center">
+        {NAV_ITEMS.map(({ key, icon: Icon, href }) => {
+          const active = isActive(href)
+          return (
+            <Link
+              key={href}
+              href={href}
+              aria-current={active ? 'page' : undefined}
+              className={`flex flex-col items-center justify-center flex-1 gap-1 text-xs transition-colors ${
+                active ? 'text-primary font-medium' : 'text-muted-foreground'
+              }`}
+            >
+              <Icon className="w-5 h-5" aria-hidden="true" />
+              <span>{t(key)}</span>
+            </Link>
+          )
+        })}
+      </div>
     </nav>
   )
 }
