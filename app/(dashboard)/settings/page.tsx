@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useTranslations } from 'next-intl'
+import { useTranslations, useLocale } from 'next-intl'
 import { BookOpen } from 'lucide-react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { PinChange } from '@/components/auth/pin-change'
@@ -28,6 +28,9 @@ type SettingsView = 'main' | 'pinSetup' | 'pinChange'
 export default function SettingsPage() {
   const t = useTranslations('settings')
   const tPin = useTranslations('pin')
+  const locale = useLocale()
+  const manualHref = locale === 'en' ? '/manual.en.html' : '/manual.html'
+  const manualLabel = locale === 'en' ? 'Open User Guide →' : '사용자 가이드 열기 →'
   const [view, setView] = useState<SettingsView>('main')
   const [successMessage, setSuccessMessage] = useState('')
   const [pinSet, setPinSet] = useState<boolean | null>(null)
@@ -212,12 +215,12 @@ export default function SettingsPage() {
         </CardHeader>
         <CardContent>
           <a
-            href="/manual.html"
+            href={manualHref}
             target="_blank"
             rel="noopener noreferrer"
             className="text-sm text-primary underline underline-offset-4 hover:opacity-80"
           >
-            사용자 가이드 열기 →
+            {manualLabel}
           </a>
         </CardContent>
       </Card>

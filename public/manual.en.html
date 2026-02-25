@@ -1,0 +1,1175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Life OS — User Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=Noto+Serif+KR:wght@400;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0f1117;
+    --surface: #181c27;
+    --surface2: #1e2333;
+    --border: #2a3047;
+    --accent: #4f7fff;
+    --accent2: #7c5cfc;
+    --accent3: #38d9a9;
+    --accent4: #f7a440;
+    --accent5: #f06595;
+    --text: #e8eaf0;
+    --text-muted: #7a84a0;
+    --text-dim: #4a5168;
+    --white: #ffffff;
+    --radius: 14px;
+    --radius-sm: 8px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Noto Sans KR', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.75;
+    font-size: 15px;
+  }
+
+  /* ── NOISE OVERLAY ── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 9999;
+    opacity: 0.4;
+  }
+
+  /* ── SIDEBAR ── */
+  .sidebar {
+    position: fixed;
+    left: 0; top: 0; bottom: 0;
+    width: 260px;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    padding: 32px 0;
+    overflow-y: auto;
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .sidebar-logo {
+    padding: 0 24px 28px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 20px;
+  }
+
+  .sidebar-logo .logo-mark {
+    width: 38px; height: 38px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; font-weight: 700; color: #fff;
+    margin-bottom: 10px;
+    box-shadow: 0 4px 20px rgba(79,127,255,0.35);
+  }
+
+  .sidebar-logo h1 {
+    font-family: 'Noto Serif KR', serif;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--white);
+    letter-spacing: -0.3px;
+  }
+
+  .sidebar-logo p {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-top: 2px;
+  }
+
+  .nav-section {
+    padding: 0 12px;
+    margin-bottom: 8px;
+  }
+
+  .nav-label {
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--text-dim);
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    padding: 0 12px;
+    margin-bottom: 6px;
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 12px;
+    border-radius: var(--radius-sm);
+    color: var(--text-muted);
+    text-decoration: none;
+    font-size: 13.5px;
+    transition: all 0.15s;
+    cursor: pointer;
+  }
+
+  .nav-item:hover {
+    background: var(--surface2);
+    color: var(--text);
+  }
+
+  .nav-item.active {
+    background: rgba(79,127,255,0.12);
+    color: var(--accent);
+  }
+
+  .nav-icon {
+    width: 22px; height: 22px;
+    border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px;
+    flex-shrink: 0;
+  }
+
+  /* ── MAIN ── */
+  .main {
+    margin-left: 260px;
+    min-height: 100vh;
+  }
+
+  /* ── HERO ── */
+  .hero {
+    position: relative;
+    padding: 80px 64px 60px;
+    overflow: hidden;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -80px; right: -80px;
+    width: 500px; height: 500px;
+    background: radial-gradient(circle, rgba(79,127,255,0.12) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .hero::after {
+    content: '';
+    position: absolute;
+    bottom: -60px; left: 40%;
+    width: 300px; height: 300px;
+    background: radial-gradient(circle, rgba(124,92,252,0.08) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(79,127,255,0.1);
+    border: 1px solid rgba(79,127,255,0.25);
+    border-radius: 20px;
+    padding: 5px 14px;
+    font-size: 12px;
+    color: var(--accent);
+    margin-bottom: 20px;
+    font-weight: 500;
+  }
+
+  .hero h2 {
+    font-family: 'Noto Serif KR', serif;
+    font-size: 42px;
+    font-weight: 700;
+    color: var(--white);
+    line-height: 1.25;
+    margin-bottom: 16px;
+    letter-spacing: -1px;
+  }
+
+  .hero h2 span {
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .hero p {
+    font-size: 16px;
+    color: var(--text-muted);
+    max-width: 560px;
+    line-height: 1.8;
+  }
+
+  .hero-meta {
+    display: flex;
+    gap: 24px;
+    margin-top: 32px;
+    flex-wrap: wrap;
+  }
+
+  .hero-meta-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: var(--text-muted);
+  }
+
+  .hero-meta-item .dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+  }
+
+  /* ── CONTENT ── */
+  .content {
+    padding: 56px 64px;
+    max-width: 860px;
+  }
+
+  /* ── SECTION ── */
+  .section {
+    margin-bottom: 72px;
+    animation: fadeUp 0.5s ease both;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 28px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .section-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    background: rgba(79,127,255,0.1);
+    border: 1px solid rgba(79,127,255,0.2);
+    border-radius: 4px;
+    padding: 2px 7px;
+    flex-shrink: 0;
+  }
+
+  .section h2 {
+    font-family: 'Noto Serif KR', serif;
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--white);
+    letter-spacing: -0.5px;
+  }
+
+  .section h3 {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text);
+    margin: 28px 0 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .section h3::before {
+    content: '';
+    display: block;
+    width: 3px;
+    height: 16px;
+    background: var(--accent);
+    border-radius: 2px;
+    flex-shrink: 0;
+  }
+
+  .section p {
+    color: var(--text-muted);
+    margin-bottom: 12px;
+    line-height: 1.8;
+  }
+
+  /* ── CARDS ── */
+  .card-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+    margin: 20px 0;
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px 22px;
+    transition: border-color 0.2s, transform 0.2s;
+  }
+
+  .card:hover {
+    border-color: var(--accent);
+    transform: translateY(-2px);
+  }
+
+  .card-icon {
+    font-size: 24px;
+    margin-bottom: 10px;
+  }
+
+  .card h4 {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--white);
+    margin-bottom: 6px;
+  }
+
+  .card p {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin: 0;
+    line-height: 1.6;
+  }
+
+  /* ── STEPS ── */
+  .steps {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    margin: 20px 0;
+    position: relative;
+  }
+
+  .steps::before {
+    content: '';
+    position: absolute;
+    left: 19px;
+    top: 40px;
+    bottom: 40px;
+    width: 1px;
+    background: var(--border);
+  }
+
+  .step {
+    display: flex;
+    gap: 18px;
+    align-items: flex-start;
+    padding: 16px 0;
+  }
+
+  .step-num {
+    width: 38px; height: 38px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--accent);
+    flex-shrink: 0;
+    z-index: 1;
+    position: relative;
+  }
+
+  .step-content h4 {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--white);
+    margin-bottom: 4px;
+    padding-top: 8px;
+  }
+
+  .step-content p {
+    font-size: 13.5px;
+    color: var(--text-muted);
+    margin: 0;
+  }
+
+  /* ── MODULE BLOCKS ── */
+  .module-block {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    margin: 20px 0;
+  }
+
+  .module-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 18px 22px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .module-emoji {
+    font-size: 22px;
+    width: 42px; height: 42px;
+    background: var(--surface2);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .module-header h3 {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--white);
+    margin: 0;
+  }
+
+  .module-header h3::before { display: none; }
+
+  .module-header p {
+    font-size: 12.5px;
+    color: var(--text-muted);
+    margin: 2px 0 0;
+  }
+
+  .module-body {
+    padding: 18px 22px;
+  }
+
+  .feature-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .feature-list li {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    font-size: 13.5px;
+    color: var(--text-muted);
+  }
+
+  .feature-list li::before {
+    content: '→';
+    color: var(--accent3);
+    font-size: 13px;
+    flex-shrink: 0;
+    margin-top: 2px;
+    font-weight: 700;
+  }
+
+  .feature-list li strong {
+    color: var(--text);
+    font-weight: 600;
+  }
+
+  /* ── TIP BOX ── */
+  .tip {
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+    background: rgba(56,217,169,0.07);
+    border: 1px solid rgba(56,217,169,0.2);
+    border-radius: var(--radius-sm);
+    padding: 14px 18px;
+    margin: 16px 0;
+  }
+
+  .tip-icon {
+    font-size: 18px;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  .tip p {
+    font-size: 13.5px;
+    color: rgba(56,217,169,0.85);
+    margin: 0;
+  }
+
+  .warning {
+    background: rgba(247,164,64,0.07);
+    border-color: rgba(247,164,64,0.2);
+  }
+
+  .warning p { color: rgba(247,164,64,0.85); }
+
+  /* ── PWA GUIDE ── */
+  .pwa-steps {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin: 20px 0;
+  }
+
+  .pwa-step {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 18px;
+    text-align: center;
+  }
+
+  .pwa-step .pwa-num {
+    width: 28px; height: 28px;
+    background: var(--accent);
+    border-radius: 50%;
+    color: #fff;
+    font-size: 13px;
+    font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 10px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .pwa-step p {
+    font-size: 12.5px;
+    color: var(--text-muted);
+    margin: 0;
+    line-height: 1.5;
+  }
+
+  /* ── FAQ ── */
+  .faq-item {
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    margin-bottom: 8px;
+  }
+
+  .faq-q {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 15px 18px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+    background: var(--surface);
+    transition: background 0.15s;
+    user-select: none;
+  }
+
+  .faq-q:hover { background: var(--surface2); }
+
+  .faq-q .arrow {
+    font-size: 11px;
+    color: var(--text-dim);
+    transition: transform 0.2s;
+  }
+
+  .faq-item.open .faq-q .arrow { transform: rotate(180deg); }
+
+  .faq-a {
+    display: none;
+    padding: 14px 18px;
+    font-size: 13.5px;
+    color: var(--text-muted);
+    background: var(--bg);
+    border-top: 1px solid var(--border);
+    line-height: 1.75;
+  }
+
+  .faq-item.open .faq-a { display: block; }
+
+  /* ── TAG ── */
+  .tag {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 700;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .tag-blue { background: rgba(79,127,255,0.15); color: var(--accent); }
+  .tag-green { background: rgba(56,217,169,0.15); color: var(--accent3); }
+  .tag-orange { background: rgba(247,164,64,0.15); color: var(--accent4); }
+  .tag-pink { background: rgba(240,101,149,0.15); color: var(--accent5); }
+
+  /* ── TABLE ── */
+  .data-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 16px 0;
+    font-size: 13.5px;
+  }
+
+  .data-table th {
+    background: var(--surface2);
+    padding: 10px 14px;
+    text-align: left;
+    font-weight: 600;
+    color: var(--text);
+    border-bottom: 1px solid var(--border);
+    font-size: 12px;
+  }
+
+  .data-table td {
+    padding: 10px 14px;
+    color: var(--text-muted);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .data-table tr:last-child td { border-bottom: none; }
+  .data-table tr:hover td { background: rgba(255,255,255,0.02); }
+
+  /* ── DIVIDER ── */
+  .divider {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 48px 0;
+  }
+
+  /* ── FOOTER ── */
+  .footer {
+    border-top: 1px solid var(--border);
+    padding: 32px 64px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  .footer p {
+    font-size: 12.5px;
+    color: var(--text-dim);
+  }
+
+  .footer a {
+    color: var(--accent);
+    text-decoration: none;
+    font-size: 12.5px;
+  }
+
+  /* ── SCROLLBAR ── */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+  /* ── MOBILE ── */
+  @media (max-width: 800px) {
+    .sidebar { display: none; }
+    .main { margin-left: 0; }
+    .hero, .content, .footer { padding-left: 24px; padding-right: 24px; }
+    .hero h2 { font-size: 28px; }
+    .card-grid { grid-template-columns: 1fr; }
+    .pwa-steps { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<nav class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-mark">M</div>
+    <h1>My Life OS</h1>
+    <p>User Guide v1.0</p>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-label">Getting Started</div>
+    <a class="nav-item active" href="#start">
+      <span class="nav-icon">🚀</span> Getting Started
+    </a>
+    <a class="nav-item" href="#pwa">
+      <span class="nav-icon">📱</span> Install as App
+    </a>
+  </div>
+
+  <div class="nav-section" style="margin-top:8px;">
+    <div class="nav-label">Core Features</div>
+    <a class="nav-item" href="#dashboard">
+      <span class="nav-icon">🏠</span> Dashboard
+    </a>
+    <a class="nav-item" href="#time">
+      <span class="nav-icon">⏰</span> Time Management
+    </a>
+    <a class="nav-item" href="#money">
+      <span class="nav-icon">💰</span> Money Management
+    </a>
+    <a class="nav-item" href="#health">
+      <span class="nav-icon">🥗</span> Health Tracking
+    </a>
+    <a class="nav-item" href="#private">
+      <span class="nav-icon">🔒</span> Private Records
+    </a>
+  </div>
+
+  <div class="nav-section" style="margin-top:8px;">
+    <div class="nav-label">Help</div>
+    <a class="nav-item" href="#security">
+      <span class="nav-icon">🛡️</span> Security & Privacy
+    </a>
+    <a class="nav-item" href="#faq">
+      <span class="nav-icon">❓</span> FAQ
+    </a>
+  </div>
+</nav>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- HERO -->
+  <div class="hero" id="top">
+    <div class="hero-badge">✦ Official User Guide</div>
+    <h2>Manage every aspect of your life<br><span>in one place</span></h2>
+    <p>My Life OS is a personal life manager that integrates time, money, health, and private records into a single app. Follow this guide to get started right away.</p>
+    <div class="hero-meta">
+      <span class="hero-meta-item">
+        <span class="dot" style="background:#4f7fff"></span>
+        Time Management
+      </span>
+      <span class="hero-meta-item">
+        <span class="dot" style="background:#38d9a9"></span>
+        Money Management
+      </span>
+      <span class="hero-meta-item">
+        <span class="dot" style="background:#f7a440"></span>
+        Health Tracking
+      </span>
+      <span class="hero-meta-item">
+        <span class="dot" style="background:#f06595"></span>
+        Private Records
+      </span>
+    </div>
+  </div>
+
+  <!-- CONTENT -->
+  <div class="content">
+
+    <!-- 1. Getting Started -->
+    <div class="section" id="start">
+      <div class="section-header">
+        <span class="section-num">01</span>
+        <h2>Getting Started</h2>
+      </div>
+
+      <p>My Life OS works directly in your web browser — no app installation required. Once you sign up, all features are immediately available.</p>
+
+      <h3>Sign Up</h3>
+      <div class="steps">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-content">
+            <h4>Visit the site</h4>
+            <p>Go to <strong>mylifeos-virid.vercel.app</strong>.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-content">
+            <h4>Choose Sign Up</h4>
+            <p>Tap <strong>"Don't have an account? Sign up"</strong> at the bottom of the login screen.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-content">
+            <h4>Enter your details</h4>
+            <p>Enter your email address and password. You can also sign up quickly with your <strong>Google account</strong>.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">4</div>
+          <div class="step-content">
+            <h4>You're in!</h4>
+            <p>After registration, you'll be taken to the dashboard. Start tracking your life now.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="tip">
+        <span class="tip-icon">💡</span>
+        <p>Family members and friends can each sign up with their own <strong>independent account</strong>. Each person's data is completely separate and invisible to others.</p>
+      </div>
+    </div>
+
+    <!-- 2. Install as App -->
+    <div class="section" id="pwa">
+      <div class="section-header">
+        <span class="section-num">02</span>
+        <h2>Use It Like a Smartphone App</h2>
+      </div>
+
+      <p>My Life OS can be added to your home screen <strong>without installing anything from an app store</strong>, giving you a native app experience.</p>
+
+      <h3>iPhone (iOS Safari)</h3>
+      <div class="pwa-steps">
+        <div class="pwa-step">
+          <div class="pwa-num">1</div>
+          <p>Open mylifeos-virid.vercel.app in Safari</p>
+        </div>
+        <div class="pwa-step">
+          <div class="pwa-num">2</div>
+          <p>Tap the <strong>Share button (□↑)</strong> at the bottom</p>
+        </div>
+        <div class="pwa-step">
+          <div class="pwa-num">3</div>
+          <p>Select <strong>"Add to Home Screen"</strong> and confirm</p>
+        </div>
+      </div>
+
+      <h3>Android (Chrome)</h3>
+      <div class="pwa-steps">
+        <div class="pwa-step">
+          <div class="pwa-num">1</div>
+          <p>Open the site in Chrome</p>
+        </div>
+        <div class="pwa-step">
+          <div class="pwa-num">2</div>
+          <p>Tap the <strong>⋮ menu</strong> in the top right</p>
+        </div>
+        <div class="pwa-step">
+          <div class="pwa-num">3</div>
+          <p>Select <strong>"Add to Home Screen"</strong></p>
+        </div>
+      </div>
+
+      <div class="tip">
+        <span class="tip-icon">✅</span>
+        <p>Tapping the icon from your home screen launches the app in <strong>full screen without an address bar</strong>, providing the same experience as a store-installed app.</p>
+      </div>
+    </div>
+
+    <!-- 3. Dashboard -->
+    <div class="section" id="dashboard">
+      <div class="section-header">
+        <span class="section-num">03</span>
+        <h2>Dashboard</h2>
+      </div>
+
+      <p>This is the first screen you see after logging in. It gives you a quick overview of key information for today and this week.</p>
+
+      <div class="card-grid">
+        <div class="card">
+          <div class="card-icon">⏰</div>
+          <h4>Time Summary</h4>
+          <p>Shows the number of to-dos to complete today and routines you have achieved.</p>
+        </div>
+        <div class="card">
+          <div class="card-icon">💰</div>
+          <h4>Money Summary</h4>
+          <p>Displays this month's total spending and budget utilization at a glance.</p>
+        </div>
+        <div class="card">
+          <div class="card-icon">🥗</div>
+          <h4>Health Summary</h4>
+          <p>Check today's calorie intake, sleep duration, and drinking status.</p>
+        </div>
+        <div class="card">
+          <div class="card-icon">📔</div>
+          <h4>Today's Mood</h4>
+          <p>Shows the emotion tags recorded today and the date of your most recent diary entry.</p>
+        </div>
+      </div>
+
+      <div class="tip">
+        <span class="tip-icon">⚡</span>
+        <p>Tap any card to jump directly to that module. You can also add records instantly from the dashboard using the quick-add button (+).</p>
+      </div>
+    </div>
+
+    <!-- 4. Time Management -->
+    <div class="section" id="time">
+      <div class="section-header">
+        <span class="section-num">04</span>
+        <h2>Time Management</h2>
+      </div>
+
+      <div class="module-block">
+        <div class="module-header">
+          <div class="module-emoji">⏰</div>
+          <div>
+            <h3>Time Management Module</h3>
+            <p>Manage to-dos, routines, and calendar in one place</p>
+          </div>
+        </div>
+        <div class="module-body">
+          <ul class="feature-list">
+            <li><strong>Add a To-Do:</strong> Tap the + button → enter a title, due date, priority (High/Medium/Low), and category, then save</li>
+            <li><strong>Mark as Complete:</strong> Tap the checkbox on the left of a to-do to mark it as done</li>
+            <li><strong>Set Up Routines:</strong> Register activities you want to repeat daily (e.g., exercise, reading) as routines and check in every day</li>
+            <li><strong>Streak Tracking:</strong> Consecutive days of completing a routine are counted as a streak</li>
+            <li><strong>Calendar View:</strong> Switch between monthly, weekly, and daily views to see the flow of your schedule</li>
+          </ul>
+        </div>
+      </div>
+
+      <h3>To-Do Priority Guide</h3>
+      <table class="data-table">
+        <tr>
+          <th>Priority</th>
+          <th>Display</th>
+          <th>When to Use</th>
+        </tr>
+        <tr>
+          <td><span class="tag tag-pink">High</span></td>
+          <td>Red highlight</td>
+          <td>Must be completed today</td>
+        </tr>
+        <tr>
+          <td><span class="tag tag-orange">Medium</span></td>
+          <td>Yellow highlight</td>
+          <td>Should be handled within the week</td>
+        </tr>
+        <tr>
+          <td><span class="tag tag-blue">Low</span></td>
+          <td>Default color</td>
+          <td>Can be handled whenever time permits</td>
+        </tr>
+      </table>
+    </div>
+
+    <!-- 5. Money Management -->
+    <div class="section" id="money">
+      <div class="section-header">
+        <span class="section-num">05</span>
+        <h2>Money Management</h2>
+      </div>
+
+      <div class="module-block">
+        <div class="module-header">
+          <div class="module-emoji">💰</div>
+          <div>
+            <h3>Money Management Module</h3>
+            <p>Track income and expenses, set budgets, view asset overview</p>
+          </div>
+        </div>
+        <div class="module-body">
+          <ul class="feature-list">
+            <li><strong>Add an Expense:</strong> Tap + → enter amount, category (Food/Transport/Leisure, etc.), memo, and date</li>
+            <li><strong>Record Income:</strong> Select "Income" as the type to save it as an income entry</li>
+            <li><strong>Monthly Budget:</strong> Set a budget per category — a warning is shown when you go over</li>
+            <li><strong>Spending Overview:</strong> View spending by category at a glance with a pie chart</li>
+            <li><strong>Monthly Trend:</strong> See spending changes over the past 6 months in a line chart</li>
+            <li><strong>Asset Overview:</strong> Manually enter cash, deposits, and investment assets to see a financial summary</li>
+          </ul>
+        </div>
+      </div>
+
+      <h3>Default Categories</h3>
+      <div class="card-grid">
+        <div class="card">
+          <p>🍽️ Food &nbsp;·&nbsp; 🚌 Transport &nbsp;·&nbsp; 🏠 Housing</p>
+        </div>
+        <div class="card">
+          <p>🎮 Leisure &nbsp;·&nbsp; 👗 Shopping &nbsp;·&nbsp; 💊 Healthcare</p>
+        </div>
+        <div class="card">
+          <p>📚 Education &nbsp;·&nbsp; ✈️ Travel &nbsp;·&nbsp; 💸 Savings</p>
+        </div>
+        <div class="card">
+          <p>+ You can also add your own custom categories</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 6. Health Tracking -->
+    <div class="section" id="health">
+      <div class="section-header">
+        <span class="section-num">06</span>
+        <h2>Health · Diet · Drinking Tracking</h2>
+      </div>
+
+      <div class="module-block">
+        <div class="module-header">
+          <div class="module-emoji">🥗</div>
+          <div>
+            <h3>Health Tracking Module</h3>
+            <p>Log diet, drinking, sleep, exercise, and body weight</p>
+          </div>
+        </div>
+        <div class="module-body">
+          <ul class="feature-list">
+            <li><strong>Meal Log:</strong> Choose Breakfast / Lunch / Dinner / Snack → enter food name and calories. Daily total calories are automatically tallied</li>
+            <li><strong>Drinking Log:</strong> Enter drink type, volume (ml), and number of servings. Weekly alcohol intake is automatically tracked</li>
+            <li><strong>Sleep Log:</strong> Enter bedtime and wake-up time → total sleep duration is calculated automatically. You can also rate your sleep quality with stars</li>
+            <li><strong>Exercise Log:</strong> Record exercise type, duration, and calories burned</li>
+            <li><strong>Weight Log:</strong> Enter your weight and body fat percentage to view a trend chart of changes over time</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="warning tip">
+        <span class="tip-icon">⚠️</span>
+        <p>A warning banner is displayed when your weekly alcohol intake exceeds the WHO recommended limit (14 drinks for women, 21 drinks for men). This is a reminder feature to support healthy drinking habits.</p>
+      </div>
+    </div>
+
+    <!-- 7. Private Records -->
+    <div class="section" id="private">
+      <div class="section-header">
+        <span class="section-num">07</span>
+        <h2>Private Records</h2>
+      </div>
+
+      <div class="module-block">
+        <div class="module-header">
+          <div class="module-emoji">🔒</div>
+          <div>
+            <h3>Private Records Module</h3>
+            <p>Diary, emotions, relationships — protected by PIN</p>
+          </div>
+        </div>
+        <div class="module-body">
+          <ul class="feature-list">
+            <li><strong>Write a Diary:</strong> Write diary entries by date and choose an emotion tag (10 options: 😊 😢 😡 😴, etc.)</li>
+            <li><strong>Emotion Calendar:</strong> Emotion icons are displayed on the calendar by date, letting you track your emotional flow at a glance</li>
+            <li><strong>Diary Search:</strong> Search past diary entries by keyword or emotion tag</li>
+            <li><strong>Relationship Notes:</strong> Register people (family, friends, colleagues) and note the last time you met them and what you talked about</li>
+          </ul>
+        </div>
+      </div>
+
+      <h3>Setting Up PIN Lock</h3>
+      <div class="steps">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-content">
+            <h4>Tap the Private Records tab</h4>
+            <p>The PIN setup screen appears the first time you access it.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-content">
+            <h4>Set a PIN</h4>
+            <p>Set a 4–6 digit numeric PIN. Only you will know this number.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-content">
+            <h4>Enter PIN on each visit</h4>
+            <p>You must enter your PIN every time you access Private Records. After 5 failed attempts, access is locked for 10 minutes.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="tip">
+        <span class="tip-icon">🔐</span>
+        <p>Diary entries and relationship notes are <strong>stored encrypted</strong>. Even server administrators cannot read the content.</p>
+      </div>
+    </div>
+
+    <!-- 8. Security -->
+    <div class="section" id="security">
+      <div class="section-header">
+        <span class="section-num">08</span>
+        <h2>Security &amp; Privacy</h2>
+      </div>
+
+      <div class="card-grid">
+        <div class="card">
+          <div class="card-icon">🛡️</div>
+          <h4>Complete Data Isolation</h4>
+          <p>Your data is only visible to you. Other users of the same app — including family members — cannot access it.</p>
+        </div>
+        <div class="card">
+          <div class="card-icon">🔐</div>
+          <h4>Diary Encryption</h4>
+          <p>Diary entries and relationship notes are stored encrypted with AES-256.</p>
+        </div>
+        <div class="card">
+          <div class="card-icon">⏱️</div>
+          <h4>Auto Lock</h4>
+          <p>After 30 minutes of inactivity, the app locks automatically and requires you to log in again.</p>
+        </div>
+        <div class="card">
+          <div class="card-icon">🌐</div>
+          <h4>HTTPS Only</h4>
+          <p>All communication is encrypted over HTTPS. Your data is safe even on public Wi-Fi.</p>
+        </div>
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <!-- 9. FAQ -->
+    <div class="section" id="faq">
+      <div class="section-header">
+        <span class="section-num">09</span>
+        <h2>Frequently Asked Questions</h2>
+      </div>
+
+      <div class="faq-item" onclick="this.classList.toggle('open')">
+        <div class="faq-q">I forgot my password. <span class="arrow">▼</span></div>
+        <div class="faq-a">Tap <strong>"Forgot your password?"</strong> on the login screen. A reset link will be sent to your registered email. If you signed up with Google, simply log in with your Google account.</div>
+      </div>
+
+      <div class="faq-item" onclick="this.classList.toggle('open')">
+        <div class="faq-q">I forgot my PIN. <span class="arrow">▼</span></div>
+        <div class="faq-a">You can reset your PIN from the Settings menu. You will need to authenticate with your account password to reset it. Note that diary content is decrypted using the encryption key linked to your PIN — after resetting your PIN, you may not be able to decrypt previous diary entries, so please be careful.</div>
+      </div>
+
+      <div class="faq-item" onclick="this.classList.toggle('open')">
+        <div class="faq-q">Can my family members see my records? <span class="arrow">▼</span></div>
+        <div class="faq-a">No. Each person's account is completely independent. Even if others use the same service, it is technically impossible to access another person's data.</div>
+      </div>
+
+      <div class="faq-item" onclick="this.classList.toggle('open')">
+        <div class="faq-q">Can I use it offline? <span class="arrow">▼</span></div>
+        <div class="faq-a">If you add the app to your home screen (PWA), you can view the last synchronized data offline. However, saving new records requires an internet connection.</div>
+      </div>
+
+      <div class="faq-item" onclick="this.classList.toggle('open')">
+        <div class="faq-q">Can I back up or export my data? <span class="arrow">▼</span></div>
+        <div class="faq-a">You can export all your data as a CSV or JSON file from the Settings menu. We recommend backing up your data regularly.</div>
+      </div>
+
+      <div class="faq-item" onclick="this.classList.toggle('open')">
+        <div class="faq-q">Can I use it on multiple devices at the same time? <span class="arrow">▼</span></div>
+        <div class="faq-a">Yes! Log in with the same account from your smartphone, tablet, or PC and your synchronized data will be available anywhere.</div>
+      </div>
+
+      <div class="faq-item" onclick="this.classList.toggle('open')">
+        <div class="faq-q">The app is slow or showing errors. <span class="arrow">▼</span></div>
+        <div class="faq-a">Try refreshing your browser, or fully close the app and reopen it. If the problem persists, try clearing your browser cache or switching to a different browser.</div>
+      </div>
+
+    </div>
+
+  </div><!-- /content -->
+
+  <footer class="footer">
+    <p>My Life OS User Guide v1.0 &nbsp;·&nbsp; Last updated February 2026</p>
+    <a href="https://mylifeos-virid.vercel.app" target="_blank">→ Open App</a>
+  </footer>
+
+</div><!-- /main -->
+
+<script>
+  // Sidebar active state on scroll
+  const sections = document.querySelectorAll('.section[id]');
+  const navItems = document.querySelectorAll('.nav-item');
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        navItems.forEach(item => item.classList.remove('active'));
+        const active = document.querySelector(`.nav-item[href="#${entry.target.id}"]`);
+        if (active) active.classList.add('active');
+      }
+    });
+  }, { threshold: 0.35 });
+
+  sections.forEach(s => observer.observe(s));
+
+  // Stagger section animations
+  const allSections = document.querySelectorAll('.section');
+  allSections.forEach((s, i) => {
+    s.style.animationDelay = `${i * 0.05}s`;
+  });
+</script>
+
+</body>
+</html>
