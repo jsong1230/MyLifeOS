@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useTranslations } from 'next-intl'
+import { BookOpen } from 'lucide-react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { PinChange } from '@/components/auth/pin-change'
 import { PinForm } from '@/components/private/pin-form'
@@ -197,6 +198,27 @@ export default function SettingsPage() {
         </CardHeader>
         <CardContent>
           <DataExport />
+        </CardContent>
+      </Card>
+
+      {/* 사용자 가이드 */}
+      <Card className="mb-4">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <BookOpen className="w-4 h-4" />
+            사용자 가이드
+          </CardTitle>
+          <CardDescription>앱 사용 방법 및 자주 묻는 질문</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <a
+            href="/manual.html"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-sm text-primary underline underline-offset-4 hover:opacity-80"
+          >
+            사용자 가이드 열기 →
+          </a>
         </CardContent>
       </Card>
 
