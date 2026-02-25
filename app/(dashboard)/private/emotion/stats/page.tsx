@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { ChevronLeft, ChevronRight, ArrowLeft, Loader2 } from 'lucide-react'
 import Link from 'next/link'
+import { useTranslations, useLocale } from 'next-intl'
 import { Button } from '@/components/ui/button'
 import { EmotionTop3 } from '@/components/private/emotion-top3'
 import dynamic from 'next/dynamic'
@@ -21,9 +22,15 @@ function getCurrentYearMonth(): { year: number; month: number } {
   return { year: now.getFullYear(), month: now.getMonth() + 1 }
 }
 
-// 연/월 포맷 (한국어 표기)
-function formatYearMonth(year: number, month: number): string {
-  return `${year}년 ${month}월`
+// 연/월 포맷 (locale 기반)
+function formatYearMonth(year: number, month: number, locale: string): string {
+  if (locale === 'ko') {
+    return `${year}년 ${month}월`
+  }
+  // 영어: e.g. "February 2026"
+  return new Intl.DateTimeFormat('en-US', { year: 'numeric', month: 'long' }).format(
+    new Date(year, month - 1, 1)
+  )
 }
 
 // 월을 N개월 이동한 연/월 반환
@@ -34,6 +41,8 @@ function shiftMonth(year: number, month: number, delta: number): { year: number;
 
 // 감정 통계 페이지 — 월별 감정 분포 + 요일 패턴 + TOP 3
 export default function EmotionStatsPage() {
+  const t = useTranslations()
+  const locale = useLocale()
   const { year: initYear, month: initMonth } = getCurrentYearMonth()
   const [year, setYear] = useState(initYear)
   const [month, setMonth] = useState(initMonth)
@@ -88,7 +97,7 @@ export default function EmotionStatsPage() {
           </Button>
 
           <span className="text-sm font-semibold min-w-[100px] text-center">
-            {formatYearMonth(year, month)}
+            {formatYearMonth(year, month, locale)}
           </span>
 
           <Button
@@ -108,7 +117,7 @@ export default function EmotionStatsPage() {
 
       {/* 페이지 타이틀 */}
       <div className="px-4 pt-4 pb-1">
-        <h1 className="text-base font-bold text-foreground">감정 통계</h1>
+        <h1 className="text-base font-bold text-foreground">{t('private.emotions.statistics')}</h1>
       </div>
 
       {/* 콘텐츠 영역 */}

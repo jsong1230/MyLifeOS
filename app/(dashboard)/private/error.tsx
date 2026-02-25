@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect } from 'react'
+import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button'
 import { AlertCircle } from 'lucide-react'
 
@@ -11,6 +12,8 @@ export default function PrivateError({
   error: Error & { digest?: string }
   reset: () => void
 }) {
+  const t = useTranslations()
+
   useEffect(() => {
     console.error(error)
   }, [error])
@@ -19,13 +22,13 @@ export default function PrivateError({
     <div className="flex flex-col items-center justify-center min-h-[400px] gap-4 p-6">
       <AlertCircle className="w-10 h-10 text-destructive" />
       <div className="text-center space-y-1">
-        <h2 className="text-lg font-semibold">사적 기록을 불러올 수 없습니다</h2>
+        <h2 className="text-lg font-semibold">{t('private.errorTitle')}</h2>
         <p className="text-sm text-muted-foreground">
-          잠시 후 다시 시도해주세요.
+          {t('private.errorDesc')}
         </p>
       </div>
       <Button onClick={reset} variant="outline" size="sm">
-        다시 시도
+        {t('common.retry')}
       </Button>
     </div>
   )

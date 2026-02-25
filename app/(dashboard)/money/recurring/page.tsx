@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import {
@@ -32,6 +33,7 @@ import type { RecurringExpense, CreateRecurringInput } from '@/types/recurring'
  * - 추가/수정 Dialog + 삭제 AlertDialog
  */
 export default function RecurringPage() {
+  const t = useTranslations()
   // 폼 다이얼로그 상태
   const [isFormOpen, setIsFormOpen] = useState(false)
   const [editingExpense, setEditingExpense] = useState<RecurringExpense | undefined>(undefined)
@@ -111,7 +113,7 @@ export default function RecurringPage() {
       {/* 로딩 상태 */}
       {isLoading ? (
         <div className="flex items-center justify-center py-12">
-          <p className="text-muted-foreground text-sm">로딩 중...</p>
+          <p className="text-muted-foreground text-sm">{t('common.loading')}</p>
         </div>
       ) : (
         <>
@@ -122,10 +124,10 @@ export default function RecurringPage() {
           {expenses.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-12 text-center">
               <p className="text-muted-foreground text-sm">
-                등록된 정기 지출이 없습니다.
+                {t('money.recurring.noData')}
               </p>
               <p className="text-muted-foreground text-xs mt-1">
-                + 정기 지출 추가 버튼을 눌러 항목을 등록해보세요
+                {t('money.recurring.noDataHint')}
               </p>
             </div>
           ) : (
@@ -148,7 +150,7 @@ export default function RecurringPage() {
             onClick={handleAddClick}
           >
             <PlusIcon className="size-4" />
-            정기 지출 추가
+            {t('money.recurring.addButton')}
           </Button>
         </>
       )}
@@ -163,7 +165,7 @@ export default function RecurringPage() {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>
-              {editingExpense ? '정기 지출 수정' : '정기 지출 추가'}
+              {editingExpense ? t('money.recurring.edit') : t('money.recurring.add')}
             </DialogTitle>
           </DialogHeader>
           <RecurringForm
@@ -184,9 +186,9 @@ export default function RecurringPage() {
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>정기 지출 삭제</AlertDialogTitle>
+            <AlertDialogTitle>{t('money.recurring.deleteTitle')}</AlertDialogTitle>
             <AlertDialogDescription>
-              이 정기 지출 항목을 삭제하시겠습니까? 삭제된 항목은 복구할 수 없습니다.
+              {t('money.recurring.deleteConfirm')}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -194,14 +196,14 @@ export default function RecurringPage() {
               onClick={handleDeleteCancel}
               disabled={deleteMutation.isPending}
             >
-              취소
+              {t('common.cancel')}
             </AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDeleteConfirm}
               disabled={deleteMutation.isPending}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
-              {deleteMutation.isPending ? '삭제 중...' : '삭제'}
+              {deleteMutation.isPending ? t('private.diary.deleting') : t('common.delete')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

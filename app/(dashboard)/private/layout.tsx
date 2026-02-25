@@ -3,18 +3,12 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useState, useEffect } from 'react'
+import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Lock } from 'lucide-react'
 import { PinSetupPrompt } from '@/components/private/pin-setup-prompt'
 import { deriveKey } from '@/lib/crypto/encryption'
-
-const PRIVATE_NAV_ITEMS = [
-  { label: '대시보드', href: '/private' },
-  { label: '일기', href: '/private/diary' },
-  { label: '감정 캘린더', href: '/private/emotion' },
-  { label: '인간관계', href: '/private/relations' },
-] as const
 
 /** sessionStorage 키 상수 */
 const SESSION_KEY = 'private_pin_verified'
@@ -41,6 +35,7 @@ interface PinVerifyResponse {
 // 사적 기록 모듈 레이아웃 — PIN 잠금 게이트 포함
 export default function PrivateLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
+  const t = useTranslations()
   const [verified, setVerified] = useState(false)
   const [pinInput, setPinInput] = useState('')
   const [error, setError] = useState('')
@@ -110,11 +105,11 @@ export default function PrivateLayout({ children }: { children: React.ReactNode 
         sessionStorage.setItem(SESSION_KEY, '1')
         setVerified(true)
       } else {
-        setError((json as { error?: string }).error ?? 'PIN이 올바르지 않습니다')
+        setError((json as { error?: string }).error ?? t('errors.PIN_INVALID'))
         setPinInput('')
       }
     } catch {
-      setError('서버 오류가 발생했습니다')
+      setError(t('errors.SERVER_ERROR'))
     } finally {
       setLoading(false)
     }
@@ -145,8 +140,8 @@ export default function PrivateLayout({ children }: { children: React.ReactNode 
             </div>
           </div>
           <div>
-            <h2 className="text-xl font-semibold">사적 기록</h2>
-            <p className="text-sm text-muted-foreground mt-1">PIN을 입력하여 잠금을 해제하세요</p>
+            <h2 className="text-xl font-semibold">{t('nav.private')}</h2>
+            <p className="text-sm text-muted-foreground mt-1">{t('pin.enterPinSubtitle')}</p>
           </div>
           <form onSubmit={handleVerify} className="space-y-3">
             <Input
@@ -154,12 +149,12 @@ export default function PrivateLayout({ children }: { children: React.ReactNode 
               inputMode="numeric"
               pattern="\d{4,6}"
               maxLength={6}
-              placeholder="PIN 입력 (4~6자리)"
+              placeholder={t('private.layout.pinPlaceholder')}
               value={pinInput}
               onChange={(e) => setPinInput(e.target.value)}
               autoFocus
               className="text-center text-lg tracking-widest"
-              aria-label="PIN 입력"
+              aria-label={t('private.layout.pinPlaceholder')}
             />
             {error && (
               <p className="text-sm text-destructive" role="alert">
@@ -167,7 +162,7 @@ export default function PrivateLayout({ children }: { children: React.ReactNode 
               </p>
             )}
             <Button type="submit" className="w-full" disabled={loading || !pinInput}>
-              {loading ? '확인 중...' : '잠금 해제'}
+              {loading ? t('private.layout.verifying') : t('private.layout.unlock')}
             </Button>
           </form>
         </div>
@@ -175,12 +170,19 @@ export default function PrivateLayout({ children }: { children: React.ReactNode 
     )
   }
 
+  const navItems = [
+    { label: t('private.tabs.dashboard'), href: '/private' },
+    { label: t('private.tabs.diary'), href: '/private/diary' },
+    { label: t('private.tabs.emotion'), href: '/private/emotion' },
+    { label: t('private.tabs.relations'), href: '/private/relations' },
+  ]
+
   // PIN 인증 완료 → 콘텐츠 표시
   return (
     <div className="flex flex-col h-full w-full min-w-0">
       <div className="border-b bg-background sticky top-0 z-10">
-        <nav className="flex px-4 overflow-x-auto" aria-label="사적 기록 서브메뉴">
-          {PRIVATE_NAV_ITEMS.map(({ label, href }) => {
+        <nav className="flex px-4 overflow-x-auto" aria-label={t('nav.private')}>
+          {navItems.map(({ label, href }) => {
             const active = isActive(href)
             return (
               <Link

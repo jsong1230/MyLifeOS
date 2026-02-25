@@ -2,7 +2,7 @@
 
 import { useState, useCallback } from 'react'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
-import { useLocale } from 'next-intl'
+import { useLocale, useTranslations } from 'next-intl'
 import { useWeeklyReport, useMonthlyReport } from '@/hooks/use-reports'
 import { WeeklyReportView } from '@/components/reports/weekly-report'
 import { MonthlyReportView } from '@/components/reports/monthly-report'
@@ -46,6 +46,7 @@ type TabType = 'weekly' | 'monthly'
 
 export default function ReportsPage() {
   const locale = useLocale()
+  const t = useTranslations()
   const [activeTab, setActiveTab] = useState<TabType>('weekly')
 
   // 주간 — 현재 주 시작일 상태
@@ -93,7 +94,7 @@ export default function ReportsPage() {
 
   return (
     <div className="px-4 max-w-lg mx-auto">
-      <h1 className="text-xl font-bold mb-5">리포트</h1>
+      <h1 className="text-xl font-bold mb-5">{t('reports.title')}</h1>
 
       {/* ── 탭 전환 ── */}
       <div className="flex bg-muted rounded-lg p-1 mb-6">
@@ -107,7 +108,7 @@ export default function ReportsPage() {
           }`}
           aria-pressed={activeTab === 'weekly'}
         >
-          주간
+          {t('reports.weeklyTab')}
         </button>
         <button
           type="button"
@@ -119,7 +120,7 @@ export default function ReportsPage() {
           }`}
           aria-pressed={activeTab === 'monthly'}
         >
-          월간
+          {t('reports.monthlyTab')}
         </button>
       </div>
 
@@ -150,12 +151,12 @@ export default function ReportsPage() {
           {/* 주간 리포트 콘텐츠 */}
           {weeklyLoading && (
             <div className="py-16 text-center text-sm text-muted-foreground">
-              리포트를 불러오는 중...
+              {t('common.loading')}
             </div>
           )}
           {weeklyError && (
             <div className="py-16 text-center text-sm text-destructive">
-              리포트 로딩에 실패했습니다
+              {t('reports.loadError')}
             </div>
           )}
           {weeklyData && <WeeklyReportView report={weeklyData} />}
@@ -189,12 +190,12 @@ export default function ReportsPage() {
           {/* 월간 리포트 콘텐츠 */}
           {monthlyLoading && (
             <div className="py-16 text-center text-sm text-muted-foreground">
-              리포트를 불러오는 중...
+              {t('common.loading')}
             </div>
           )}
           {monthlyError && (
             <div className="py-16 text-center text-sm text-destructive">
-              리포트 로딩에 실패했습니다
+              {t('reports.loadError')}
             </div>
           )}
           {monthlyData && <MonthlyReportView report={monthlyData} />}

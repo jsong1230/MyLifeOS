@@ -2,12 +2,14 @@
 
 import { useState } from 'react'
 import { CheckCircle } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import { AuthForm, type AuthFormData } from '@/components/auth/auth-form'
 import { createClient } from '@/lib/supabase/client'
 import { getAuthErrorMessage } from '@/lib/validators/auth'
 import { CardContent } from '@/components/ui/card'
 
 export default function ResetPasswordPage() {
+  const t = useTranslations()
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [emailSent, setEmailSent] = useState(false)
@@ -38,11 +40,11 @@ export default function ResetPasswordPage() {
         <div className="flex justify-center">
           <CheckCircle className="h-12 w-12 text-green-500" />
         </div>
-        <h2 className="text-xl font-semibold">이메일을 확인해주세요</h2>
+        <h2 className="text-xl font-semibold">{t('auth.checkEmailTitle')}</h2>
         <p className="text-sm text-muted-foreground">
-          비밀번호 재설정 링크를 발송했습니다.
+          {t('auth.resetEmailSent')}
           <br />
-          메일함을 확인해주세요.
+          {t('auth.checkInbox')}
         </p>
       </CardContent>
     )

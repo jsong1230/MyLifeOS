@@ -3,12 +3,14 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { Mail } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import { AuthForm, type AuthFormData } from '@/components/auth/auth-form'
 import { createClient } from '@/lib/supabase/client'
 import { getAuthErrorMessage } from '@/lib/validators/auth'
 import { Button } from '@/components/ui/button'
 
 export default function SignupPage() {
+  const t = useTranslations()
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   // 회원가입 성공 시 이메일 보관 (안내 화면 전환용)
@@ -41,15 +43,14 @@ export default function SignupPage() {
         <div className="flex justify-center">
           <Mail className="h-12 w-12 text-primary" />
         </div>
-        <h2 className="text-xl font-semibold">이메일 인증을 완료해주세요</h2>
+        <h2 className="text-xl font-semibold">{t('auth.verifyEmailTitle')}</h2>
         <p className="text-sm text-muted-foreground">
-          <span className="font-medium text-foreground">{signedUpEmail}</span>으로
-          인증 이메일을 발송했습니다.
+          {t('auth.verificationSentTo', { email: signedUpEmail })}
           <br />
-          이메일의 링크를 클릭하여 계정을 활성화해주세요.
+          {t('auth.clickLinkToActivate')}
         </p>
         <Button asChild className="w-full" variant="outline">
-          <Link href="/login">로그인 페이지로 이동</Link>
+          <Link href="/login">{t('auth.goToLogin')}</Link>
         </Button>
       </div>
     )

@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import { useTranslations } from 'next-intl'
 import { createClient } from '@/lib/supabase/client'
 import { validatePassword, validateConfirmPassword, getAuthErrorMessage } from '@/lib/validators/auth'
 import { Button } from '@/components/ui/button'
@@ -12,6 +13,7 @@ import { CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/
 
 export default function UpdatePasswordPage() {
   const router = useRouter()
+  const t = useTranslations()
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -52,7 +54,7 @@ export default function UpdatePasswordPage() {
   return (
     <form onSubmit={handleSubmit} noValidate>
       <CardHeader>
-        <CardTitle className="text-xl">새 비밀번호 설정</CardTitle>
+        <CardTitle className="text-xl">{t('auth.newPasswordTitle')}</CardTitle>
       </CardHeader>
 
       <CardContent className="space-y-4">
@@ -63,7 +65,7 @@ export default function UpdatePasswordPage() {
         )}
 
         <div className="space-y-2">
-          <Label htmlFor="password">새 비밀번호</Label>
+          <Label htmlFor="password">{t('auth.newPassword')}</Label>
           <Input
             id="password"
             name="password"
@@ -76,7 +78,7 @@ export default function UpdatePasswordPage() {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="confirmPassword">새 비밀번호 확인</Label>
+          <Label htmlFor="confirmPassword">{t('auth.newPasswordConfirm')}</Label>
           <Input
             id="confirmPassword"
             name="confirmPassword"
@@ -89,13 +91,13 @@ export default function UpdatePasswordPage() {
         </div>
 
         <Button type="submit" className="w-full" disabled={isLoading}>
-          {isLoading ? '처리 중...' : '비밀번호 변경'}
+          {isLoading ? t('auth.processing') : t('auth.changePassword')}
         </Button>
       </CardContent>
 
       <CardFooter className="justify-center text-sm text-muted-foreground">
         <Link href="/login" className="text-foreground font-medium hover:underline">
-          로그인으로 돌아가기
+          {t('auth.backToLogin')}
         </Link>
       </CardFooter>
     </form>

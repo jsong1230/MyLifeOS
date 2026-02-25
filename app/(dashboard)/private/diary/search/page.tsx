@@ -2,6 +2,7 @@
 
 import { useRouter } from 'next/navigation'
 import { ArrowLeft } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button'
 import { DiarySearch } from '@/components/private/diary-search'
 
@@ -10,6 +11,7 @@ import { DiarySearch } from '@/components/private/diary-search'
 // - DiarySearch 컴포넌트 (키워드 + 감정 태그 필터)
 export default function DiarySearchPage() {
   const router = useRouter()
+  const t = useTranslations()
 
   function goBack() {
     router.push('/private/diary')
@@ -24,11 +26,11 @@ export default function DiarySearchPage() {
           variant="ghost"
           size="icon"
           onClick={goBack}
-          aria-label="일기 목록으로 돌아가기"
+          aria-label={t('common.back')}
         >
           <ArrowLeft className="h-5 w-5" />
         </Button>
-        <h1 className="text-sm font-semibold">일기 검색</h1>
+        <h1 className="text-sm font-semibold">{t('private.diary.search')}</h1>
       </div>
 
       {/* 검색 컴포넌트 */}

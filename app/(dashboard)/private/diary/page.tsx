@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { ChevronLeft, ChevronRight, PenLine, Search, Loader2 } from 'lucide-react'
+import { useTranslations, useLocale } from 'next-intl'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -25,13 +26,24 @@ import { DiaryView } from '@/components/private/diary-view'
 import { useDiary, useCreateDiary, useUpdateDiary, useDeleteDiary } from '@/hooks/use-diaries'
 import type { EmotionType } from '@/types/diary'
 
-// 날짜를 한국어 형식으로 포맷 (YYYY-MM-DD → YYYY년 M월 D일 (요일))
-function formatDateKr(dateStr: string): string {
+// 날짜를 locale 기반으로 포맷 (YYYY-MM-DD → 로케일 날짜 문자열)
+function formatDate(dateStr: string, locale: string): string {
   const date = new Date(dateStr + 'T00:00:00')
-  const days = ['일', '월', '화', '수', '목', '금', '토']
-  const day = days[date.getDay()]
   const [year, month, dayNum] = dateStr.split('-').map(Number)
-  return `${year}년 ${month}월 ${dayNum}일 (${day})`
+
+  if (locale === 'ko') {
+    const days = ['일', '월', '화', '수', '목', '금', '토']
+    const day = days[date.getDay()]
+    return `${year}년 ${month}월 ${dayNum}일 (${day})`
+  }
+
+  // 영어 포맷: e.g. "Wed, Feb 25, 2026"
+  return new Intl.DateTimeFormat('en-US', {
+    weekday: 'short',
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+  }).format(date)
 }
 
 // 날짜를 N일 앞/뒤로 이동
@@ -49,6 +61,8 @@ function getTodayStr(): string {
 // 일기 페이지 — 날짜 탐색 + 일기 표시/작성
 export default function DiaryPage() {
   const router = useRouter()
+  const t = useTranslations()
+  const locale = useLocale()
   const today = getTodayStr()
   const [currentDate, setCurrentDate] = useState(today)
   const [dialogOpen, setDialogOpen] = useState(false)
@@ -63,7 +77,7 @@ export default function DiaryPage() {
 
   // 복호화 실패한 날짜의 일기를 삭제 (손상된 암호화 데이터 초기화)
   async function handleResetEncrypted() {
-    if (!confirm('이 날짜의 일기를 삭제하시겠습니까? 복구할 수 없습니다.')) return
+    if (!confirm(t('private.diary.dateDeleteConfirm'))) return
     setIsResetting(true)
     try {
       await fetch(`/api/diaries?date=${currentDate}`, { method: 'DELETE' })
@@ -146,7 +160,7 @@ export default function DiaryPage() {
           <ChevronLeft className="h-5 w-5" />
         </Button>
 
-        <span className="text-sm font-medium">{formatDateKr(currentDate)}</span>
+        <span className="text-sm font-medium">{formatDate(currentDate, locale)}</span>
 
         {/* 우측: 다음 날짜 버튼 + 검색 버튼 */}
         <div className="flex items-center gap-1">
@@ -186,8 +200,8 @@ export default function DiaryPage() {
             {error.message.includes('복호화') && (
               <div className="space-y-2">
                 <p className="text-xs text-muted-foreground">
-                  앱 업데이트로 인해 기존 일기를 읽을 수 없습니다.<br />
-                  이 날짜의 일기를 삭제하고 다시 작성할 수 있습니다.
+                  {t('private.diary.decryptionHint')}<br />
+                  {t('private.diary.decryptionHint2')}
                 </p>
                 <Button
                   variant="destructive"
@@ -195,7 +209,7 @@ export default function DiaryPage() {
                   onClick={handleResetEncrypted}
                   disabled={isResetting}
                 >
-                  {isResetting ? '삭제 중...' : '이 날짜 일기 삭제'}
+                  {isResetting ? t('private.diary.deleting') : t('private.diary.deleteByDate')}
                 </Button>
               </div>
             )}
@@ -205,10 +219,10 @@ export default function DiaryPage() {
         {/* 일기 없음 + 작성 버튼 */}
         {!isLoading && !error && !diary && (
           <div className="flex flex-col items-center justify-center min-h-[300px] gap-4 text-center">
-            <p className="text-muted-foreground text-sm">아직 작성된 일기가 없습니다</p>
+            <p className="text-muted-foreground text-sm">{t('private.diary.noData')}</p>
             <Button onClick={openCreateDialog} className="gap-2">
               <PenLine className="h-4 w-4" />
-              일기 작성하기
+              {t('private.diary.writeEntry')}
             </Button>
           </div>
         )}
@@ -235,7 +249,7 @@ export default function DiaryPage() {
       <Dialog open={dialogOpen} onOpenChange={(open) => !isMutating && setDialogOpen(open)}>
         <DialogContent className="max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>{isEditing ? '일기 수정' : '일기 작성'}</DialogTitle>
+            <DialogTitle>{isEditing ? t('private.diary.edit') : t('private.diary.add')}</DialogTitle>
           </DialogHeader>
 
           {/* mutation 에러 표시 */}
@@ -259,19 +273,19 @@ export default function DiaryPage() {
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>일기 삭제</AlertDialogTitle>
+            <AlertDialogTitle>{t('private.diary.deleteTitle')}</AlertDialogTitle>
             <AlertDialogDescription>
-              이 일기를 삭제하면 복구할 수 없습니다. 정말 삭제하시겠습니까?
+              {t('private.diary.deleteConfirm')}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={deleteMutation.isPending}>취소</AlertDialogCancel>
+            <AlertDialogCancel disabled={deleteMutation.isPending}>{t('common.cancel')}</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDelete}
               disabled={deleteMutation.isPending}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
-              {deleteMutation.isPending ? '삭제 중...' : '삭제'}
+              {deleteMutation.isPending ? t('private.diary.deleting') : t('common.delete')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

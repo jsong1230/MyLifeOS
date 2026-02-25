@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useTranslations } from 'next-intl'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import {
   AlertDialog,
@@ -32,6 +33,7 @@ function getCurrentMonth(): string {
  * - 예산 삭제 확인 AlertDialog
  */
 export default function BudgetPage() {
+  const t = useTranslations()
   // 선택된 월 상태 (기본: 현재 월)
   const [month, setMonth] = useState<string>(getCurrentMonth)
 
@@ -100,7 +102,7 @@ export default function BudgetPage() {
       {/* 로딩 상태 */}
       {isLoading ? (
         <div className="flex items-center justify-center py-12">
-          <p className="text-muted-foreground text-sm">로딩 중...</p>
+          <p className="text-muted-foreground text-sm">{t('common.loading')}</p>
         </div>
       ) : (
         <BudgetList
@@ -118,7 +120,7 @@ export default function BudgetPage() {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>
-              {editingBudget ? '예산 수정' : '예산 추가'}
+              {editingBudget ? t('money.budget.edit') : t('money.budget.add')}
             </DialogTitle>
           </DialogHeader>
           <BudgetForm
@@ -138,21 +140,21 @@ export default function BudgetPage() {
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>예산 삭제</AlertDialogTitle>
+            <AlertDialogTitle>{t('money.budget.deleteTitle')}</AlertDialogTitle>
             <AlertDialogDescription>
-              이 예산을 삭제하시겠습니까? 삭제된 예산은 복구할 수 없습니다.
+              {t('money.budget.deleteConfirm')}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel onClick={handleDeleteCancel} disabled={deleteMutation.isPending}>
-              취소
+              {t('common.cancel')}
             </AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDeleteConfirm}
               disabled={deleteMutation.isPending}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
-              {deleteMutation.isPending ? '삭제 중...' : '삭제'}
+              {deleteMutation.isPending ? t('private.diary.deleting') : t('common.delete')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -30,6 +31,7 @@ import type { CreateRelationInput, UpdateRelationInput, RelationDecrypted } from
 
 // 인간관계 메모 페이지
 export default function RelationsPage() {
+  const t = useTranslations()
   // 폼 다이얼로그 상태
   const [isFormOpen, setIsFormOpen] = useState(false)
   const [editingRelation, setEditingRelation] = useState<RelationDecrypted | undefined>(undefined)
@@ -112,8 +114,8 @@ export default function RelationsPage() {
 
   // 삭제 대상 이름 조회 (다이얼로그 표시용)
   const deleteTargetName = deleteTargetId
-    ? (relations.find((r) => r.id === deleteTargetId)?.name ?? '이 인물')
-    : '이 인물'
+    ? (relations.find((r) => r.id === deleteTargetId)?.name ?? t('private.relations.unknown'))
+    : t('private.relations.unknown')
 
   const isMutating = createRelation.isPending || updateRelation.isPending
 
@@ -122,13 +124,13 @@ export default function RelationsPage() {
       {/* 상단 헤더 */}
       <div className="sticky top-0 z-10 bg-background border-b px-4 py-3">
         <div className="flex items-center justify-between max-w-lg mx-auto">
-          <h1 className="text-base font-semibold">인간관계 메모</h1>
+          <h1 className="text-base font-semibold">{t('private.relations.title')}</h1>
           <Button
             size="sm"
             onClick={handleOpenCreate}
             disabled={isLoading || isMutating}
           >
-            + 추가
+            {t('private.relations.addButton')}
           </Button>
         </div>
       </div>
@@ -138,7 +140,7 @@ export default function RelationsPage() {
         <div className="max-w-lg mx-auto">
           {isLoading ? (
             <div className="flex items-center justify-center py-16">
-              <p className="text-sm text-muted-foreground">불러오는 중...</p>
+              <p className="text-sm text-muted-foreground">{t('common.loading')}</p>
             </div>
           ) : (
             <RelationList
@@ -158,7 +160,7 @@ export default function RelationsPage() {
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>
-              {editingRelation ? '인물 수정' : '인물 등록'}
+              {editingRelation ? t('private.relations.edit') : t('private.relations.add')}
             </DialogTitle>
           </DialogHeader>
           <RelationForm
@@ -178,10 +180,10 @@ export default function RelationsPage() {
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>
-              {deleteTargetName}을(를) 삭제하시겠습니까?
+              {t('private.relations.deleteConfirm', { name: deleteTargetName })}
             </AlertDialogTitle>
             <AlertDialogDescription>
-              삭제된 인간관계 메모는 복구할 수 없습니다.
+              {t('private.relations.deleteWarning')}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -189,14 +191,14 @@ export default function RelationsPage() {
               onClick={handleDeleteCancel}
               disabled={deleteRelation.isPending}
             >
-              취소
+              {t('common.cancel')}
             </AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDeleteConfirm}
               disabled={deleteRelation.isPending}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
-              {deleteRelation.isPending ? '삭제 중...' : '삭제'}
+              {deleteRelation.isPending ? t('private.diary.deleting') : t('common.delete')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

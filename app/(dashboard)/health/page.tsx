@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import { useTranslations, useLocale } from 'next-intl'
 import { cn } from '@/lib/utils'
 import { useMeals } from '@/hooks/use-meals'
 import { useDrinks } from '@/hooks/use-drinks'
@@ -24,15 +25,21 @@ function getWeekStart(date: Date = new Date()): string {
   return d.toISOString().split('T')[0]
 }
 
-// 주간 레이블 포맷 (YYYY-MM-DD ~ YYYY-MM-DD → M월 D일 ~ M월 D일)
-function formatWeekLabel(weekStart: string): string {
+// 주간 레이블 포맷 (locale 기반)
+function formatWeekLabel(weekStart: string, locale: string): string {
   const start = new Date(weekStart + 'T00:00:00')
   const end = new Date(start)
   end.setDate(end.getDate() + 6)
 
-  const startLabel = `${start.getMonth() + 1}월 ${start.getDate()}일`
-  const endLabel = `${end.getMonth() + 1}월 ${end.getDate()}일`
-  return `${startLabel} ~ ${endLabel}`
+  if (locale === 'ko') {
+    const startLabel = `${start.getMonth() + 1}월 ${start.getDate()}일`
+    const endLabel = `${end.getMonth() + 1}월 ${end.getDate()}일`
+    return `${startLabel} ~ ${endLabel}`
+  }
+
+  // 영어: e.g. "Feb 19 – Feb 25"
+  const fmt = new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric' })
+  return `${fmt.format(start)} – ${fmt.format(end)}`
 }
 
 // 카드 스켈레톤 — 로딩 중 표시
@@ -69,9 +76,11 @@ function DetailLink({ href, label }: { href: string; label: string }) {
 
 // 건강 대시보드 페이지
 export default function HealthPage() {
+  const t = useTranslations()
+  const locale = useLocale()
   const today = getTodayString()
   const weekStart = getWeekStart()
-  const weekLabel = formatWeekLabel(weekStart)
+  const weekLabel = formatWeekLabel(weekStart, locale)
 
   // 네 가지 쿼리를 병렬 조회
   const mealsQuery = useMeals(today)
@@ -90,9 +99,9 @@ export default function HealthPage() {
     <div className="p-4 md:p-6 space-y-6">
       {/* 페이지 헤더 */}
       <div>
-        <h1 className="text-xl font-semibold">건강 대시보드</h1>
+        <h1 className="text-xl font-semibold">{t('health.dashboardTitle')}</h1>
         <p className="text-sm text-muted-foreground mt-1">
-          {today.replace(/-/g, '.')} 기준
+          {t('health.dashboardDateRef', { date: today.replace(/-/g, '.') })}
         </p>
       </div>
 
@@ -100,8 +109,8 @@ export default function HealthPage() {
       <div className="flex items-center justify-between">
         <p className="text-sm text-muted-foreground">
           {dietGoalQuery.data
-            ? `칼로리 목표: ${dietGoalQuery.data.calorie_goal.toLocaleString()} kcal / 일`
-            : '식단 목표가 설정되지 않았습니다'}
+            ? t('health.meals.calorieGoalDisplay', { kcal: dietGoalQuery.data.calorie_goal.toLocaleString() })
+            : t('health.meals.noGoalSet')}
         </p>
         <Link
           href="/health/diet-goal"
@@ -110,7 +119,7 @@ export default function HealthPage() {
             'border-primary text-primary hover:bg-primary hover:text-primary-foreground'
           )}
         >
-          {dietGoalQuery.data ? '목표 수정' : '목표 설정'}
+          {dietGoalQuery.data ? t('health.meals.editGoal') : t('health.meals.setGoal')}
         </Link>
       </div>
 
@@ -126,7 +135,7 @@ export default function HealthPage() {
               date={today}
             />
           )}
-          <DetailLink href="/health/meals" label="식사 기록" />
+          <DetailLink href="/health/meals" label={t('health.meals.title')} />
         </div>
 
         {/* AC-02: 이번 주 음주 카드 */}
@@ -146,7 +155,7 @@ export default function HealthPage() {
               }
             />
           )}
-          <DetailLink href="/health/drinks" label="음주 기록" />
+          <DetailLink href="/health/drinks" label={t('health.drinks.title')} />
         </div>
 
         {/* AC-03: 최근 7일 평균 수면 카드 */}
@@ -161,7 +170,7 @@ export default function HealthPage() {
               logs={sleepQuery.data?.data ?? []}
             />
           )}
-          <DetailLink href="/health/sleep" label="수면 기록" />
+          <DetailLink href="/health/sleep" label={t('health.sleep.title')} />
         </div>
       </div>
     </div>
