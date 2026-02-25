@@ -1,9 +1,9 @@
 'use client'
 
-import { useQuery } from '@tanstack/react-query'
 import Link from 'next/link'
 import { useTranslations, useLocale } from 'next-intl'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
+import { Skeleton } from '@/components/ui/skeleton'
 import { EmptyState } from '@/components/dashboard/empty-state'
 import { Wallet, ChevronRight, TrendingUp, TrendingDown } from 'lucide-react'
 import {
@@ -14,43 +14,25 @@ import {
 } from '@/lib/currency'
 import { useExchangeRates } from '@/hooks/use-exchange-rates'
 import { useSettingsStore } from '@/store/settings.store'
-import type { Transaction } from '@/types/transaction'
-
-function getCurrentMonth(): string {
-  const d = new Date()
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`
-}
+import { useDashboardSummary } from '@/hooks/use-dashboard-summary'
 
 // 금전 모듈 요약 카드 — 이번 달 통화별 수입/지출 합계
 export function MoneySummaryCard() {
-  const month = getCurrentMonth()
   const t = useTranslations('dashboard')
-  const commonT = useTranslations('common')
   const te = useTranslations('exchangeRates')
   const locale = useLocale()
-
-  // 설정에서 기본 통화 가져오기 (없으면 KRW)
   const defaultCurrency = useSettingsStore((s) => s.defaultCurrency) ?? 'KRW'
 
-  const { data: transactions, isLoading } = useQuery<Transaction[]>({
-    queryKey: ['transactions', month],
-    queryFn: async () => {
-      const res = await fetch(`/api/transactions?month=${month}`)
-      const json = await res.json() as { success: boolean; data: Transaction[]; error?: string }
-      if (!json.success) throw new Error(json.error ?? '거래 조회 실패')
-      return json.data
-    },
-  })
+  const { data, isLoading } = useDashboardSummary()
 
-  const hasData = (transactions?.length ?? 0) > 0
-  const totalsByCurrency = calcTotalsByCurrency(transactions ?? [])
+  const transactions = data?.transactions ?? []
+  const hasData = transactions.length > 0
+  const totalsByCurrency = calcTotalsByCurrency(transactions)
   const currencies = Object.keys(totalsByCurrency)
 
-  // 2개 이상 통화가 있을 때만 환율 fetch
   const hasMultipleCurrencies = currencies.length >= 2
   const { data: rates } = useExchangeRates(hasMultipleCurrencies)
 
-  // 환산 합계 계산 (2개 이상 통화 + rates 존재 시)
   const convertedTotals =
     hasMultipleCurrencies && rates
       ? convertTotalsToCurrency(totalsByCurrency, defaultCurrency as CurrencyCode, rates)
@@ -68,11 +50,15 @@ export function MoneySummaryCard() {
         </CardHeader>
         <CardContent>
           {isLoading ? (
-            <p className="text-xs text-muted-foreground">{commonT('loading')}</p>
+            <div className="space-y-2">
+              <Skeleton className="h-3 w-16" />
+              <Skeleton className="h-3 w-28" />
+              <Skeleton className="h-3 w-28" />
+              <Skeleton className="h-4 w-20" />
+            </div>
           ) : hasData ? (
             <div className="space-y-2">
               <p className="text-xs text-muted-foreground">{t('thisMonth')}</p>
-              {/* 통화별 수입/지출 표시 */}
               {currencies.map((currency) => {
                 const { income, expense } = totalsByCurrency[currency]
                 const balance = income - expense
@@ -106,7 +92,6 @@ export function MoneySummaryCard() {
                   </div>
                 )
               })}
-              {/* 환산 합계 섹션 (2개 이상 통화 + rates 있을 때) */}
               {convertedTotals && rates && (
                 <div className="border-t pt-2 mt-2 space-y-1">
                   <p className="text-xs text-muted-foreground">
@@ -132,7 +117,6 @@ export function MoneySummaryCard() {
                       </p>
                     )
                   })()}
-                  {/* 환율 정보 (USD 기준으로 표시) */}
                   {currencies
                     .filter((c) => c !== defaultCurrency)
                     .map((fromCurrency) => {

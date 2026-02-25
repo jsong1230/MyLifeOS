@@ -11,15 +11,11 @@ const VALID_EMOTION_TYPES: EmotionType[] = [
 
 // GET /api/diaries?date=YYYY-MM-DD — 특정 날짜 일기 조회
 export async function GET(request: NextRequest) {
-  const supabase = await createClient()
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser()
-
-  if (authError || !user) {
+  const userId = request.headers.get('x-user-id')
+  if (!userId) {
     return apiError('AUTH_REQUIRED')
   }
+  const supabase = await createClient()
 
   const { searchParams } = new URL(request.url)
   const date = searchParams.get('date')
@@ -37,7 +33,7 @@ export async function GET(request: NextRequest) {
   const { data, error } = await supabase
     .from('diaries')
     .select('id, user_id, date, content_encrypted, emotion_tags, created_at, updated_at')
-    .eq('user_id', user.id)
+    .eq('user_id', userId)
     .eq('date', date)
     .maybeSingle()
 
@@ -50,15 +46,11 @@ export async function GET(request: NextRequest) {
 
 // POST /api/diaries — 일기 생성
 export async function POST(request: NextRequest) {
-  const supabase = await createClient()
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser()
-
-  if (authError || !user) {
+  const userId = request.headers.get('x-user-id')
+  if (!userId) {
     return apiError('AUTH_REQUIRED')
   }
+  const supabase = await createClient()
 
   let body: { content_encrypted?: unknown; emotion_tags?: unknown; date?: unknown }
   try {
@@ -93,7 +85,7 @@ export async function POST(request: NextRequest) {
   const { data: existing } = await supabase
     .from('diaries')
     .select('id')
-    .eq('user_id', user.id)
+    .eq('user_id', userId)
     .eq('date', date)
     .maybeSingle()
 
@@ -105,7 +97,7 @@ export async function POST(request: NextRequest) {
   const { data, error } = await supabase
     .from('diaries')
     .insert({
-      user_id: user.id,
+      user_id: userId,
       date,
       content_encrypted: body.content_encrypted.trim(),
       emotion_tags: emotionTags,

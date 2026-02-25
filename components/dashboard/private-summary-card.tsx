@@ -1,33 +1,20 @@
 'use client'
 
-import { useQuery } from '@tanstack/react-query'
 import Link from 'next/link'
 import { useTranslations } from 'next-intl'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
+import { Skeleton } from '@/components/ui/skeleton'
 import { EmptyState } from '@/components/dashboard/empty-state'
 import { BookOpen, ChevronRight } from 'lucide-react'
-import { EMOTION_LABELS, EMOTION_ICONS, type DiaryEntry } from '@/types/diary'
-
-function getToday(): string {
-  const d = new Date()
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
-}
+import { EMOTION_LABELS, EMOTION_ICONS } from '@/types/diary'
+import { useDashboardSummary } from '@/hooks/use-dashboard-summary'
 
 // 사적 기록 요약 카드 — 오늘 일기 감정 태그 표시
 export function PrivateSummaryCard() {
-  const today = getToday()
   const t = useTranslations('dashboard')
-  const commonT = useTranslations('common')
+  const { data, isLoading } = useDashboardSummary()
 
-  const { data: diary, isLoading } = useQuery<DiaryEntry | null>({
-    queryKey: ['diary', today],
-    queryFn: async () => {
-      const res = await fetch(`/api/diaries?date=${today}`)
-      const json = await res.json() as { success: boolean; data: DiaryEntry | null; error?: string }
-      if (!json.success) throw new Error(json.error ?? '일기 조회 실패')
-      return json.data
-    },
-  })
+  const { hasEntry, emotionTags } = data?.diary ?? { hasEntry: false, emotionTags: [] }
 
   return (
     <Link href="/private" className="block">
@@ -41,14 +28,20 @@ export function PrivateSummaryCard() {
         </CardHeader>
         <CardContent>
           {isLoading ? (
-            <p className="text-xs text-muted-foreground">{commonT('loading')}</p>
-          ) : diary ? (
+            <div className="space-y-2">
+              <Skeleton className="h-3 w-20" />
+              <div className="flex gap-1">
+                <Skeleton className="h-5 w-14 rounded-full" />
+                <Skeleton className="h-5 w-14 rounded-full" />
+              </div>
+            </div>
+          ) : hasEntry ? (
             <div className="space-y-2">
               <p className="text-xs text-muted-foreground">{t('diaryWritten')}</p>
               <div className="flex flex-wrap gap-1">
-                {diary.emotion_tags.slice(0, 3).map((tag) => (
+                {emotionTags.slice(0, 3).map((tag) => (
                   <span key={tag} className="text-xs bg-muted px-2 py-0.5 rounded-full">
-                    {EMOTION_ICONS[tag]} {EMOTION_LABELS[tag]}
+                    {EMOTION_ICONS[tag as keyof typeof EMOTION_ICONS]} {EMOTION_LABELS[tag as keyof typeof EMOTION_LABELS]}
                   </span>
                 ))}
               </div>

@@ -7,11 +7,11 @@ const VALID_INTENSITIES = ['light', 'moderate', 'intense'] as const
 
 // GET /api/health/exercise?week_start=YYYY-MM-DD → 주간 운동 기록
 export async function GET(request: NextRequest) {
-  const supabase = await createClient()
-  const { data: { user }, error: authError } = await supabase.auth.getUser()
-  if (authError || !user) {
+  const userId = request.headers.get('x-user-id')
+  if (!userId) {
     return apiError('AUTH_REQUIRED')
   }
+  const supabase = await createClient()
 
   const { searchParams } = new URL(request.url)
   const weekStart = searchParams.get('week_start')
@@ -19,7 +19,7 @@ export async function GET(request: NextRequest) {
   let query = supabase
     .from('exercise_logs')
     .select('*')
-    .eq('user_id', user.id)
+    .eq('user_id', userId)
     .order('date', { ascending: false })
 
   if (weekStart) {
@@ -42,11 +42,11 @@ export async function GET(request: NextRequest) {
 
 // POST /api/health/exercise → 운동 기록 추가
 export async function POST(request: NextRequest) {
-  const supabase = await createClient()
-  const { data: { user }, error: authError } = await supabase.auth.getUser()
-  if (authError || !user) {
+  const userId = request.headers.get('x-user-id')
+  if (!userId) {
     return apiError('AUTH_REQUIRED')
   }
+  const supabase = await createClient()
 
   let body: CreateExerciseInput
   try {
@@ -68,7 +68,7 @@ export async function POST(request: NextRequest) {
   const { data, error } = await supabase
     .from('exercise_logs')
     .insert({
-      user_id: user.id,
+      user_id: userId,
       exercise_type: body.exercise_type.trim(),
       duration_min: body.duration_min,
       intensity: body.intensity,

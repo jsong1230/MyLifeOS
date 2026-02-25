@@ -6,15 +6,11 @@ import type { CreateTodoInput, Todo } from '@/types/todo'
 // GET /api/todos — 할일 목록 조회
 // 쿼리 파라미터: date (YYYY-MM-DD) 또는 month (YYYY-MM) 지원, 없으면 전체
 export async function GET(request: NextRequest) {
-  const supabase = await createClient()
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser()
-
-  if (authError || !user) {
+  const userId = request.headers.get('x-user-id')
+  if (!userId) {
     return apiError('AUTH_REQUIRED')
   }
+  const supabase = await createClient()
 
   const { searchParams } = new URL(request.url)
   const date = searchParams.get('date')
@@ -25,7 +21,7 @@ export async function GET(request: NextRequest) {
     .select(
       'id, user_id, title, description, due_date, priority, status, category, sort_order, completed_at, created_at, updated_at'
     )
-    .eq('user_id', user.id)
+    .eq('user_id', userId)
     .order('sort_order', { ascending: true })
 
   // 날짜 필터 적용
@@ -53,15 +49,11 @@ export async function GET(request: NextRequest) {
 
 // POST /api/todos — 할일 생성
 export async function POST(request: NextRequest) {
-  const supabase = await createClient()
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser()
-
-  if (authError || !user) {
+  const userId = request.headers.get('x-user-id')
+  if (!userId) {
     return apiError('AUTH_REQUIRED')
   }
+  const supabase = await createClient()
 
   let body: CreateTodoInput
   try {
@@ -84,7 +76,7 @@ export async function POST(request: NextRequest) {
   const { data: maxOrderData } = await supabase
     .from('todos')
     .select('sort_order')
-    .eq('user_id', user.id)
+    .eq('user_id', userId)
     .order('sort_order', { ascending: false })
     .limit(1)
     .maybeSingle()
@@ -92,7 +84,7 @@ export async function POST(request: NextRequest) {
   const nextSortOrder = maxOrderData ? maxOrderData.sort_order + 1 : 0
 
   const insertData = {
-    user_id: user.id,
+    user_id: userId,
     title: body.title.trim(),
     description: body.description ?? null,
     due_date: body.due_date ?? null,

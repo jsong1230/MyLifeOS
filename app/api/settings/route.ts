@@ -5,21 +5,17 @@ import { createClient } from '@/lib/supabase/server'
 import type { UpdateSettingsInput } from '@/types/settings'
 
 // GET /api/settings — 사용자 설정 조회
-export async function GET() {
-  const supabase = await createClient()
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser()
-
-  if (authError || !user) {
+export async function GET(request: NextRequest) {
+  const userId = request.headers.get('x-user-id')
+  if (!userId) {
     return apiError('AUTH_REQUIRED')
   }
+  const supabase = await createClient()
 
   const { data, error } = await supabase
     .from('user_settings')
     .select('*')
-    .eq('user_id', user.id)
+    .eq('user_id', userId)
     .single()
 
   if (error && error.code !== 'PGRST116') {
@@ -33,15 +29,11 @@ export async function GET() {
 
 // PATCH /api/settings — 사용자 설정 업데이트
 export async function PATCH(request: NextRequest) {
-  const supabase = await createClient()
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser()
-
-  if (authError || !user) {
+  const userId = request.headers.get('x-user-id')
+  if (!userId) {
     return apiError('AUTH_REQUIRED')
   }
+  const supabase = await createClient()
 
   let body: UpdateSettingsInput
   try {
@@ -67,7 +59,7 @@ export async function PATCH(request: NextRequest) {
   const { data, error } = await supabase
     .from('user_settings')
     .upsert(
-      { user_id: user.id, ...updateData },
+      { user_id: userId, ...updateData },
       { onConflict: 'user_id' }
     )
     .select()

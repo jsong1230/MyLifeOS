@@ -11,15 +11,11 @@ export async function PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const supabase = await createClient()
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser()
-
-  if (authError || !user) {
+  const userId = request.headers.get('x-user-id')
+  if (!userId) {
     return apiError('AUTH_REQUIRED')
   }
+  const supabase = await createClient()
 
   const { id } = await params
 
@@ -44,7 +40,7 @@ export async function PATCH(
   }
 
   // 본인 소유 확인
-  if (existing.user_id !== user.id) {
+  if (existing.user_id !== userId) {
     return apiError('NOT_FOUND')
   }
 
@@ -93,7 +89,7 @@ export async function PATCH(
     .from('categories')
     .update(updateData)
     .eq('id', id)
-    .eq('user_id', user.id)
+    .eq('user_id', userId)
     .select('id, user_id, name, icon, color, type, is_system, sort_order, created_at')
     .maybeSingle()
 
@@ -110,15 +106,11 @@ export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const supabase = await createClient()
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser()
-
-  if (authError || !user) {
+  const userId = request.headers.get('x-user-id')
+  if (!userId) {
     return apiError('AUTH_REQUIRED')
   }
+  const supabase = await createClient()
 
   const { id } = await params
 
@@ -143,7 +135,7 @@ export async function DELETE(
   }
 
   // 본인 소유 확인
-  if (existing.user_id !== user.id) {
+  if (existing.user_id !== userId) {
     return apiError('NOT_FOUND')
   }
 
@@ -152,7 +144,7 @@ export async function DELETE(
     .from('transactions')
     .select('id', { count: 'exact', head: true })
     .eq('category_id', id)
-    .eq('user_id', user.id)
+    .eq('user_id', userId)
 
   if (countError) {
     // transactions 테이블이 아직 없는 경우 무시하고 진행
@@ -170,7 +162,7 @@ export async function DELETE(
     .from('categories')
     .delete()
     .eq('id', id)
-    .eq('user_id', user.id)
+    .eq('user_id', userId)
 
   if (error) {
     return apiError('SERVER_ERROR')

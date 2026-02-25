@@ -9,15 +9,11 @@ interface ReorderRequestBody {
 
 // POST /api/todos/reorder — 할일 순서 일괄 변경
 export async function POST(request: NextRequest) {
-  const supabase = await createClient()
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser()
-
-  if (authError || !user) {
+  const userId = request.headers.get('x-user-id')
+  if (!userId) {
     return apiError('AUTH_REQUIRED')
   }
+  const supabase = await createClient()
 
   let body: ReorderRequestBody
   try {
@@ -42,7 +38,7 @@ export async function POST(request: NextRequest) {
   const { data: existingItems } = await supabase
     .from('todos')
     .select('id')
-    .eq('user_id', user.id)
+    .eq('user_id', userId)
     .in('id', ids)
 
   if (!existingItems || existingItems.length !== ids.length) {
@@ -55,7 +51,7 @@ export async function POST(request: NextRequest) {
       .from('todos')
       .update({ sort_order: item.sort_order, updated_at: new Date().toISOString() })
       .eq('id', item.id)
-      .eq('user_id', user.id)
+      .eq('user_id', userId)
   )
 
   const results = await Promise.all(updatePromises)

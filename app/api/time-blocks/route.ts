@@ -5,15 +5,11 @@ import type { CreateTimeBlockInput, TimeBlock } from '@/types/time-block'
 
 // GET /api/time-blocks?date=YYYY-MM-DD — 특정 날짜의 시간 블록 목록 조회
 export async function GET(request: NextRequest) {
-  const supabase = await createClient()
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser()
-
-  if (authError || !user) {
+  const userId = request.headers.get('x-user-id')
+  if (!userId) {
     return apiError('AUTH_REQUIRED')
   }
+  const supabase = await createClient()
 
   const { searchParams } = new URL(request.url)
   const date = searchParams.get('date')
@@ -26,7 +22,7 @@ export async function GET(request: NextRequest) {
   const { data, error } = await supabase
     .from('time_blocks')
     .select('id, user_id, title, date, start_time, end_time, color, todo_id, created_at, updated_at')
-    .eq('user_id', user.id)
+    .eq('user_id', userId)
     .eq('date', date)
     .order('start_time', { ascending: true })
 
@@ -39,15 +35,11 @@ export async function GET(request: NextRequest) {
 
 // POST /api/time-blocks — 시간 블록 생성
 export async function POST(request: NextRequest) {
-  const supabase = await createClient()
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser()
-
-  if (authError || !user) {
+  const userId = request.headers.get('x-user-id')
+  if (!userId) {
     return apiError('AUTH_REQUIRED')
   }
+  const supabase = await createClient()
 
   let body: CreateTimeBlockInput
   try {
@@ -80,7 +72,7 @@ export async function POST(request: NextRequest) {
   const today = new Date().toISOString().split('T')[0]
 
   const insertData = {
-    user_id: user.id,
+    user_id: userId,
     title: body.title.trim(),
     date: body.date ?? today,
     start_time: body.start_time,

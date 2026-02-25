@@ -1,36 +1,19 @@
 'use client'
 
-import { useQuery } from '@tanstack/react-query'
 import Link from 'next/link'
 import { useTranslations } from 'next-intl'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
+import { Skeleton } from '@/components/ui/skeleton'
 import { EmptyState } from '@/components/dashboard/empty-state'
 import { Clock, ListTodo, ChevronRight } from 'lucide-react'
-import type { Todo } from '@/types/todo'
-
-function getToday(): string {
-  const d = new Date()
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
-}
+import { useDashboardSummary } from '@/hooks/use-dashboard-summary'
 
 // 시간 모듈 요약 카드 — 오늘 할일 현황
 export function TimeSummaryCard() {
-  const today = getToday()
   const t = useTranslations('dashboard')
-  const commonT = useTranslations('common')
+  const { data, isLoading } = useDashboardSummary()
 
-  const { data: todos, isLoading } = useQuery<Todo[]>({
-    queryKey: ['todos', 'today', today],
-    queryFn: async () => {
-      const res = await fetch(`/api/todos?date=${today}`)
-      const json = await res.json() as { success: boolean; data: Todo[]; error?: string }
-      if (!json.success) throw new Error(json.error ?? '할일 조회 실패')
-      return json.data
-    },
-  })
-
-  const total = todos?.length ?? 0
-  const completed = todos?.filter((t) => t.status === 'completed').length ?? 0
+  const { total, completed } = data?.todos ?? { total: 0, completed: 0 }
   const pending = total - completed
 
   return (
@@ -45,7 +28,11 @@ export function TimeSummaryCard() {
         </CardHeader>
         <CardContent>
           {isLoading ? (
-            <p className="text-xs text-muted-foreground">{commonT('loading')}</p>
+            <div className="space-y-2">
+              <Skeleton className="h-3 w-24" />
+              <Skeleton className="h-1.5 w-full" />
+              <Skeleton className="h-3 w-20" />
+            </div>
           ) : total > 0 ? (
             <div className="space-y-2">
               <div className="flex items-center justify-between">

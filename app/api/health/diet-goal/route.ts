@@ -4,21 +4,17 @@ import { createClient } from '@/lib/supabase/server'
 import type { DietGoal, UpsertDietGoalInput } from '@/types/diet-goal'
 
 // GET /api/health/diet-goal — 내 식단 목표 조회 (없으면 null 반환)
-export async function GET() {
-  const supabase = await createClient()
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser()
-
-  if (authError || !user) {
+export async function GET(request: NextRequest) {
+  const userId = request.headers.get('x-user-id')
+  if (!userId) {
     return apiError('AUTH_REQUIRED')
   }
+  const supabase = await createClient()
 
   const { data, error } = await supabase
     .from('diet_goals')
     .select('id, user_id, calorie_goal, protein_goal, carbs_goal, fat_goal, created_at, updated_at')
-    .eq('user_id', user.id)
+    .eq('user_id', userId)
     .maybeSingle()
 
   if (error) {
@@ -30,15 +26,11 @@ export async function GET() {
 
 // POST /api/health/diet-goal — 식단 목표 upsert (user_id 기준)
 export async function POST(request: NextRequest) {
-  const supabase = await createClient()
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser()
-
-  if (authError || !user) {
+  const userId = request.headers.get('x-user-id')
+  if (!userId) {
     return apiError('AUTH_REQUIRED')
   }
+  const supabase = await createClient()
 
   let body: UpsertDietGoalInput
   try {
@@ -69,7 +61,7 @@ export async function POST(request: NextRequest) {
   }
 
   const upsertData = {
-    user_id: user.id,
+    user_id: userId,
     calorie_goal: Math.round(body.calorie_goal),
     protein_goal: body.protein_goal ?? null,
     carbs_goal: body.carbs_goal ?? null,

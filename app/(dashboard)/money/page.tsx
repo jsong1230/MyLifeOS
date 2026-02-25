@@ -1,14 +1,12 @@
 'use client'
 
 import { useState } from 'react'
+import dynamic from 'next/dynamic'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
 import { SummaryCards } from '@/components/money/summary-cards'
-import { ExpensePieChart } from '@/components/money/expense-pie-chart'
-import { ExpenseBarChart } from '@/components/money/expense-bar-chart'
-import { MonthlyTrendChart } from '@/components/money/monthly-trend-chart'
 import { useTransactions } from '@/hooks/use-transactions'
 import { useBudgets } from '@/hooks/use-budgets'
 import { useMonthlyStats } from '@/hooks/use-assets'
@@ -49,6 +47,20 @@ function SkeletonCard({ className }: { className?: string }) {
     />
   )
 }
+
+// 차트 컴포넌트 — 초기 번들에서 분리하여 지연 로드
+const ExpensePieChart = dynamic(
+  () => import('@/components/money/expense-pie-chart').then((m) => ({ default: m.ExpensePieChart })),
+  { ssr: false, loading: () => <SkeletonCard className="h-64" /> }
+)
+const ExpenseBarChart = dynamic(
+  () => import('@/components/money/expense-bar-chart').then((m) => ({ default: m.ExpenseBarChart })),
+  { ssr: false, loading: () => <SkeletonCard className="h-64" /> }
+)
+const MonthlyTrendChart = dynamic(
+  () => import('@/components/money/monthly-trend-chart').then((m) => ({ default: m.MonthlyTrendChart })),
+  { ssr: false, loading: () => <SkeletonCard className="h-64" /> }
+)
 
 // 금전 관리 대시보드 페이지 — 수입/지출 요약, 파이차트, 바차트
 export default function MoneyPage() {

@@ -25,15 +25,11 @@ export interface RoutineStatsResponse {
  *   - month: YYYY-MM → 해당 월 통계
  */
 export async function GET(request: NextRequest) {
-  const supabase = await createClient()
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser()
-
-  if (authError || !user) {
+  const userId = request.headers.get('x-user-id')
+  if (!userId) {
     return apiError('AUTH_REQUIRED')
   }
+  const supabase = await createClient()
 
   const { searchParams } = new URL(request.url)
   const week = searchParams.get('week')
@@ -66,7 +62,7 @@ export async function GET(request: NextRequest) {
   const { data: routines, error: routinesError } = await supabase
     .from('routines')
     .select('id, title, is_active')
-    .eq('user_id', user.id)
+    .eq('user_id', userId)
     .eq('is_active', true)
 
   if (routinesError) {
@@ -89,7 +85,7 @@ export async function GET(request: NextRequest) {
   const { data: logs, error: logsError } = await supabase
     .from('routine_logs')
     .select('routine_id, completed, date')
-    .eq('user_id', user.id)
+    .eq('user_id', userId)
     .gte('date', startDate)
     .lte('date', endDate)
 

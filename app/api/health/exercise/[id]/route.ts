@@ -6,11 +6,11 @@ import type { ExerciseLog, UpdateExerciseInput } from '@/types/health'
 // PATCH /api/health/exercise/[id]
 export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
-  const supabase = await createClient()
-  const { data: { user }, error: authError } = await supabase.auth.getUser()
-  if (authError || !user) {
+  const userId = request.headers.get('x-user-id')
+  if (!userId) {
     return apiError('AUTH_REQUIRED')
   }
+  const supabase = await createClient()
 
   let body: UpdateExerciseInput
   try {
@@ -31,7 +31,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     .from('exercise_logs')
     .update(updateData)
     .eq('id', id)
-    .eq('user_id', user.id)
+    .eq('user_id', userId)
     .select('*')
     .single()
 
@@ -48,17 +48,17 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
 // DELETE /api/health/exercise/[id]
 export async function DELETE(_request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
-  const supabase = await createClient()
-  const { data: { user }, error: authError } = await supabase.auth.getUser()
-  if (authError || !user) {
+  const userId = _request.headers.get('x-user-id')
+  if (!userId) {
     return apiError('AUTH_REQUIRED')
   }
+  const supabase = await createClient()
 
   const { error } = await supabase
     .from('exercise_logs')
     .delete()
     .eq('id', id)
-    .eq('user_id', user.id)
+    .eq('user_id', userId)
 
   if (error) {
     return apiError('SERVER_ERROR')

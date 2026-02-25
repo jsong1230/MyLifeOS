@@ -31,15 +31,11 @@ function round1(n: number): number {
 // GET /api/reports/weekly?week=YYYY-MM-DD
 // week 파라미터: 주 시작 월요일 날짜. 생략 시 이번 주 월요일.
 export async function GET(request: NextRequest) {
-  const supabase = await createClient()
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser()
-
-  if (authError || !user) {
+  const userId = request.headers.get('x-user-id')
+  if (!userId) {
     return apiError('AUTH_REQUIRED')
   }
+  const supabase = await createClient()
 
   const { searchParams } = new URL(request.url)
   const weekParam = searchParams.get('week')
@@ -59,7 +55,7 @@ export async function GET(request: NextRequest) {
   const { data: todosData, error: todosError } = await supabase
     .from('todos')
     .select('id, status')
-    .eq('user_id', user.id)
+    .eq('user_id', userId)
     .gte('due_date', weekStart)
     .lte('due_date', weekEnd)
 
@@ -75,7 +71,7 @@ export async function GET(request: NextRequest) {
   const { data: transactionsData, error: transactionsError } = await supabase
     .from('transactions')
     .select('amount, type')
-    .eq('user_id', user.id)
+    .eq('user_id', userId)
     .gte('date', weekStart)
     .lte('date', weekEnd)
 
@@ -96,7 +92,7 @@ export async function GET(request: NextRequest) {
   const { data: sleepData, error: sleepError } = await supabase
     .from('health_logs')
     .select('value')
-    .eq('user_id', user.id)
+    .eq('user_id', userId)
     .eq('log_type', 'sleep')
     .gte('date', weekStart)
     .lte('date', weekEnd)
@@ -116,7 +112,7 @@ export async function GET(request: NextRequest) {
   const { data: drinkData, error: drinkError } = await supabase
     .from('drink_logs')
     .select('date')
-    .eq('user_id', user.id)
+    .eq('user_id', userId)
     .gte('date', weekStart)
     .lte('date', weekEnd)
 
@@ -132,7 +128,7 @@ export async function GET(request: NextRequest) {
   const { data: diariesData, error: diariesError } = await supabase
     .from('diaries')
     .select('emotion_tags')
-    .eq('user_id', user.id)
+    .eq('user_id', userId)
     .gte('date', weekStart)
     .lte('date', weekEnd)
 

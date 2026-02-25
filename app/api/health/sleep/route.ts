@@ -35,15 +35,11 @@ function getWeekStart(refDate?: string): string {
 //   week=YYYY-MM-DD  (주 시작일, 기본값: 이번 주 월요일)
 //   date=YYYY-MM-DD  (특정 날짜 단일 조회)
 export async function GET(request: NextRequest) {
-  const supabase = await createClient()
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser()
-
-  if (authError || !user) {
+  const userId = request.headers.get('x-user-id')
+  if (!userId) {
     return apiError('AUTH_REQUIRED')
   }
+  const supabase = await createClient()
 
   const { searchParams } = new URL(request.url)
   const rawWeek = searchParams.get('week')
@@ -60,7 +56,7 @@ export async function GET(request: NextRequest) {
       .select(
         'id, user_id, value, value2, date, time_start, time_end, note, created_at, updated_at'
       )
-      .eq('user_id', user.id)
+      .eq('user_id', userId)
       .eq('log_type', 'sleep')
       .eq('date', rawDate)
       .order('created_at', { ascending: true })
@@ -88,7 +84,7 @@ export async function GET(request: NextRequest) {
     .select(
       'id, user_id, value, value2, date, time_start, time_end, note, created_at, updated_at'
     )
-    .eq('user_id', user.id)
+    .eq('user_id', userId)
     .eq('log_type', 'sleep')
     .gte('date', weekStart)
     .lte('date', weekEnd)
@@ -129,15 +125,11 @@ export async function GET(request: NextRequest) {
 
 // POST /api/health/sleep — 수면 기록 생성
 export async function POST(request: NextRequest) {
-  const supabase = await createClient()
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser()
-
-  if (authError || !user) {
+  const userId = request.headers.get('x-user-id')
+  if (!userId) {
     return apiError('AUTH_REQUIRED')
   }
+  const supabase = await createClient()
 
   let body: CreateSleepInput
   try {
@@ -172,7 +164,7 @@ export async function POST(request: NextRequest) {
   const sleepHours = calcSleepHours(body.time_start, body.time_end)
 
   const insertData = {
-    user_id: user.id,
+    user_id: userId,
     log_type: 'sleep',
     value: sleepHours,
     value2: body.value2 ?? null,

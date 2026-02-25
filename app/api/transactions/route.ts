@@ -6,15 +6,11 @@ import type { CreateTransactionInput, Transaction } from '@/types/transaction'
 // GET /api/transactions — 거래 목록 조회
 // 쿼리 파라미터: month (YYYY-MM), type (income/expense), category_id, is_favorite (true)
 export async function GET(request: NextRequest) {
-  const supabase = await createClient()
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser()
-
-  if (authError || !user) {
+  const userId = request.headers.get('x-user-id')
+  if (!userId) {
     return apiError('AUTH_REQUIRED')
   }
+  const supabase = await createClient()
 
   const { searchParams } = new URL(request.url)
   const month = searchParams.get('month')
@@ -28,7 +24,7 @@ export async function GET(request: NextRequest) {
     .select(
       'id, user_id, amount, type, category_id, memo, date, is_favorite, currency, created_at, updated_at, category:categories(id, name, icon, color, type)'
     )
-    .eq('user_id', user.id)
+    .eq('user_id', userId)
     .order('date', { ascending: false })
     .order('created_at', { ascending: false })
 
@@ -67,15 +63,11 @@ export async function GET(request: NextRequest) {
 
 // POST /api/transactions — 거래 생성
 export async function POST(request: NextRequest) {
-  const supabase = await createClient()
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser()
-
-  if (authError || !user) {
+  const userId = request.headers.get('x-user-id')
+  if (!userId) {
     return apiError('AUTH_REQUIRED')
   }
+  const supabase = await createClient()
 
   let body: CreateTransactionInput
   try {
@@ -99,7 +91,7 @@ export async function POST(request: NextRequest) {
   }
 
   const insertData = {
-    user_id: user.id,
+    user_id: userId,
     amount: body.amount,
     type: body.type,
     category_id: body.category_id ?? null,

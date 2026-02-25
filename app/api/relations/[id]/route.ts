@@ -18,15 +18,11 @@ export async function PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const supabase = await createClient()
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser()
-
-  if (authError || !user) {
+  const userId = request.headers.get('x-user-id')
+  if (!userId) {
     return apiError('AUTH_REQUIRED')
   }
+  const supabase = await createClient()
 
   const { id } = await params
 
@@ -67,7 +63,7 @@ export async function PATCH(
     .from('relations')
     .select('id')
     .eq('id', id)
-    .eq('user_id', user.id)
+    .eq('user_id', userId)
     .maybeSingle()
 
   if (!existing) {
@@ -96,7 +92,7 @@ export async function PATCH(
     .from('relations')
     .update(updateData)
     .eq('id', id)
-    .eq('user_id', user.id)
+    .eq('user_id', userId)
     .select('id, user_id, name, relationship_type, last_met_at, memo_encrypted, created_at, updated_at')
     .maybeSingle()
 
@@ -112,15 +108,11 @@ export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const supabase = await createClient()
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser()
-
-  if (authError || !user) {
+  const userId = request.headers.get('x-user-id')
+  if (!userId) {
     return apiError('AUTH_REQUIRED')
   }
+  const supabase = await createClient()
 
   const { id } = await params
 
@@ -133,7 +125,7 @@ export async function DELETE(
     .from('relations')
     .select('id')
     .eq('id', id)
-    .eq('user_id', user.id)
+    .eq('user_id', userId)
     .maybeSingle()
 
   if (!existing) {
@@ -144,7 +136,7 @@ export async function DELETE(
     .from('relations')
     .delete()
     .eq('id', id)
-    .eq('user_id', user.id)
+    .eq('user_id', userId)
 
   if (error) {
     return apiError('SERVER_ERROR')

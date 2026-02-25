@@ -5,7 +5,13 @@ import { ChevronLeft, ChevronRight, ArrowLeft, Loader2 } from 'lucide-react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { EmotionTop3 } from '@/components/private/emotion-top3'
-import { EmotionPieChart } from '@/components/private/emotion-pie-chart'
+import dynamic from 'next/dynamic'
+import { Skeleton } from '@/components/ui/skeleton'
+
+const EmotionPieChart = dynamic(
+  () => import('@/components/private/emotion-pie-chart').then((m) => ({ default: m.EmotionPieChart })),
+  { ssr: false, loading: () => <Skeleton className="h-48 rounded-xl" /> }
+)
 import { EmotionHeatmap } from '@/components/private/emotion-heatmap'
 import { useEmotionStats } from '@/hooks/use-emotion-stats'
 

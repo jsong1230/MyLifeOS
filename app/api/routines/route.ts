@@ -54,16 +54,11 @@ function isRoutineScheduledToday(
  */
 export async function GET(request: NextRequest) {
   try {
-    const supabase = await createClient()
-
-    // 인증 확인
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser()
-    if (authError || !user) {
+    const userId = request.headers.get('x-user-id')
+    if (!userId) {
       return apiError('AUTH_REQUIRED')
     }
+    const supabase = await createClient()
 
     // date 파라미터 처리 (기본값: 오늘)
     const { searchParams } = new URL(request.url)
@@ -88,7 +83,7 @@ export async function GET(request: NextRequest) {
       .select(
         'id, user_id, title, description, frequency, days_of_week, interval_days, time_of_day, streak, is_active, created_at, updated_at'
       )
-      .eq('user_id', user.id)
+      .eq('user_id', userId)
       .order('created_at', { ascending: true })
 
     if (routinesError) {
@@ -106,7 +101,7 @@ export async function GET(request: NextRequest) {
       .select(
         'id, routine_id, user_id, date, completed, completed_at, created_at'
       )
-      .eq('user_id', user.id)
+      .eq('user_id', userId)
       .eq('date', dateString)
       .in('routine_id', routineIds)
 
@@ -147,16 +142,11 @@ export async function GET(request: NextRequest) {
  */
 export async function POST(request: NextRequest) {
   try {
-    const supabase = await createClient()
-
-    // 인증 확인
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser()
-    if (authError || !user) {
+    const userId = request.headers.get('x-user-id')
+    if (!userId) {
       return apiError('AUTH_REQUIRED')
     }
+    const supabase = await createClient()
 
     const body = (await request.json()) as CreateRoutineInput
 
@@ -191,7 +181,7 @@ export async function POST(request: NextRequest) {
     const { data: routine, error: insertError } = await supabase
       .from('routines')
       .insert({
-        user_id: user.id,
+        user_id: userId,
         title: body.title.trim(),
         description: body.description ?? null,
         frequency: body.frequency,

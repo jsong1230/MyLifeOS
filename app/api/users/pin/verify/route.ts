@@ -1,7 +1,6 @@
 import { NextResponse, type NextRequest } from 'next/server'
 import { apiError } from '@/lib/api-errors'
 import bcrypt from 'bcryptjs'
-import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 
 const MAX_ATTEMPTS = 5
@@ -15,11 +14,8 @@ const LOCK_DURATION_MS = 10 * 60 * 1000 // 10분
  */
 export async function POST(request: NextRequest) {
   try {
-    const supabase = await createClient()
-
-    // JWT 인증 확인
-    const { data: { user }, error: authError } = await supabase.auth.getUser()
-    if (authError || !user) {
+    const userId = request.headers.get('x-user-id')
+    if (!userId) {
       return apiError('AUTH_REQUIRED')
     }
 
@@ -35,7 +31,7 @@ export async function POST(request: NextRequest) {
     const { data: userData, error: fetchError } = await adminClient
       .from('users')
       .select('pin_hash, pin_salt, pin_failed_count, pin_locked_until')
-      .eq('id', user.id)
+      .eq('id', userId)
       .maybeSingle()
 
     if (fetchError) {
@@ -63,7 +59,7 @@ export async function POST(request: NextRequest) {
         await adminClient
           .from('users')
           .update({ pin_failed_count: 0, pin_locked_until: null })
-          .eq('id', user.id)
+          .eq('id', userId)
         pin_failed_count = 0
       }
     }
@@ -76,7 +72,7 @@ export async function POST(request: NextRequest) {
       await adminClient
         .from('users')
         .update({ pin_failed_count: 0, pin_locked_until: null })
-        .eq('id', user.id)
+        .eq('id', userId)
 
       return NextResponse.json({
         success: true,
@@ -93,7 +89,7 @@ export async function POST(request: NextRequest) {
       await adminClient
         .from('users')
         .update({ pin_failed_count: newCount, pin_locked_until: lockedUntil.toISOString() })
-        .eq('id', user.id)
+        .eq('id', userId)
 
       return apiError('LOCKED', {
         lockedUntil: lockedUntil.getTime(),
@@ -105,7 +101,7 @@ export async function POST(request: NextRequest) {
     await adminClient
       .from('users')
       .update({ pin_failed_count: newCount })
-      .eq('id', user.id)
+      .eq('id', userId)
 
     return NextResponse.json({
       success: false,

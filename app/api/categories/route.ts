@@ -8,15 +8,11 @@ const VALID_TYPES: CategoryType[] = ['income', 'expense', 'both']
 // GET /api/categories — 카테고리 목록 조회 (시스템 + 사용자 카테고리)
 // 쿼리 파라미터: type=expense|income|both (미지정 시 전체)
 export async function GET(request: NextRequest) {
-  const supabase = await createClient()
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser()
-
-  if (authError || !user) {
+  const userId = request.headers.get('x-user-id')
+  if (!userId) {
     return apiError('AUTH_REQUIRED')
   }
+  const supabase = await createClient()
 
   const { searchParams } = new URL(request.url)
   const typeParam = searchParams.get('type') as CategoryType | null
@@ -30,7 +26,7 @@ export async function GET(request: NextRequest) {
   let query = supabase
     .from('categories')
     .select('id, user_id, name, icon, color, type, is_system, sort_order, created_at')
-    .or(`is_system.eq.true,user_id.eq.${user.id}`)
+    .or(`is_system.eq.true,user_id.eq.${userId}`)
     .order('sort_order', { ascending: true })
 
   // type 필터 적용
@@ -58,15 +54,11 @@ export async function GET(request: NextRequest) {
 
 // POST /api/categories — 커스텀 카테고리 생성
 export async function POST(request: NextRequest) {
-  const supabase = await createClient()
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser()
-
-  if (authError || !user) {
+  const userId = request.headers.get('x-user-id')
+  if (!userId) {
     return apiError('AUTH_REQUIRED')
   }
+  const supabase = await createClient()
 
   let body: CreateCategoryInput
   try {
@@ -94,7 +86,7 @@ export async function POST(request: NextRequest) {
   const { data: maxOrderData } = await supabase
     .from('categories')
     .select('sort_order')
-    .eq('user_id', user.id)
+    .eq('user_id', userId)
     .order('sort_order', { ascending: false })
     .limit(1)
     .maybeSingle()
@@ -102,7 +94,7 @@ export async function POST(request: NextRequest) {
   const nextSortOrder = maxOrderData ? maxOrderData.sort_order + 10 : 100
 
   const insertData = {
-    user_id: user.id,
+    user_id: userId,
     name: body.name.trim(),
     icon: body.icon ?? null,
     color: body.color ?? null,

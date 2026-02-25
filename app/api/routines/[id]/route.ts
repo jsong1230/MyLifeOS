@@ -12,16 +12,11 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const supabase = await createClient()
-
-    // 인증 확인
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser()
-    if (authError || !user) {
+    const userId = request.headers.get('x-user-id')
+    if (!userId) {
       return apiError('AUTH_REQUIRED')
     }
+    const supabase = await createClient()
 
     const { id } = await params
 
@@ -34,7 +29,7 @@ export async function PATCH(
       .from('routines')
       .select('id, user_id, frequency')
       .eq('id', id)
-      .eq('user_id', user.id)
+      .eq('user_id', userId)
       .maybeSingle()
 
     if (fetchError) {
@@ -87,7 +82,7 @@ export async function PATCH(
       .from('routines')
       .update(updateData)
       .eq('id', id)
-      .eq('user_id', user.id)
+      .eq('user_id', userId)
       .select(
         'id, user_id, title, description, frequency, days_of_week, interval_days, time_of_day, streak, is_active, created_at, updated_at'
       )
@@ -112,16 +107,11 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const supabase = await createClient()
-
-    // 인증 확인
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser()
-    if (authError || !user) {
+    const userId = request.headers.get('x-user-id')
+    if (!userId) {
       return apiError('AUTH_REQUIRED')
     }
+    const supabase = await createClient()
 
     const { id } = await params
 
@@ -134,7 +124,7 @@ export async function DELETE(
       .from('routines')
       .select('id')
       .eq('id', id)
-      .eq('user_id', user.id)
+      .eq('user_id', userId)
       .maybeSingle()
 
     if (fetchError) {
@@ -149,7 +139,7 @@ export async function DELETE(
       .from('routines')
       .delete()
       .eq('id', id)
-      .eq('user_id', user.id)
+      .eq('user_id', userId)
 
     if (deleteError) {
       return apiError('SERVER_ERROR')

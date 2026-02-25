@@ -4,21 +4,17 @@ import { createClient } from '@/lib/supabase/server'
 import type { CreateRecurringInput, RecurringExpense } from '@/types/recurring'
 
 // GET /api/recurring — 정기 지출 목록 조회 (활성 항목 우선 정렬)
-export async function GET() {
-  const supabase = await createClient()
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser()
-
-  if (authError || !user) {
+export async function GET(request: NextRequest) {
+  const userId = request.headers.get('x-user-id')
+  if (!userId) {
     return apiError('AUTH_REQUIRED')
   }
+  const supabase = await createClient()
 
   const { data, error } = await supabase
     .from('recurring_expenses')
     .select('id, user_id, name, amount, billing_day, cycle, category_id, is_active, currency, created_at, updated_at')
-    .eq('user_id', user.id)
+    .eq('user_id', userId)
     .order('is_active', { ascending: false })
     .order('billing_day', { ascending: true })
 
@@ -31,15 +27,11 @@ export async function GET() {
 
 // POST /api/recurring — 정기 지출 등록
 export async function POST(request: NextRequest) {
-  const supabase = await createClient()
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser()
-
-  if (authError || !user) {
+  const userId = request.headers.get('x-user-id')
+  if (!userId) {
     return apiError('AUTH_REQUIRED')
   }
+  const supabase = await createClient()
 
   let body: CreateRecurringInput
   try {
@@ -78,7 +70,7 @@ export async function POST(request: NextRequest) {
   }
 
   const insertData = {
-    user_id: user.id,
+    user_id: userId,
     name: body.name.trim(),
     amount: body.amount,
     billing_day: body.billing_day,

@@ -8,12 +8,11 @@ const VALID_ASSET_TYPES = ['cash', 'deposit', 'investment', 'other'] as const
 // GET /api/assets?month=YYYY-MM               → 특정 월 자산 목록
 // GET /api/assets?trend=6                     → 최근 N개월 월별 합계
 export async function GET(request: NextRequest) {
-  const supabase = await createClient()
-  const { data: { user }, error: authError } = await supabase.auth.getUser()
-
-  if (authError || !user) {
+  const userId = request.headers.get('x-user-id')
+  if (!userId) {
     return apiError('AUTH_REQUIRED')
   }
+  const supabase = await createClient()
 
   const { searchParams } = new URL(request.url)
   const month = searchParams.get('month')
@@ -26,7 +25,7 @@ export async function GET(request: NextRequest) {
     const { data, error } = await supabase
       .from('assets')
       .select('month, amount')
-      .eq('user_id', user.id)
+      .eq('user_id', userId)
       .order('month', { ascending: true })
 
     if (error) {
@@ -56,7 +55,7 @@ export async function GET(request: NextRequest) {
   const { data, error } = await supabase
     .from('assets')
     .select('*')
-    .eq('user_id', user.id)
+    .eq('user_id', userId)
     .eq('month', month)
     .order('asset_type', { ascending: true })
 
@@ -69,12 +68,11 @@ export async function GET(request: NextRequest) {
 
 // POST /api/assets → 자산 항목 추가
 export async function POST(request: NextRequest) {
-  const supabase = await createClient()
-  const { data: { user }, error: authError } = await supabase.auth.getUser()
-
-  if (authError || !user) {
+  const userId = request.headers.get('x-user-id')
+  if (!userId) {
     return apiError('AUTH_REQUIRED')
   }
+  const supabase = await createClient()
 
   let body: CreateAssetInput
   try {
@@ -98,7 +96,7 @@ export async function POST(request: NextRequest) {
   const { data, error } = await supabase
     .from('assets')
     .insert({
-      user_id: user.id,
+      user_id: userId,
       asset_type: body.asset_type,
       amount: Number(body.amount),
       note: body.note ?? null,

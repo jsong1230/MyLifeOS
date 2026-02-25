@@ -12,16 +12,11 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const supabase = await createClient()
-
-    // 인증 확인
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser()
-    if (authError || !user) {
+    const userId = request.headers.get('x-user-id')
+    if (!userId) {
       return apiError('AUTH_REQUIRED')
     }
+    const supabase = await createClient()
 
     const { id } = await params
 
@@ -50,7 +45,7 @@ export async function PATCH(
       .from('budgets')
       .select('id')
       .eq('id', id)
-      .eq('user_id', user.id)
+      .eq('user_id', userId)
       .maybeSingle()
 
     if (!existing) {
@@ -65,7 +60,7 @@ export async function PATCH(
         updated_at: new Date().toISOString(),
       })
       .eq('id', id)
-      .eq('user_id', user.id)
+      .eq('user_id', userId)
       .select(
         'id, user_id, category_id, amount, year_month, created_at, updated_at, category:categories(id, name, icon, color, type, is_system, sort_order, created_at)'
       )
@@ -98,16 +93,11 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const supabase = await createClient()
-
-    // 인증 확인
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser()
-    if (authError || !user) {
+    const userId = request.headers.get('x-user-id')
+    if (!userId) {
       return apiError('AUTH_REQUIRED')
     }
+    const supabase = await createClient()
 
     const { id } = await params
 
@@ -120,7 +110,7 @@ export async function DELETE(
       .from('budgets')
       .select('id')
       .eq('id', id)
-      .eq('user_id', user.id)
+      .eq('user_id', userId)
       .maybeSingle()
 
     if (!existing) {
@@ -131,7 +121,7 @@ export async function DELETE(
       .from('budgets')
       .delete()
       .eq('id', id)
-      .eq('user_id', user.id)
+      .eq('user_id', userId)
 
     if (deleteError) {
       return apiError('SERVER_ERROR')

@@ -22,8 +22,17 @@ import {
 } from '@/components/ui/alert-dialog'
 import { ChevronLeft, ChevronRight, Plus, Pencil, Trash2 } from 'lucide-react'
 import { AssetForm } from '@/components/money/asset-form'
-import { AssetSummary } from '@/components/money/asset-summary'
-import { AssetTrendChart } from '@/components/money/asset-trend-chart'
+import dynamic from 'next/dynamic'
+import { Skeleton } from '@/components/ui/skeleton'
+
+const AssetSummary = dynamic(
+  () => import('@/components/money/asset-summary').then((m) => ({ default: m.AssetSummary })),
+  { ssr: false, loading: () => <Skeleton className="h-64 rounded-xl" /> }
+)
+const AssetTrendChart = dynamic(
+  () => import('@/components/money/asset-trend-chart').then((m) => ({ default: m.AssetTrendChart })),
+  { ssr: false, loading: () => <Skeleton className="h-64 rounded-xl" /> }
+)
 import {
   useAssets,
   useAssetTrend,

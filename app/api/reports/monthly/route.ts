@@ -24,15 +24,11 @@ function getPrevMonth(year: number, month: number): { year: number; month: numbe
 
 // GET /api/reports/monthly?year=YYYY&month=MM
 export async function GET(request: NextRequest) {
-  const supabase = await createClient()
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser()
-
-  if (authError || !user) {
+  const userId = request.headers.get('x-user-id')
+  if (!userId) {
     return apiError('AUTH_REQUIRED')
   }
+  const supabase = await createClient()
 
   const { searchParams } = new URL(request.url)
   const yearParam = searchParams.get('year')
@@ -59,7 +55,7 @@ export async function GET(request: NextRequest) {
   const { data: todosData, error: todosError } = await supabase
     .from('todos')
     .select('id, status')
-    .eq('user_id', user.id)
+    .eq('user_id', userId)
     .gte('due_date', monthStart)
     .lte('due_date', monthEnd)
 
@@ -75,7 +71,7 @@ export async function GET(request: NextRequest) {
   const { data: transactionsData, error: transactionsError } = await supabase
     .from('transactions')
     .select('amount, type')
-    .eq('user_id', user.id)
+    .eq('user_id', userId)
     .gte('date', monthStart)
     .lte('date', monthEnd)
 
@@ -95,7 +91,7 @@ export async function GET(request: NextRequest) {
   const { data: prevTransData, error: prevTransError } = await supabase
     .from('transactions')
     .select('amount, type')
-    .eq('user_id', user.id)
+    .eq('user_id', userId)
     .eq('type', 'expense')
     .gte('date', prevStart)
     .lte('date', prevEnd)
@@ -114,7 +110,7 @@ export async function GET(request: NextRequest) {
   const { data: sleepData, error: sleepError } = await supabase
     .from('health_logs')
     .select('value')
-    .eq('user_id', user.id)
+    .eq('user_id', userId)
     .eq('log_type', 'sleep')
     .gte('date', monthStart)
     .lte('date', monthEnd)
@@ -133,7 +129,7 @@ export async function GET(request: NextRequest) {
   const { data: drinkData, error: drinkError } = await supabase
     .from('drink_logs')
     .select('date')
-    .eq('user_id', user.id)
+    .eq('user_id', userId)
     .gte('date', monthStart)
     .lte('date', monthEnd)
 
@@ -148,7 +144,7 @@ export async function GET(request: NextRequest) {
   const { data: diariesData, error: diariesError } = await supabase
     .from('diaries')
     .select('emotion_tags')
-    .eq('user_id', user.id)
+    .eq('user_id', userId)
     .gte('date', monthStart)
     .lte('date', monthEnd)
 

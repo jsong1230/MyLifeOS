@@ -50,17 +50,11 @@ const VALID_MODULES: ExportModule[] = [
  * 암호화된 데이터(diaries.content_encrypted, relations.memo_encrypted)는 그대로 반환
  */
 export async function GET(request: NextRequest) {
-  const supabase = await createClient()
-
-  // 인증 확인
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser()
-
-  if (authError || !user) {
+  const userId = request.headers.get('x-user-id')
+  if (!userId) {
     return apiError('AUTH_REQUIRED')
   }
+  const supabase = await createClient()
 
   const { searchParams } = new URL(request.url)
   const moduleParam = searchParams.get('module')
@@ -101,7 +95,7 @@ export async function GET(request: NextRequest) {
           .select(
             'id, user_id, title, description, due_date, priority, status, category, sort_order, completed_at, created_at, updated_at'
           )
-          .eq('user_id', user.id)
+          .eq('user_id', userId)
           .order('sort_order', { ascending: true }),
 
         supabase
@@ -109,7 +103,7 @@ export async function GET(request: NextRequest) {
           .select(
             'id, user_id, title, description, frequency, days_of_week, interval_days, time_of_day, streak, is_active, created_at, updated_at'
           )
-          .eq('user_id', user.id)
+          .eq('user_id', userId)
           .order('created_at', { ascending: true }),
 
         supabase
@@ -117,7 +111,7 @@ export async function GET(request: NextRequest) {
           .select(
             'id, user_id, amount, type, category_id, memo, date, is_favorite, created_at, updated_at'
           )
-          .eq('user_id', user.id)
+          .eq('user_id', userId)
           .order('date', { ascending: false }),
 
         supabase
@@ -125,7 +119,7 @@ export async function GET(request: NextRequest) {
           .select(
             'id, user_id, meal_type, food_name, calories, protein, carbs, fat, date, created_at, updated_at'
           )
-          .eq('user_id', user.id)
+          .eq('user_id', userId)
           .order('date', { ascending: false }),
 
         supabase
@@ -133,7 +127,7 @@ export async function GET(request: NextRequest) {
           .select(
             'id, user_id, drink_type, alcohol_pct, amount_ml, drink_count, date, note, created_at, updated_at'
           )
-          .eq('user_id', user.id)
+          .eq('user_id', userId)
           .order('date', { ascending: false }),
 
         supabase
@@ -141,7 +135,7 @@ export async function GET(request: NextRequest) {
           .select(
             'id, user_id, value, value2, date, time_start, time_end, note, created_at, updated_at'
           )
-          .eq('user_id', user.id)
+          .eq('user_id', userId)
           .eq('log_type', 'sleep')
           .order('date', { ascending: false }),
 
@@ -150,7 +144,7 @@ export async function GET(request: NextRequest) {
           .select(
             'id, user_id, date, content_encrypted, emotion_tags, created_at, updated_at'
           )
-          .eq('user_id', user.id)
+          .eq('user_id', userId)
           .order('date', { ascending: false }),
 
         supabase
@@ -158,7 +152,7 @@ export async function GET(request: NextRequest) {
           .select(
             'id, user_id, name, relationship_type, last_met_at, memo_encrypted, created_at, updated_at'
           )
-          .eq('user_id', user.id)
+          .eq('user_id', userId)
           .order('name', { ascending: true }),
       ])
 
@@ -200,7 +194,7 @@ export async function GET(request: NextRequest) {
           .select(
             'id, user_id, title, description, due_date, priority, status, category, sort_order, completed_at, created_at, updated_at'
           )
-          .eq('user_id', user.id)
+          .eq('user_id', userId)
           .order('sort_order', { ascending: true })
 
         if (error) {
@@ -215,7 +209,7 @@ export async function GET(request: NextRequest) {
           .select(
             'id, user_id, title, description, frequency, days_of_week, interval_days, time_of_day, streak, is_active, created_at, updated_at'
           )
-          .eq('user_id', user.id)
+          .eq('user_id', userId)
           .order('created_at', { ascending: true })
 
         if (error) {
@@ -230,7 +224,7 @@ export async function GET(request: NextRequest) {
           .select(
             'id, user_id, amount, type, category_id, memo, date, is_favorite, created_at, updated_at'
           )
-          .eq('user_id', user.id)
+          .eq('user_id', userId)
           .order('date', { ascending: false })
 
         if (error) {
@@ -245,7 +239,7 @@ export async function GET(request: NextRequest) {
           .select(
             'id, user_id, meal_type, food_name, calories, protein, carbs, fat, date, created_at, updated_at'
           )
-          .eq('user_id', user.id)
+          .eq('user_id', userId)
           .order('date', { ascending: false })
 
         if (error) {
@@ -260,7 +254,7 @@ export async function GET(request: NextRequest) {
           .select(
             'id, user_id, drink_type, alcohol_pct, amount_ml, drink_count, date, note, created_at, updated_at'
           )
-          .eq('user_id', user.id)
+          .eq('user_id', userId)
           .order('date', { ascending: false })
 
         if (error) {
@@ -276,7 +270,7 @@ export async function GET(request: NextRequest) {
           .select(
             'id, user_id, value, value2, date, time_start, time_end, note, created_at, updated_at'
           )
-          .eq('user_id', user.id)
+          .eq('user_id', userId)
           .eq('log_type', 'sleep')
           .order('date', { ascending: false })
 
@@ -293,7 +287,7 @@ export async function GET(request: NextRequest) {
           .select(
             'id, user_id, date, content_encrypted, emotion_tags, created_at, updated_at'
           )
-          .eq('user_id', user.id)
+          .eq('user_id', userId)
           .order('date', { ascending: false })
 
         if (error) {
@@ -309,7 +303,7 @@ export async function GET(request: NextRequest) {
           .select(
             'id, user_id, name, relationship_type, last_met_at, memo_encrypted, created_at, updated_at'
           )
-          .eq('user_id', user.id)
+          .eq('user_id', userId)
           .order('name', { ascending: true })
 
         if (error) {

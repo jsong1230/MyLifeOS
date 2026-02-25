@@ -8,15 +8,11 @@ export async function PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const supabase = await createClient()
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser()
-
-  if (authError || !user) {
+  const userId = request.headers.get('x-user-id')
+  if (!userId) {
     return apiError('AUTH_REQUIRED')
   }
+  const supabase = await createClient()
 
   const { id } = await params
 
@@ -62,7 +58,7 @@ export async function PATCH(
     .from('drink_logs')
     .select('id')
     .eq('id', id)
-    .eq('user_id', user.id)
+    .eq('user_id', userId)
     .maybeSingle()
 
   if (!existing) {
@@ -78,7 +74,7 @@ export async function PATCH(
     .from('drink_logs')
     .update(updateData)
     .eq('id', id)
-    .eq('user_id', user.id)
+    .eq('user_id', userId)
     .select(
       'id, user_id, drink_type, alcohol_pct, amount_ml, drink_count, date, note, created_at, updated_at'
     )
@@ -96,15 +92,11 @@ export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const supabase = await createClient()
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser()
-
-  if (authError || !user) {
+  const userId = request.headers.get('x-user-id')
+  if (!userId) {
     return apiError('AUTH_REQUIRED')
   }
+  const supabase = await createClient()
 
   const { id } = await params
 
@@ -117,7 +109,7 @@ export async function DELETE(
     .from('drink_logs')
     .select('id')
     .eq('id', id)
-    .eq('user_id', user.id)
+    .eq('user_id', userId)
     .maybeSingle()
 
   if (!existing) {
@@ -128,7 +120,7 @@ export async function DELETE(
     .from('drink_logs')
     .delete()
     .eq('id', id)
-    .eq('user_id', user.id)
+    .eq('user_id', userId)
 
   if (error) {
     return apiError('SERVER_ERROR')

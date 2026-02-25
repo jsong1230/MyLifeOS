@@ -17,15 +17,11 @@ export interface TodoStatsResponse {
  *   - month: YYYY-MM → 해당 월 통계
  */
 export async function GET(request: NextRequest) {
-  const supabase = await createClient()
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser()
-
-  if (authError || !user) {
+  const userId = request.headers.get('x-user-id')
+  if (!userId) {
     return apiError('AUTH_REQUIRED')
   }
+  const supabase = await createClient()
 
   const { searchParams } = new URL(request.url)
   const week = searchParams.get('week')
@@ -54,7 +50,7 @@ export async function GET(request: NextRequest) {
   const { data, error } = await supabase
     .from('todos')
     .select('status')
-    .eq('user_id', user.id)
+    .eq('user_id', userId)
     .not('due_date', 'is', null)
     .gte('due_date', startDate)
     .lte('due_date', endDate)

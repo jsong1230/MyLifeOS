@@ -9,16 +9,11 @@ import { createClient } from '@/lib/supabase/server'
  */
 export async function GET(request: NextRequest) {
   try {
-    const supabase = await createClient()
-
-    // 인증 확인
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser()
-    if (authError || !user) {
+    const userId = request.headers.get('x-user-id')
+    if (!userId) {
       return apiError('AUTH_REQUIRED')
     }
+    const supabase = await createClient()
 
     const { searchParams } = new URL(request.url)
     const dateParam = searchParams.get('date')
@@ -38,7 +33,7 @@ export async function GET(request: NextRequest) {
       .select(
         'id, routine_id, user_id, date, completed, completed_at, created_at'
       )
-      .eq('user_id', user.id)
+      .eq('user_id', userId)
       .eq('date', dateParam)
       .order('created_at', { ascending: true })
 
@@ -63,16 +58,11 @@ export async function GET(request: NextRequest) {
  */
 export async function POST(request: NextRequest) {
   try {
-    const supabase = await createClient()
-
-    // 인증 확인
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser()
-    if (authError || !user) {
+    const userId = request.headers.get('x-user-id')
+    if (!userId) {
       return apiError('AUTH_REQUIRED')
     }
+    const supabase = await createClient()
 
     const body = (await request.json()) as {
       routineId: string
@@ -101,7 +91,7 @@ export async function POST(request: NextRequest) {
       .from('routines')
       .select('id, streak')
       .eq('id', routineId)
-      .eq('user_id', user.id)
+      .eq('user_id', userId)
       .maybeSingle()
 
     if (routineError) {
@@ -121,7 +111,7 @@ export async function POST(request: NextRequest) {
       .upsert(
         {
           routine_id: routineId,
-          user_id: user.id,
+          user_id: userId,
           date,
           completed,
           completed_at: completedAt,
@@ -175,7 +165,7 @@ export async function POST(request: NextRequest) {
         updated_at: new Date().toISOString(),
       })
       .eq('id', routineId)
-      .eq('user_id', user.id)
+      .eq('user_id', userId)
 
     if (streakError) {
       return apiError('SERVER_ERROR')

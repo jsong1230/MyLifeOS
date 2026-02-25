@@ -20,7 +20,13 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
 import { BodyLogForm } from '@/components/health/body-log-form'
-import { BodyTrendChart } from '@/components/health/body-trend-chart'
+import dynamic from 'next/dynamic'
+import { Skeleton } from '@/components/ui/skeleton'
+
+const BodyTrendChart = dynamic(
+  () => import('@/components/health/body-trend-chart').then((m) => ({ default: m.BodyTrendChart })),
+  { ssr: false, loading: () => <Skeleton className="h-48 rounded-xl" /> }
+)
 import {
   useBodyLogs,
   useCreateBodyLog,

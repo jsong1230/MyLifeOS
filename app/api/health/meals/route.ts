@@ -9,15 +9,11 @@ const MEAL_TYPE_ORDER = { breakfast: 0, lunch: 1, dinner: 2, snack: 3 } as const
 // GET /api/health/meals — 날짜별 식사 목록 조회
 // 쿼리 파라미터: date (YYYY-MM-DD, 기본값: 오늘)
 export async function GET(request: NextRequest) {
-  const supabase = await createClient()
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser()
-
-  if (authError || !user) {
+  const userId = request.headers.get('x-user-id')
+  if (!userId) {
     return apiError('AUTH_REQUIRED')
   }
+  const supabase = await createClient()
 
   const { searchParams } = new URL(request.url)
   const rawDate = searchParams.get('date')
@@ -39,7 +35,7 @@ export async function GET(request: NextRequest) {
   const { data, error } = await supabase
     .from('meal_logs')
     .select('id, user_id, meal_type, food_name, calories, protein, carbs, fat, date, created_at, updated_at')
-    .eq('user_id', user.id)
+    .eq('user_id', userId)
     .eq('date', targetDate)
     .order('created_at', { ascending: true })
 
@@ -59,15 +55,11 @@ export async function GET(request: NextRequest) {
 
 // POST /api/health/meals — 식사 기록 생성
 export async function POST(request: NextRequest) {
-  const supabase = await createClient()
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser()
-
-  if (authError || !user) {
+  const userId = request.headers.get('x-user-id')
+  if (!userId) {
     return apiError('AUTH_REQUIRED')
   }
+  const supabase = await createClient()
 
   let body: CreateMealInput
   try {
@@ -101,7 +93,7 @@ export async function POST(request: NextRequest) {
   }
 
   const insertData = {
-    user_id: user.id,
+    user_id: userId,
     meal_type: body.meal_type,
     food_name: body.food_name.trim(),
     calories: body.calories ?? null,

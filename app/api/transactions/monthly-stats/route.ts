@@ -5,12 +5,11 @@ import { createClient } from '@/lib/supabase/server'
 // GET /api/transactions/monthly-stats?months=6
 // 최근 N개월 월별 수입/지출 합계 반환 (F-22 월별 지출 추이)
 export async function GET(request: NextRequest) {
-  const supabase = await createClient()
-  const { data: { user }, error: authError } = await supabase.auth.getUser()
-
-  if (authError || !user) {
+  const userId = request.headers.get('x-user-id')
+  if (!userId) {
     return apiError('AUTH_REQUIRED')
   }
+  const supabase = await createClient()
 
   const { searchParams } = new URL(request.url)
   const months = Math.min(Math.max(parseInt(searchParams.get('months') ?? '6') || 6, 1), 24)
@@ -23,7 +22,7 @@ export async function GET(request: NextRequest) {
   const { data, error } = await supabase
     .from('transactions')
     .select('date, type, amount')
-    .eq('user_id', user.id)
+    .eq('user_id', userId)
     .gte('date', startStr)
     .order('date', { ascending: true })
 

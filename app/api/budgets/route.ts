@@ -32,16 +32,11 @@ function getMonthRange(yearMonth: string): { start: string; end: string } | null
  */
 export async function GET(request: NextRequest) {
   try {
-    const supabase = await createClient()
-
-    // 인증 확인
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser()
-    if (authError || !user) {
+    const userId = request.headers.get('x-user-id')
+    if (!userId) {
       return apiError('AUTH_REQUIRED')
     }
+    const supabase = await createClient()
 
     // month 파라미터 처리 (기본값: 현재 월)
     const { searchParams } = new URL(request.url)
@@ -62,7 +57,7 @@ export async function GET(request: NextRequest) {
       .select(
         'id, user_id, category_id, amount, year_month, currency, created_at, updated_at, category:categories(id, name, icon, color, type, is_system, sort_order, created_at)'
       )
-      .eq('user_id', user.id)
+      .eq('user_id', userId)
       .eq('year_month', targetMonth)
       .order('created_at', { ascending: true })
 
@@ -84,7 +79,7 @@ export async function GET(request: NextRequest) {
     const { data: spentData, error: spentError } = await supabase
       .from('transactions')
       .select('category_id, amount')
-      .eq('user_id', user.id)
+      .eq('user_id', userId)
       .eq('type', 'expense')
       .gte('date', monthRange.start)
       .lt('date', monthRange.end)
@@ -141,16 +136,11 @@ export async function GET(request: NextRequest) {
  */
 export async function POST(request: NextRequest) {
   try {
-    const supabase = await createClient()
-
-    // 인증 확인
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser()
-    if (authError || !user) {
+    const userId = request.headers.get('x-user-id')
+    if (!userId) {
       return apiError('AUTH_REQUIRED')
     }
+    const supabase = await createClient()
 
     let body: CreateBudgetInput
     try {
@@ -182,7 +172,7 @@ export async function POST(request: NextRequest) {
       .from('budgets')
       .upsert(
         {
-          user_id: user.id,
+          user_id: userId,
           category_id: body.category_id ?? null,
           amount: body.amount,
           year_month: body.year_month,

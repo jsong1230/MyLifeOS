@@ -13,15 +13,11 @@ export interface DiarySearchItem {
 
 // GET /api/diaries/search?months=N — 최근 N개월 일기 전체 조회 (검색용)
 export async function GET(request: NextRequest) {
-  const supabase = await createClient()
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser()
-
-  if (authError || !user) {
+  const userId = request.headers.get('x-user-id')
+  if (!userId) {
     return apiError('AUTH_REQUIRED')
   }
+  const supabase = await createClient()
 
   const { searchParams } = new URL(request.url)
   const monthsParam = searchParams.get('months')
@@ -45,7 +41,7 @@ export async function GET(request: NextRequest) {
   const { data, error } = await supabase
     .from('diaries')
     .select('id, date, content_encrypted, emotion_tags')
-    .eq('user_id', user.id)
+    .eq('user_id', userId)
     .gte('date', startDateStr)
     .lte('date', todayStr)
     .order('date', { ascending: false })

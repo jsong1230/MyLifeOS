@@ -10,11 +10,10 @@ const PIN_REGEX = /^\d{4,6}$/
  * GET /api/users/pin
  * PIN 설정 여부만 확인 (pin_hash 존재 여부).
  */
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
-    const supabase = await createClient()
-    const { data: { user }, error: authError } = await supabase.auth.getUser()
-    if (authError || !user) {
+    const userId = request.headers.get('x-user-id')
+    if (!userId) {
       return apiError('AUTH_REQUIRED')
     }
 
@@ -22,7 +21,7 @@ export async function GET() {
     const { data, error } = await adminClient
       .from('users')
       .select('pin_hash')
-      .eq('id', user.id)
+      .eq('id', userId)
       .maybeSingle()
 
     if (error) {
@@ -46,12 +45,14 @@ export async function GET() {
  * body: { pin, confirmPin, currentPin? }
  * - currentPin 없음 → 최초 설정
  * - currentPin 있음 → 변경
+ *
+ * 이 엔드포인트는 user.email, user.user_metadata가 필요하므로 getUser()를 직접 사용.
  */
 export async function POST(request: NextRequest) {
   try {
     const supabase = await createClient()
 
-    // JWT 인증 확인
+    // JWT 인증 확인 (user.email, user.user_metadata 접근을 위해 getUser() 사용)
     const { data: { user }, error: authError } = await supabase.auth.getUser()
     if (authError || !user) {
       return apiError('AUTH_REQUIRED')
