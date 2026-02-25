@@ -1,6 +1,8 @@
 import { NextResponse, type NextRequest } from 'next/server'
 import { apiError } from '@/lib/api-errors'
 import { createClient } from '@/lib/supabase/server'
+import { fetchExchangeRatesServer, sumConverted } from '@/lib/exchange-rates.server'
+import type { CurrencyCode } from '@/lib/currency'
 import type { MonthlyReport } from '@/types/report'
 
 // 소수점 첫째 자리 반올림 유틸
@@ -33,6 +35,7 @@ export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url)
   const yearParam = searchParams.get('year')
   const monthParam = searchParams.get('month')
+  const currencyParam = (searchParams.get('currency') ?? 'KRW') as CurrencyCode
 
   // year, month 파라미터 검증
   if (!yearParam || !monthParam) {
@@ -67,40 +70,30 @@ export async function GET(request: NextRequest) {
   const todoCompleted = todosData?.filter((t) => t.status === 'completed').length ?? 0
   const todoRate = todoTotal > 0 ? Math.round((todoCompleted / todoTotal) * 100) : 0
 
-  // ── 2. 이번달 수입/지출 집계 ─────────────────────────────────
-  const { data: transactionsData, error: transactionsError } = await supabase
-    .from('transactions')
-    .select('amount, type')
-    .eq('user_id', userId)
-    .gte('date', monthStart)
-    .lte('date', monthEnd)
+  // ── 2. 이번달 + 전월 수입/지출 + 환율 병렬 조회 ─────────────
+  const [txResult, prevTxResult, rates] = await Promise.all([
+    supabase
+      .from('transactions')
+      .select('amount, type, currency')
+      .eq('user_id', userId)
+      .gte('date', monthStart)
+      .lte('date', monthEnd),
+    supabase
+      .from('transactions')
+      .select('amount, type, currency')
+      .eq('user_id', userId)
+      .eq('type', 'expense')
+      .gte('date', prevStart)
+      .lte('date', prevEnd),
+    fetchExchangeRatesServer(),
+  ])
 
-  if (transactionsError) {
+  if (txResult.error || prevTxResult.error) {
     return apiError('SERVER_ERROR')
   }
 
-  const income = transactionsData
-    ?.filter((t) => t.type === 'income')
-    .reduce((sum, t) => sum + Number(t.amount), 0) ?? 0
-
-  const expense = transactionsData
-    ?.filter((t) => t.type === 'expense')
-    .reduce((sum, t) => sum + Number(t.amount), 0) ?? 0
-
-  // ── 3. 전월 지출 집계 ────────────────────────────────────────
-  const { data: prevTransData, error: prevTransError } = await supabase
-    .from('transactions')
-    .select('amount, type')
-    .eq('user_id', userId)
-    .eq('type', 'expense')
-    .gte('date', prevStart)
-    .lte('date', prevEnd)
-
-  if (prevTransError) {
-    return apiError('SERVER_ERROR')
-  }
-
-  const prevExpense = prevTransData?.reduce((sum, t) => sum + Number(t.amount), 0) ?? 0
+  const { income, expense } = sumConverted(txResult.data ?? [], currencyParam, rates)
+  const { expense: prevExpense } = sumConverted(prevTxResult.data ?? [], currencyParam, rates)
 
   // 전월 대비 증감률 계산: 전월이 0이면 0으로 처리
   const changePct =
