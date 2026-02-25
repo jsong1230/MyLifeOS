@@ -46,7 +46,7 @@ export default function TimeLayout({ children }: { children: React.ReactNode }) 
       </div>
 
       {/* 콘텐츠 영역 */}
-      <div className="flex-1 overflow-auto">
+      <div className="flex-1 overflow-y-auto overflow-x-hidden">
         {children}
       </div>
     </div>
