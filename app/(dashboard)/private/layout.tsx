@@ -98,9 +98,13 @@ export default function PrivateLayout({ children }: { children: React.ReactNode 
       const json: PinVerifyResponse = await res.json()
 
       if (res.ok && json.success && json.data?.verified) {
-        // 암호화 키 파생: sessionStorage에 저장된 salt로 PBKDF2 키 생성
-        // (API 응답에서 salt를 받지 않아 서버 측 bcrypt salt 노출 방지)
-        const storedSalt = sessionStorage.getItem('pin_enc_salt') ?? crypto.randomUUID()
+        // 암호화 키 파생: localStorage에서 salt 조회 (없으면 생성 후 저장)
+        // salt는 localStorage에 영속 저장 — PIN 없이는 복호화 불가하므로 안전
+        let storedSalt = localStorage.getItem('pin_enc_salt')
+        if (!storedSalt) {
+          storedSalt = crypto.randomUUID()
+          localStorage.setItem('pin_enc_salt', storedSalt)
+        }
         const encKey = deriveKey(pinInput, storedSalt)
         sessionStorage.setItem(ENC_KEY_SESSION, encKey)
         sessionStorage.setItem(SESSION_KEY, '1')

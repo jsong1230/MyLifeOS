@@ -21,6 +21,12 @@ export function encrypt(plaintext: string, key: string): string {
 }
 
 export function decrypt(ciphertext: string, key: string): string {
-  const bytes = CryptoJS.AES.decrypt(ciphertext, key)
-  return bytes.toString(CryptoJS.enc.Utf8)
+  try {
+    const bytes = CryptoJS.AES.decrypt(ciphertext, key)
+    const result = bytes.toString(CryptoJS.enc.Utf8)
+    if (!result) throw new Error()
+    return result
+  } catch {
+    throw new Error('복호화에 실패했습니다. PIN을 다시 입력하거나 앱을 재시작해주세요.')
+  }
 }
