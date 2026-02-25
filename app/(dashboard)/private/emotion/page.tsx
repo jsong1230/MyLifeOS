@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useLocale, useTranslations } from 'next-intl'
 import { ChevronLeft, ChevronRight, Loader2, BarChart2 } from 'lucide-react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
@@ -20,9 +21,11 @@ function getCurrentYearMonth(): { year: number; month: number } {
   return { year: now.getFullYear(), month: now.getMonth() + 1 }
 }
 
-// 연/월 포맷 (한국어 표기)
-function formatYearMonth(year: number, month: number): string {
-  return `${year}년 ${month}월`
+// 연/월 포맷 (locale 기반)
+function formatYearMonth(year: number, month: number, locale: string): string {
+  return new Intl.DateTimeFormat(locale, { year: 'numeric', month: 'long' }).format(
+    new Date(year, month - 1, 1)
+  )
 }
 
 // 월을 N개월 이동한 연/월 반환
@@ -33,6 +36,10 @@ function shiftMonth(year: number, month: number, delta: number): { year: number;
 
 // 감정 캘린더 페이지 — 월간 캘린더 + 감정 분포 요약
 export default function EmotionPage() {
+  const locale = useLocale()
+  const t = useTranslations('private.emotion')
+  const te = useTranslations('private.emotions')
+  const tc = useTranslations('common')
   const { year: initYear, month: initMonth } = getCurrentYearMonth()
   const [year, setYear] = useState(initYear)
   const [month, setMonth] = useState(initMonth)
@@ -85,13 +92,13 @@ export default function EmotionPage() {
           variant="ghost"
           size="icon"
           onClick={goPrevMonth}
-          aria-label="이전 달"
+          aria-label={t('prevMonth')}
         >
           <ChevronLeft className="h-5 w-5" />
         </Button>
 
         <span className="text-sm font-semibold">
-          {formatYearMonth(year, month)}
+          {formatYearMonth(year, month, locale)}
         </span>
 
         <div className="flex items-center gap-1">
@@ -100,7 +107,7 @@ export default function EmotionPage() {
             variant="ghost"
             size="icon"
             asChild
-            aria-label="감정 통계 보기"
+            aria-label={t('emotionStatsLabel')}
           >
             <Link href="/private/emotion/stats">
               <BarChart2 className="h-5 w-5" />
@@ -112,7 +119,7 @@ export default function EmotionPage() {
             size="icon"
             onClick={goNextMonth}
             disabled={isCurrentMonth}
-            aria-label="다음 달"
+            aria-label={t('nextMonth')}
           >
             <ChevronRight className="h-5 w-5" />
           </Button>
@@ -148,14 +155,14 @@ export default function EmotionPage() {
             />
 
             {/* 이번 달 감정 분포 요약 */}
-            <section aria-label="이번 달 감정 분포">
+            <section aria-label={t('emotionDistribution')}>
               <h2 className="text-sm font-semibold text-foreground mb-3">
-                이번 달 감정 분포
+                {t('emotionDistribution')}
               </h2>
 
               {totalEntries === 0 ? (
                 <p className="text-sm text-muted-foreground text-center py-4">
-                  아직 이번 달 기록이 없습니다
+                  {t('noRecordsThisMonth')}
                 </p>
               ) : (
                 <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
@@ -172,10 +179,10 @@ export default function EmotionPage() {
                           </span>
                           <div className="min-w-0 flex-1">
                             <p className="text-xs font-medium text-foreground truncate">
-                              {EMOTION_LABELS[emotion]}
+                              {te(emotion as Parameters<typeof te>[0])}
                             </p>
                             <p className="text-xs text-muted-foreground">
-                              {count}회
+                              {t('countUnit', { count })}
                             </p>
                           </div>
                         </div>
@@ -183,7 +190,7 @@ export default function EmotionPage() {
                     })
                   ) : (
                     <p className="col-span-full text-sm text-muted-foreground text-center py-4">
-                      감정 태그가 기록된 일기가 없습니다
+                      {t('noEmotionTags')}
                     </p>
                   )}
                 </div>

@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
@@ -57,13 +58,13 @@ function shiftWeek(weekStart: string, direction: 1 | -1): string {
   return toLocalDateStr(date)
 }
 
-// 'YYYY-MM-DD' → 'M월 D일' 포맷
+// 'YYYY-MM-DD' → 'M/D' 포맷
 function formatShortDate(dateStr: string): string {
   const [, month, day] = dateStr.split('-')
-  return `${parseInt(month)}월 ${parseInt(day)}일`
+  return `${parseInt(month)}/${parseInt(day)}`
 }
 
-// 주 레이블: 'M월 D일 ~ M월 D일'
+// 주 레이블: 'M/D ~ M/D'
 function buildWeekLabel(weekStart: string): string {
   const startDate = new Date(weekStart + 'T00:00:00')
   const endDate = new Date(weekStart + 'T00:00:00')
@@ -81,6 +82,8 @@ function isCurrentWeek(weekStart: string): boolean {
 
 // 음주 기록 페이지 — 주간 탐색 + 요약 + 목록 + CRUD
 export default function DrinksPage() {
+  const t = useTranslations()
+
   // 현재 조회 중인 주의 시작일 (월요일)
   const [currentWeekStart, setCurrentWeekStart] = useState<string>(() => {
     return getWeekStart(toLocalDateStr(new Date()))
@@ -195,7 +198,7 @@ export default function DrinksPage() {
           variant="ghost"
           size="icon"
           onClick={goToPrevWeek}
-          aria-label="이전 주"
+          aria-label={t('common.prevWeek')}
         >
           <ChevronLeft className="h-5 w-5" />
         </Button>
@@ -213,7 +216,7 @@ export default function DrinksPage() {
           </button>
           {!isCurrent && (
             <p className="text-xs text-primary cursor-pointer mt-0.5" onClick={goToCurrentWeek}>
-              이번 주로
+              {t('common.goToCurrentWeek')}
             </p>
           )}
         </div>
@@ -222,7 +225,7 @@ export default function DrinksPage() {
           variant="ghost"
           size="icon"
           onClick={goToNextWeek}
-          aria-label="다음 주"
+          aria-label={t('common.nextWeek')}
         >
           <ChevronRight className="h-5 w-5" />
         </Button>
@@ -232,13 +235,13 @@ export default function DrinksPage() {
       {isLoading ? (
         <Card>
           <CardContent className="py-8 text-center text-muted-foreground text-sm">
-            불러오는 중...
+            {t('common.loading')}
           </CardContent>
         </Card>
       ) : error ? (
         <Card>
           <CardContent className="py-8 text-center text-destructive text-sm">
-            데이터를 불러오는데 실패했습니다
+            {t('common.loadFailed')}
           </CardContent>
         </Card>
       ) : (
@@ -247,7 +250,9 @@ export default function DrinksPage() {
 
       {/* 음주 기록 목록 */}
       <div className="flex items-center justify-between">
-        <h2 className="text-sm font-medium text-muted-foreground">음주 기록</h2>
+        <h2 className="text-sm font-medium text-muted-foreground">
+          {t('health.drinks.recordsTitle')}
+        </h2>
         <Button
           size="sm"
           onClick={handleAddClick}
@@ -255,7 +260,7 @@ export default function DrinksPage() {
           className="gap-1"
         >
           <Plus className="h-4 w-4" />
-          추가
+          {t('common.add')}
         </Button>
       </div>
 
@@ -279,7 +284,9 @@ export default function DrinksPage() {
       ) : !isLoading ? (
         <Card>
           <CardContent className="py-10 text-center">
-            <p className="text-sm text-muted-foreground">이번 주 음주 기록이 없습니다</p>
+            <p className="text-sm text-muted-foreground">
+              {t('health.drinks.noDrinksThisWeek')}
+            </p>
             <Button
               variant="outline"
               size="sm"
@@ -287,7 +294,7 @@ export default function DrinksPage() {
               onClick={handleAddClick}
             >
               <Plus className="h-4 w-4 mr-1" />
-              첫 기록 추가
+              {t('health.drinks.addFirst')}
             </Button>
           </CardContent>
         </Card>
@@ -298,7 +305,7 @@ export default function DrinksPage() {
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>
-              {editTarget ? '음주 기록 수정' : '음주 기록 추가'}
+              {editTarget ? t('health.drinks.edit') : t('health.drinks.add')}
             </DialogTitle>
           </DialogHeader>
           <DrinkForm
@@ -317,21 +324,21 @@ export default function DrinksPage() {
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>음주 기록 삭제</AlertDialogTitle>
+            <AlertDialogTitle>{t('health.drinks.deleteConfirmTitle')}</AlertDialogTitle>
             <AlertDialogDescription>
-              이 음주 기록을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.
+              {t('health.drinks.deleteConfirmDesc')}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel disabled={deleteMutation.isPending}>
-              취소
+              {t('common.cancel')}
             </AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDeleteConfirm}
               disabled={deleteMutation.isPending}
               className="bg-destructive hover:bg-destructive/90"
             >
-              {deleteMutation.isPending ? '삭제 중...' : '삭제'}
+              {deleteMutation.isPending ? t('common.deleting') : t('common.delete')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

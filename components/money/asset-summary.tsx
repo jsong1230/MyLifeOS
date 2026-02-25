@@ -19,6 +19,7 @@ const ASSET_COLORS: Record<AssetType, string> = {
 
 export function AssetSummary({ assets }: AssetSummaryProps) {
   const t = useTranslations('money.assets')
+  type TFn = typeof t
 
   // 유형별 합계
   const byType = assets.reduce<Record<AssetType, number>>(
@@ -34,7 +35,7 @@ export function AssetSummary({ assets }: AssetSummaryProps) {
   const pieData = (Object.entries(byType) as [AssetType, number][])
     .filter(([, v]) => v > 0)
     .map(([type, value]) => ({
-      name: ASSET_TYPE_LABEL[type],
+      name: t(`types.${type}` as Parameters<TFn>[0]),
       value,
       color: ASSET_COLORS[type],
     }))
@@ -54,7 +55,7 @@ export function AssetSummary({ assets }: AssetSummaryProps) {
       {/* 총 자산 카드 */}
       <Card>
         <CardContent className="pt-5 pb-4">
-          <p className="text-xs text-muted-foreground mb-1">총 자산</p>
+          <p className="text-xs text-muted-foreground mb-1">{t('totalAssets')}</p>
           <p className="text-2xl font-bold">{formatCurrency(total, 'KRW')}</p>
           <p className="text-sm text-muted-foreground mt-0.5">{formatCurrencyCompact(total, 'KRW')}</p>
         </CardContent>
@@ -64,7 +65,7 @@ export function AssetSummary({ assets }: AssetSummaryProps) {
       {pieData.length > 0 && (
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">유형별 비율</CardTitle>
+            <CardTitle className="text-sm font-medium">{t('byTypeRatio')}</CardTitle>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={200}>
@@ -111,7 +112,7 @@ export function AssetSummary({ assets }: AssetSummaryProps) {
                     className="w-2.5 h-2.5 rounded-full shrink-0"
                     style={{ backgroundColor: ASSET_COLORS[type] }}
                   />
-                  <span className="text-sm">{ASSET_TYPE_LABEL[type]}</span>
+                  <span className="text-sm">{t(`types.${type}` as Parameters<TFn>[0])}</span>
                 </div>
                 <div className="text-right">
                   <span className="text-sm font-medium">{formatCurrency(value, 'KRW')}</span>

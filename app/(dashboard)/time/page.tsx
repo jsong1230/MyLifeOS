@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useTranslations } from 'next-intl'
 import { Plus } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
@@ -32,6 +33,8 @@ import type { Todo, CreateTodoInput, UpdateTodoInput, ReorderTodoInput } from '@
 
 // 할일 관리 페이지
 export default function TimePage() {
+  const t = useTranslations('time.todos')
+  const tc = useTranslations('common')
   // 폼 다이얼로그 상태
   const [isFormOpen, setIsFormOpen] = useState(false)
   // 수정 중인 할일
@@ -126,21 +129,21 @@ export default function TimePage() {
     <div className="relative min-h-full p-4">
       {/* 헤더 */}
       <div className="flex items-center justify-between mb-4">
-        <h1 className="text-lg font-semibold">할일</h1>
+        <h1 className="text-lg font-semibold">{t('title')}</h1>
         <Button
           size="sm"
           onClick={handleOpenCreate}
-          aria-label="새 할일 추가"
+          aria-label={t('addTitle')}
         >
           <Plus className="size-4" />
-          추가
+          {tc('add')}
         </Button>
       </div>
 
       {/* 로딩 상태 */}
       {isLoading && (
         <div className="flex justify-center py-8">
-          <span className="text-muted-foreground text-sm">불러오는 중...</span>
+          <span className="text-muted-foreground text-sm">{tc('loading')}</span>
         </div>
       )}
 
@@ -160,7 +163,7 @@ export default function TimePage() {
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>
-              {selectedTodo ? '할일 수정' : '새 할일 추가'}
+              {selectedTodo ? t('editTitle') : t('addTitle')}
             </DialogTitle>
           </DialogHeader>
           <TodoForm
@@ -179,18 +182,18 @@ export default function TimePage() {
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>할일 삭제</AlertDialogTitle>
+            <AlertDialogTitle>{t('deleteTitle')}</AlertDialogTitle>
             <AlertDialogDescription>
-              이 할일을 삭제하시겠습니까? 삭제된 할일은 복구할 수 없습니다.
+              {t('deleteConfirm')}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel onClick={handleDeleteCancel}>취소</AlertDialogCancel>
+            <AlertDialogCancel onClick={handleDeleteCancel}>{tc('cancel')}</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDeleteConfirm}
               className="bg-destructive text-white hover:bg-destructive/90"
             >
-              삭제
+              {tc('delete')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useLocale, useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import {
@@ -30,6 +31,15 @@ import {
 import { EXERCISE_INTENSITY_LABEL } from '@/types/health'
 import type { ExerciseLog, CreateExerciseInput } from '@/types/health'
 
+// 주간 레이블: locale 기반 포맷
+function formatWeekLabelLocale(weekStart: string, locale: string): string {
+  const start = new Date(weekStart + 'T00:00:00')
+  const end = new Date(start)
+  end.setDate(end.getDate() + 6)
+  const fmt = new Intl.DateTimeFormat(locale, { month: 'long', day: 'numeric' })
+  return `${fmt.format(start)} ~ ${fmt.format(end)}`
+}
+
 // 주간 날짜 범위 이동 헬퍼 (7일 단위)
 function addWeeks(weekStart: string, n: number): string {
   const date = new Date(weekStart + 'T00:00:00')
@@ -38,14 +48,6 @@ function addWeeks(weekStart: string, n: number): string {
   const m = String(date.getMonth() + 1).padStart(2, '0')
   const d = String(date.getDate()).padStart(2, '0')
   return `${y}-${m}-${d}`
-}
-
-// 주간 레이블: YYYY-MM-DD → M월 D일 ~ M월 D일
-function formatWeekLabel(weekStart: string): string {
-  const start = new Date(weekStart + 'T00:00:00')
-  const end = new Date(start)
-  end.setDate(end.getDate() + 6)
-  return `${start.getMonth() + 1}월 ${start.getDate()}일 ~ ${end.getMonth() + 1}월 ${end.getDate()}일`
 }
 
 // 이번 주 여부 확인
@@ -63,7 +65,8 @@ function ExerciseLogItem({
   onEdit: (log: ExerciseLog) => void
   onDelete: (id: string) => void
 }) {
-  const intensityLabel = EXERCISE_INTENSITY_LABEL[log.intensity]
+  const tc = useTranslations('common')
+  const t = useTranslations('health.exercise')
   return (
     <Card>
       <CardContent className="p-4">
@@ -74,7 +77,7 @@ function ExerciseLogItem({
               <span className="text-xs text-muted-foreground">{log.date.replace(/-/g, '.')}</span>
             </div>
             <p className="text-sm text-muted-foreground mt-0.5">
-              {log.duration_min}분 · {intensityLabel}
+              {log.duration_min}{t('durationUnit')} · {t(`intensities.${log.intensity}` as Parameters<typeof t>[0])}
               {log.calories_burned != null && ` · ${log.calories_burned}kcal`}
             </p>
             {log.note && (
@@ -88,7 +91,7 @@ function ExerciseLogItem({
               className="h-8 px-2 text-xs"
               onClick={() => onEdit(log)}
             >
-              수정
+              {tc('edit')}
             </Button>
             <Button
               variant="ghost"
@@ -96,7 +99,7 @@ function ExerciseLogItem({
               className="h-8 px-2 text-xs text-destructive hover:text-destructive"
               onClick={() => onDelete(log.id)}
             >
-              삭제
+              {tc('delete')}
             </Button>
           </div>
         </div>
@@ -107,6 +110,9 @@ function ExerciseLogItem({
 
 // 운동 기록 페이지
 export default function ExercisePage() {
+  const locale = useLocale()
+  const t = useTranslations('health.exercise')
+  const tc = useTranslations('common')
   const [weekStart, setWeekStart] = useState(getCurrentWeekStart)
   const [isFormOpen, setIsFormOpen] = useState(false)
   const [editingLog, setEditingLog] = useState<ExerciseLog | undefined>(undefined)
@@ -162,14 +168,14 @@ export default function ExercisePage() {
             variant="ghost"
             size="sm"
             onClick={() => setWeekStart((w) => addWeeks(w, -1))}
-            aria-label="이전 주"
+            aria-label={tc('prevWeek')}
           >
             &lt;
           </Button>
           <div className="text-center">
-            <p className="text-sm font-semibold">{formatWeekLabel(weekStart)}</p>
+            <p className="text-sm font-semibold">{formatWeekLabelLocale(weekStart, locale)}</p>
             {isCurrentWeek(weekStart) && (
-              <p className="text-xs text-primary">이번 주</p>
+              <p className="text-xs text-primary">{tc('thisWeek')}</p>
             )}
           </div>
           <Button
@@ -177,7 +183,7 @@ export default function ExercisePage() {
             size="sm"
             onClick={() => setWeekStart((w) => addWeeks(w, 1))}
             disabled={isCurrentWeek(weekStart)}
-            aria-label="다음 주"
+            aria-label={tc('nextWeek')}
           >
             &gt;
           </Button>
@@ -192,11 +198,11 @@ export default function ExercisePage() {
             <div className="flex gap-4 text-center">
               <div className="flex-1 bg-muted/50 rounded-lg p-3">
                 <p className="text-2xl font-bold">{logs.length}</p>
-                <p className="text-xs text-muted-foreground mt-0.5">운동 횟수</p>
+                <p className="text-xs text-muted-foreground mt-0.5">{t('sessionCount')}</p>
               </div>
               <div className="flex-1 bg-muted/50 rounded-lg p-3">
                 <p className="text-2xl font-bold">{totalMin}</p>
-                <p className="text-xs text-muted-foreground mt-0.5">총 운동 시간(분)</p>
+                <p className="text-xs text-muted-foreground mt-0.5">{t('totalDurationMin')}</p>
               </div>
             </div>
           )}
@@ -204,13 +210,13 @@ export default function ExercisePage() {
           {/* 운동 기록 목록 */}
           {isLoading ? (
             <div className="flex items-center justify-center py-16">
-              <p className="text-sm text-muted-foreground">불러오는 중...</p>
+              <p className="text-sm text-muted-foreground">{tc('loading')}</p>
             </div>
           ) : logs.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-16 space-y-2">
-              <p className="text-sm text-muted-foreground">이번 주 운동 기록이 없습니다</p>
+              <p className="text-sm text-muted-foreground">{t('noDataThisWeek')}</p>
               <Button variant="outline" size="sm" onClick={handleOpenCreate}>
-                첫 운동 기록하기
+                {t('addFirst')}
               </Button>
             </div>
           ) : (
@@ -232,7 +238,7 @@ export default function ExercisePage() {
       <div className="sticky bottom-0 bg-background border-t px-4 py-3">
         <div className="max-w-lg mx-auto">
           <Button className="w-full" onClick={handleOpenCreate} disabled={isLoading || isMutating}>
-            + 운동 추가
+            {t('addButton')}
           </Button>
         </div>
       </div>
@@ -241,7 +247,7 @@ export default function ExercisePage() {
       <Dialog open={isFormOpen} onOpenChange={(open) => { if (!open) handleFormCancel() }}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>{editingLog ? '운동 수정' : '운동 추가'}</DialogTitle>
+            <DialogTitle>{editingLog ? t('editTitle') : t('addTitle')}</DialogTitle>
           </DialogHeader>
           <ExerciseForm
             log={editingLog}
@@ -260,21 +266,21 @@ export default function ExercisePage() {
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>운동 기록을 삭제하시겠습니까?</AlertDialogTitle>
+            <AlertDialogTitle>{t('deleteTitle')}</AlertDialogTitle>
             <AlertDialogDescription>
-              삭제된 운동 기록은 복구할 수 없습니다.
+              {t('deleteConfirm')}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel onClick={() => setDeleteTargetId(null)} disabled={deleteLog.isPending}>
-              취소
+              {tc('cancel')}
             </AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDeleteConfirm}
               disabled={deleteLog.isPending}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
-              {deleteLog.isPending ? '삭제 중...' : '삭제'}
+              {deleteLog.isPending ? tc('deleting') : tc('delete')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import {
@@ -45,10 +46,12 @@ function BodyLogItem({
   onEdit: (log: BodyLog) => void
   onDelete: (id: string) => void
 }) {
+  const t = useTranslations('health.body')
+  const tc = useTranslations('common')
   const parts: string[] = []
-  if (log.weight != null) parts.push(`체중 ${log.weight}kg`)
-  if (log.body_fat != null) parts.push(`체지방 ${log.body_fat}%`)
-  if (log.muscle_mass != null) parts.push(`근육량 ${log.muscle_mass}kg`)
+  if (log.weight != null) parts.push(t('weightLabel', { weight: log.weight }))
+  if (log.body_fat != null) parts.push(t('bodyFatLabel', { percent: log.body_fat }))
+  if (log.muscle_mass != null) parts.push(t('muscleMassLabel', { mass: log.muscle_mass }))
 
   return (
     <Card>
@@ -70,7 +73,7 @@ function BodyLogItem({
               className="h-8 px-2 text-xs"
               onClick={() => onEdit(log)}
             >
-              수정
+              {tc('edit')}
             </Button>
             <Button
               variant="ghost"
@@ -78,7 +81,7 @@ function BodyLogItem({
               className="h-8 px-2 text-xs text-destructive hover:text-destructive"
               onClick={() => onDelete(log.id)}
             >
-              삭제
+              {tc('delete')}
             </Button>
           </div>
         </div>
@@ -89,6 +92,8 @@ function BodyLogItem({
 
 // 체중/체성분 기록 페이지
 export default function BodyPage() {
+  const t = useTranslations('health.body')
+  const tc = useTranslations('common')
   const [isFormOpen, setIsFormOpen] = useState(false)
   const [editingLog, setEditingLog] = useState<BodyLog | undefined>(undefined)
   const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null)
@@ -135,7 +140,7 @@ export default function BodyPage() {
     <div className="flex flex-col h-full">
       {/* 헤더 */}
       <div className="sticky top-0 z-10 bg-background border-b px-4 py-3">
-        <h1 className="text-sm font-semibold text-center">체중/체성분 기록</h1>
+        <h1 className="text-sm font-semibold text-center">{t('title')}</h1>
       </div>
 
       {/* 본문 */}
@@ -147,13 +152,13 @@ export default function BodyPage() {
           {/* 기록 목록 */}
           {isLoading ? (
             <div className="flex items-center justify-center py-16">
-              <p className="text-sm text-muted-foreground">불러오는 중...</p>
+              <p className="text-sm text-muted-foreground">{tc('loading')}</p>
             </div>
           ) : logs.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-16 space-y-2">
-              <p className="text-sm text-muted-foreground">체중/체성분 기록이 없습니다</p>
+              <p className="text-sm text-muted-foreground">{t('noData')}</p>
               <Button variant="outline" size="sm" onClick={handleOpenCreate}>
-                첫 기록 추가하기
+                {t('addFirst')}
               </Button>
             </div>
           ) : (
@@ -175,7 +180,7 @@ export default function BodyPage() {
       <div className="sticky bottom-0 bg-background border-t px-4 py-3">
         <div className="max-w-lg mx-auto">
           <Button className="w-full" onClick={handleOpenCreate} disabled={isLoading || isMutating}>
-            + 체중/체성분 추가
+            {t('addButton')}
           </Button>
         </div>
       </div>
@@ -184,7 +189,7 @@ export default function BodyPage() {
       <Dialog open={isFormOpen} onOpenChange={(open) => { if (!open) handleFormCancel() }}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>{editingLog ? '체중/체성분 수정' : '체중/체성분 추가'}</DialogTitle>
+            <DialogTitle>{editingLog ? t('editTitle') : t('addTitle')}</DialogTitle>
           </DialogHeader>
           <BodyLogForm
             log={editingLog}
@@ -202,21 +207,21 @@ export default function BodyPage() {
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>체중/체성분 기록을 삭제하시겠습니까?</AlertDialogTitle>
+            <AlertDialogTitle>{t('deleteTitle')}</AlertDialogTitle>
             <AlertDialogDescription>
-              삭제된 기록은 복구할 수 없습니다.
+              {t('deleteConfirm')}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel onClick={() => setDeleteTargetId(null)} disabled={deleteLog.isPending}>
-              취소
+              {tc('cancel')}
             </AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDeleteConfirm}
               disabled={deleteLog.isPending}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
-              {deleteLog.isPending ? '삭제 중...' : '삭제'}
+              {deleteLog.isPending ? tc('deleting') : tc('delete')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

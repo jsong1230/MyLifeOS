@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { useLocale } from 'next-intl'
+import { useLocale, useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
@@ -104,6 +104,8 @@ type TabType = 'weekly' | 'monthly'
 
 export default function StatsPage() {
   const locale = useLocale()
+  const t = useTranslations('time.stats')
+  const tc = useTranslations('common')
   const [tab, setTab] = useState<TabType>('weekly')
   const [weekStart, setWeekStart] = useState(getCurrentWeekStart)
   const [month, setMonth] = useState(getCurrentMonth)
@@ -126,10 +128,12 @@ export default function StatsPage() {
       ? todoWeekly.isLoading || routineWeekly.isLoading
       : todoMonthly.isLoading || routineMonthly.isLoading
 
+  const achievementRateLabel = t('achievementRate')
+
   // 루틴별 차트 데이터
   const routineChartData = (routineData?.per_routine ?? []).map((r) => ({
     name: r.routine_name.length > 6 ? r.routine_name.slice(0, 6) + '…' : r.routine_name,
-    달성률: r.rate,
+    [achievementRateLabel]: r.rate,
   }))
 
   return (
@@ -145,7 +149,7 @@ export default function StatsPage() {
               : 'text-muted-foreground hover:text-foreground'
           }`}
         >
-          주간
+          {t('weekly')}
         </button>
         <button
           type="button"
@@ -156,7 +160,7 @@ export default function StatsPage() {
               : 'text-muted-foreground hover:text-foreground'
           }`}
         >
-          월간
+          {t('monthly')}
         </button>
       </div>
 
@@ -170,7 +174,7 @@ export default function StatsPage() {
               ? setWeekStart((w) => addWeeks(w, -1))
               : setMonth((m) => addMonths(m, -1))
           }
-          aria-label="이전"
+          aria-label={tc('prev')}
         >
           &lt;
         </Button>
@@ -179,7 +183,7 @@ export default function StatsPage() {
             {tab === 'weekly' ? formatWeekLabel(weekStart, locale) : formatMonthLabel(month, locale)}
           </p>
           {(tab === 'weekly' ? isCurrentWeek : isCurrentMonth) && (
-            <p className="text-xs text-primary">{tab === 'weekly' ? '이번 주' : '이번 달'}</p>
+            <p className="text-xs text-primary">{tab === 'weekly' ? tc('thisWeek') : t('thisMonth')}</p>
           )}
         </div>
         <Button
@@ -191,7 +195,7 @@ export default function StatsPage() {
               : setMonth((m) => addMonths(m, 1))
           }
           disabled={tab === 'weekly' ? isCurrentWeek : isCurrentMonth}
-          aria-label="다음"
+          aria-label={tc('next')}
         >
           &gt;
         </Button>
@@ -199,27 +203,27 @@ export default function StatsPage() {
 
       {isLoading ? (
         <div className="flex items-center justify-center py-16">
-          <p className="text-sm text-muted-foreground">불러오는 중...</p>
+          <p className="text-sm text-muted-foreground">{tc('loading')}</p>
         </div>
       ) : (
         <>
           {/* 완료율 게이지 카드 */}
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium">완료율 요약</CardTitle>
+              <CardTitle className="text-sm font-medium">{t('completionSummary')}</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="flex justify-around py-2">
                 <div className="flex flex-col items-center gap-1">
-                  <RateGauge rate={todoData?.rate ?? 0} label="할일 완료율" />
+                  <RateGauge rate={todoData?.rate ?? 0} label={t('todoCompletion')} />
                   <p className="text-xs text-muted-foreground">
-                    {todoData?.completed ?? 0} / {todoData?.total ?? 0}개
+                    {t('itemCount', { completed: todoData?.completed ?? 0, total: todoData?.total ?? 0 })}
                   </p>
                 </div>
                 <div className="flex flex-col items-center gap-1">
-                  <RateGauge rate={routineData?.rate ?? 0} label="루틴 달성률" />
+                  <RateGauge rate={routineData?.rate ?? 0} label={t('routineAchievement')} />
                   <p className="text-xs text-muted-foreground">
-                    {routineData?.completed_checkins ?? 0} / {routineData?.total_checkins ?? 0}회
+                    {t('timeCount', { completed: routineData?.completed_checkins ?? 0, total: routineData?.total_checkins ?? 0 })}
                   </p>
                 </div>
               </div>
@@ -230,7 +234,7 @@ export default function StatsPage() {
           {routineChartData.length > 0 && (
             <Card>
               <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium">루틴별 달성률</CardTitle>
+                <CardTitle className="text-sm font-medium">{t('routineByRate')}</CardTitle>
               </CardHeader>
               <CardContent>
                 <ResponsiveContainer width="100%" height={180}>
@@ -247,15 +251,15 @@ export default function StatsPage() {
                       tickLine={false}
                       axisLine={false}
                     />
-                    <Tooltip formatter={(v) => [`${v as number}%`, '달성률']} />
-                    <Bar dataKey="달성률" radius={[4, 4, 0, 0]}>
+                    <Tooltip formatter={(v) => [`${v as number}%`, achievementRateLabel]} />
+                    <Bar dataKey={achievementRateLabel} radius={[4, 4, 0, 0]}>
                       {routineChartData.map((entry, idx) => (
                         <Cell
                           key={idx}
                           fill={
-                            entry['달성률'] >= 80
+                            (entry[achievementRateLabel] as number) >= 80
                               ? '#22c55e'
-                              : entry['달성률'] >= 50
+                              : (entry[achievementRateLabel] as number) >= 50
                                 ? '#f59e0b'
                                 : '#ef4444'
                           }
@@ -271,7 +275,7 @@ export default function StatsPage() {
           {/* 데이터 없음 */}
           {todoData?.total === 0 && routineData?.total_checkins === 0 && (
             <div className="flex items-center justify-center py-12">
-              <p className="text-sm text-muted-foreground">이 기간에 기록된 데이터가 없습니다</p>
+              <p className="text-sm text-muted-foreground">{t('noData')}</p>
             </div>
           )}
         </>

@@ -26,7 +26,7 @@ export default function TimeLayout({ children }: { children: React.ReactNode }) 
     <div className="flex flex-col h-full w-full min-w-0">
       {/* 서브 네비게이션 탭 */}
       <div className="border-b bg-background sticky top-0 z-10">
-        <nav className="flex px-4" aria-label="시간 관리 서브메뉴">
+        <nav className="flex px-4" aria-label={t('nav.timeSubMenu')}>
           {TIME_NAV_ITEMS.map(({ labelKey, href }) => {
             const active = isActive(href)
             return (

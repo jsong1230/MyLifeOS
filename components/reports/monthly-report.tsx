@@ -2,7 +2,7 @@
 
 import { TrendingUp, TrendingDown, Minus } from 'lucide-react'
 import { useTranslations } from 'next-intl'
-import { EMOTION_ICONS, EMOTION_LABELS, type EmotionType } from '@/types/diary'
+import { EMOTION_ICONS, type EmotionType } from '@/types/diary'
 import { formatCurrency } from '@/lib/currency'
 import { useSettingsStore } from '@/store/settings.store'
 import type { MonthlyReport } from '@/types/report'
@@ -68,6 +68,7 @@ function SpendingTrend({ changePct, sameLabel, vsLabel }: { changePct: number; s
 // 월간 리포트 컴포넌트
 export function MonthlyReportView({ report }: MonthlyReportProps) {
   const t = useTranslations('reports')
+  const te = useTranslations('private.emotions')
   const currency = useSettingsStore((s) => s.defaultCurrency)
   const { todos, spending, health, emotions } = report
 
@@ -176,7 +177,7 @@ export function MonthlyReportView({ report }: MonthlyReportProps) {
               {sortedEmotions.map(([tag, count]) => {
                 const emotionType = tag as EmotionType
                 const icon = EMOTION_ICONS[emotionType] ?? '❓'
-                const label = EMOTION_LABELS[emotionType] ?? tag
+                const label = te(emotionType as Parameters<typeof te>[0])
                 return (
                   <div
                     key={tag}

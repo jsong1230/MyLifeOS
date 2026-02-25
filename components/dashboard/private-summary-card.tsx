@@ -6,12 +6,13 @@ import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 import { EmptyState } from '@/components/dashboard/empty-state'
 import { BookOpen, ChevronRight } from 'lucide-react'
-import { EMOTION_LABELS, EMOTION_ICONS } from '@/types/diary'
+import { EMOTION_ICONS } from '@/types/diary'
 import { useDashboardSummary } from '@/hooks/use-dashboard-summary'
 
 // 사적 기록 요약 카드 — 오늘 일기 감정 태그 표시
 export function PrivateSummaryCard() {
   const t = useTranslations('dashboard')
+  const te = useTranslations('private.emotions')
   const { data, isLoading } = useDashboardSummary()
 
   const { hasEntry, emotionTags } = data?.diary ?? { hasEntry: false, emotionTags: [] }
@@ -41,7 +42,7 @@ export function PrivateSummaryCard() {
               <div className="flex flex-wrap gap-1">
                 {emotionTags.slice(0, 3).map((tag) => (
                   <span key={tag} className="text-xs bg-muted px-2 py-0.5 rounded-full">
-                    {EMOTION_ICONS[tag as keyof typeof EMOTION_ICONS]} {EMOTION_LABELS[tag as keyof typeof EMOTION_LABELS]}
+                    {EMOTION_ICONS[tag as keyof typeof EMOTION_ICONS]} {te(tag as Parameters<typeof te>[0])}
                   </span>
                 ))}
               </div>

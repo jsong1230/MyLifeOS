@@ -24,11 +24,7 @@ function getCurrentYearMonth(): { year: number; month: number } {
 
 // 연/월 포맷 (locale 기반)
 function formatYearMonth(year: number, month: number, locale: string): string {
-  if (locale === 'ko') {
-    return `${year}년 ${month}월`
-  }
-  // 영어: e.g. "February 2026"
-  return new Intl.DateTimeFormat('en-US', { year: 'numeric', month: 'long' }).format(
+  return new Intl.DateTimeFormat(locale, { year: 'numeric', month: 'long' }).format(
     new Date(year, month - 1, 1)
   )
 }
@@ -78,7 +74,7 @@ export default function EmotionStatsPage() {
           variant="ghost"
           size="icon"
           asChild
-          aria-label="감정 캘린더로 돌아가기"
+          aria-label={t('private.emotion.backToCalendar')}
         >
           <Link href="/private/emotion">
             <ArrowLeft className="h-5 w-5" />
@@ -91,7 +87,7 @@ export default function EmotionStatsPage() {
             variant="ghost"
             size="icon"
             onClick={goPrevMonth}
-            aria-label="이전 달"
+            aria-label={t('private.emotion.prevMonth')}
           >
             <ChevronLeft className="h-5 w-5" />
           </Button>
@@ -105,7 +101,7 @@ export default function EmotionStatsPage() {
             size="icon"
             onClick={goNextMonth}
             disabled={isCurrentMonth}
-            aria-label="다음 달"
+            aria-label={t('private.emotion.nextMonth')}
           >
             <ChevronRight className="h-5 w-5" />
           </Button>

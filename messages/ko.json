@@ -60,7 +60,17 @@
     "profile": "프로필",
     "user": "사용자",
     "comingSoon": "준비 중입니다",
-    "dashboard": "대시보드"
+    "dashboard": "대시보드",
+    "deleting": "삭제 중...",
+    "thisWeek": "이번 주",
+    "goToCurrentWeek": "이번 주로",
+    "prevWeek": "이전 주",
+    "nextWeek": "다음 주",
+    "prevMonth": "이전 달",
+    "nextMonth": "다음 달",
+    "loadFailed": "데이터를 불러오는데 실패했습니다",
+    "thisMonth": "이번 달",
+    "tryAgainLater": "잠시 후 다시 시도해주세요."
   },
   "nav": {
     "home": "홈",
@@ -71,7 +81,10 @@
     "reports": "리포트",
     "settings": "설정",
     "sideMenu": "사이드 메뉴",
-    "mainMenu": "메인 메뉴"
+    "mainMenu": "메인 메뉴",
+    "healthSubMenu": "건강 관리 서브메뉴",
+    "timeSubMenu": "시간 관리 서브메뉴",
+    "moneySubMenu": "금전 관리 서브메뉴"
   },
   "fab": {
     "quickAdd": "빠른 입력",
@@ -232,7 +245,8 @@
     "noHealthDesc": "식사, 음주, 수면을 기록하고 건강을 관리하세요",
     "diaryWritten": "오늘 일기 작성됨",
     "noDiaryYet": "아직 일기가 없어요",
-    "noDiaryDesc": "오늘의 감정과 이야기를 기록해보세요"
+    "noDiaryDesc": "오늘의 감정과 이야기를 기록해보세요",
+    "mealCountFallback": "식사 {count}회"
   },
   "money": {
     "title": "금전 관리",
@@ -272,7 +286,9 @@
       "categoryPlaceholder": "카테고리 선택 (선택사항)",
       "categoryNone": "선택 안함",
       "memoPlaceholder": "메모 입력 (선택사항)",
-      "favoriteLabel": "즐겨찾기에 추가 (자주 사용하는 항목)"
+      "favoriteLabel": "즐겨찾기에 추가 (자주 사용하는 항목)",
+      "deleteTitle": "거래 삭제",
+      "deleteConfirm": "이 작업은 되돌릴 수 없습니다. 삭제된 거래 내역은 복구할 수 없습니다."
     },
     "budget": {
       "title": "예산",
@@ -292,6 +308,7 @@
       "uncategorized": "미분류",
       "amountLabel": "예산 금액",
       "amountError": "0보다 큰 예산 금액을 입력해주세요",
+      "amountPlaceholder": "예: 500000",
       "usageLabel": "예산 소진율 {percentage}%",
       "exceededAmount": "{amount} 초과",
       "remainingAmount": "{amount} 남음"
@@ -307,6 +324,7 @@
       "types": {
         "cash": "현금",
         "bank": "예금",
+        "deposit": "예금/적금",
         "investment": "투자",
         "real_estate": "부동산",
         "crypto": "암호화폐",
@@ -318,7 +336,13 @@
       "amountError": "금액을 올바르게 입력해주세요",
       "distribution": "자산 분포",
       "noThisMonth": "이번 달 자산 기록이 없습니다",
-      "byTypeRatio": "유형별 비율"
+      "byTypeRatio": "유형별 비율",
+      "items": "자산 항목",
+      "goToCurrentMonth": "이번 달로",
+      "addFirst": "첫 자산 추가",
+      "deleteTitle": "자산 항목 삭제",
+      "deleteConfirm": "이 자산 항목을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.",
+      "notePlaceholder": "예: 국민은행 정기예금"
     },
     "recurring": {
       "title": "정기 지출",
@@ -377,7 +401,14 @@
       "colorPickerAriaLabel": "색상 선택",
       "colorHexAriaLabel": "HEX 색상 코드",
       "colorPresetAriaLabel": "색상 프리셋",
-      "colorSwatchAriaLabel": "색상 {color}"
+      "colorSwatchAriaLabel": "색상 {color}",
+      "manageTitle": "카테고리 관리",
+      "manageDescription": "수입/지출 카테고리를 관리합니다",
+      "listTitle": "카테고리 목록",
+      "loadError": "카테고리를 불러오는데 실패했습니다.",
+      "systemCategoryLabel": "{name} (시스템 카테고리)",
+      "deleteTitle": "카테고리 삭제",
+      "deleteConfirm": "\"{name}\" 카테고리를 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다."
     },
     "charts": {
       "income": "수입",
@@ -399,6 +430,18 @@
       "totalIncome": "총 수입",
       "totalExpense": "총 지출",
       "netBalance": "순 잔액"
+    },
+    "loadError": "금전 데이터를 불러올 수 없습니다",
+    "overview": {
+      "title": "지출 현황",
+      "categoryRatio": "카테고리별 지출 비율",
+      "budgetVsExpense": "예산 대비 지출 현황",
+      "loadError": "데이터를 불러오는 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.",
+      "legendGood": "80% 미만 (양호)",
+      "legendCaution": "80~100% (주의)",
+      "legendExceeded": "100% 초과 (초과)",
+      "prevMonth": "이전 달",
+      "nextMonth": "다음 달"
     }
   },
   "time": {
@@ -429,7 +472,9 @@
       "titleLabel": "제목",
       "titlePlaceholder": "할일 제목을 입력하세요",
       "addFirstHint": "오른쪽 하단의 + 버튼으로 할일을 추가해보세요",
-      "dueDateLabel": "마감:"
+      "dueDateLabel": "마감:",
+      "deleteTitle": "할일 삭제",
+      "deleteConfirm": "이 할일을 삭제하시겠습니까? 삭제된 할일은 복구할 수 없습니다."
     },
     "routines": {
       "title": "루틴",
@@ -458,7 +503,10 @@
       "resume": "재개",
       "completedLabel": "완료됨",
       "addFirstHint": "+ 루틴 추가 버튼을 눌러 새 루틴을 만들어보세요",
-      "todayEmpty": "오늘 예정된 루틴이 없습니다."
+      "todayEmpty": "오늘 예정된 루틴이 없습니다.",
+      "deleteTitle": "루틴 삭제",
+      "deleteConfirm": "이 루틴과 모든 체크인 기록이 영구적으로 삭제됩니다. 이 작업은 되돌릴 수 없습니다.",
+      "loadError": "루틴을 불러오는 중 오류가 발생했습니다. 새로고침 해주세요."
     },
     "calendar": {
       "title": "캘린더",
@@ -479,7 +527,11 @@
       "nextMonth": "다음 달",
       "noTodosForDay": "이 날에 등록된 할일이 없습니다",
       "addTodo": "할일 추가하기",
-      "moreItems": "+{n}개"
+      "moreItems": "+{n}개",
+      "summary": "전체 {total}개 · 완료 {completed}개 · 미완료 {pending}개",
+      "noTodosEmpty": "이 날에 등록된 할일이 없습니다",
+      "addTodoHere": "할일 추가하기",
+      "loadError": "할일 데이터를 불러오는 데 실패했습니다"
     },
     "blocks": {
       "title": "타임블록",
@@ -501,7 +553,13 @@
       "noTodoLink": "연결 안 함",
       "linkTodoLabel": "할일 연결 (선택)",
       "titleLabel": "제목",
-      "colorLabel": "색상"
+      "colorLabel": "색상",
+      "editTitle": "시간 블록 수정",
+      "addTitle": "새 시간 블록 추가",
+      "today": "오늘",
+      "noBlocks": "이 날의 시간 블록이 없습니다. 타임라인을 클릭하거나 추가 버튼을 눌러 블록을 만드세요.",
+      "deleteTitle": "시간 블록 삭제",
+      "deleteConfirm": "\"{title}\" 블록을 삭제하시겠습니까? 삭제된 블록은 복구할 수 없습니다."
     },
     "stats": {
       "title": "통계",
@@ -511,8 +569,16 @@
       "monthly": "월간",
       "period": "{start} ~ {end}",
       "rate": "달성률",
-      "completionRate": "완료율"
-    }
+      "completionRate": "완료율",
+      "completionSummary": "완료율 요약",
+      "routineByRate": "루틴별 달성률",
+      "achievementRate": "달성률",
+      "thisMonth": "이번 달",
+      "noData": "이 기간에 기록된 데이터가 없습니다",
+      "itemCount": "{completed}/{total}개",
+      "timeCount": "{completed}/{total}회"
+    },
+    "loadError": "시간 데이터를 불러올 수 없습니다"
   },
   "health": {
     "title": "건강 관리",
@@ -535,7 +601,16 @@
       "weightPlaceholder": "예: 70.5",
       "bodyFatPlaceholder": "예: 20.5",
       "musclePlaceholder": "예: 30.0",
-      "notePlaceholder": "예: 아침 공복 측정"
+      "notePlaceholder": "예: 아침 공복 측정",
+      "addButton": "+ 체중/체성분 추가",
+      "addFirst": "첫 기록 추가하기",
+      "editTitle": "체중/체성분 수정",
+      "addTitle": "체중/체성분 추가",
+      "weightLabel": "체중 {weight}kg",
+      "bodyFatLabel": "체지방 {percent}%",
+      "muscleMassLabel": "근육량 {mass}kg",
+      "deleteTitle": "기록 삭제",
+      "deleteConfirm": "삭제된 기록은 복구할 수 없습니다."
     },
     "exercise": {
       "title": "운동",
@@ -580,7 +655,16 @@
         "hiking": "등산",
         "soccer": "축구",
         "basketball": "농구"
-      }
+      },
+      "addButton": "+ 운동 추가",
+      "addFirst": "첫 운동 기록하기",
+      "noDataThisWeek": "이번 주 운동 기록이 없습니다",
+      "editTitle": "운동 수정",
+      "addTitle": "운동 추가",
+      "sessionCount": "운동 횟수",
+      "totalDurationMin": "총 운동 시간(분)",
+      "deleteTitle": "기록 삭제",
+      "deleteConfirm": "삭제된 운동 기록은 복구할 수 없습니다."
     },
     "meals": {
       "title": "식사",
@@ -641,7 +725,15 @@
       "caloriesGoalPlaceholder": "예: 2000",
       "proteinPlaceholder": "예: 60",
       "carbsPlaceholder": "예: 250",
-      "fatPlaceholder": "예: 65"
+      "fatPlaceholder": "예: 65",
+      "today": "오늘",
+      "addButton": "+ 식사 추가",
+      "editTitle": "식사 수정",
+      "addTitle": "식사 추가",
+      "deleteTitle": "기록 삭제",
+      "deleteConfirm": "삭제된 식사 기록은 복구할 수 없습니다.",
+      "prevDay": "이전 날짜",
+      "nextDay": "다음 날짜"
     },
     "sleep": {
       "title": "수면",
@@ -677,7 +769,11 @@
       "estimatedDuration": "예상 수면 시간: {time}",
       "midnight": "자정 넘김",
       "editAriaLabel": "수면 기록 수정",
-      "deleteAriaLabel": "수면 기록 삭제"
+      "deleteAriaLabel": "수면 기록 삭제",
+      "deleteConfirmTitle": "수면 기록을 삭제하시겠습니까?",
+      "deleteConfirmDesc": "삭제된 수면 기록은 복구할 수 없습니다.",
+      "addHint": "아래 버튼을 눌러 기록을 추가하세요",
+      "weekAvgLabel": "{week} · 평균 {hours}h"
     },
     "drinks": {
       "title": "음주",
@@ -724,10 +820,20 @@
       "drinkCountInvalid": "잔 수는 0 이상이어야 합니다",
       "amountMlPlaceholder": "예: 355",
       "alcoholPctPlaceholder": "예: 5.0",
-      "drinkCountPlaceholder": "예: 2"
+      "drinkCountPlaceholder": "예: 2",
+      "deleteConfirmTitle": "음주 기록 삭제",
+      "deleteConfirmDesc": "이 음주 기록을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.",
+      "recordsTitle": "음주 기록",
+      "addFirst": "첫 기록 추가"
     },
     "detailLink": "자세히 보기",
-    "dietGoalTab": "식단 목표"
+    "dietGoalTab": "식단 목표",
+    "loadError": "건강 데이터를 불러올 수 없습니다",
+    "dietGoal": {
+      "title": "식단 목표 설정",
+      "description": "일일 칼로리 및 영양소 목표를 설정합니다",
+      "saveError": "목표 저장에 실패했습니다"
+    }
   },
   "private": {
     "title": "사적 기록",
@@ -860,6 +966,36 @@
       "networkError": "네트워크 오류가 발생했습니다. 다시 시도해주세요",
       "pinChanged": "PIN이 변경되었습니다",
       "pinSet": "PIN이 설정되었습니다"
+    },
+    "emotion": {
+      "emotionDistribution": "이번 달 감정 분포",
+      "noRecordsThisMonth": "아직 이번 달 기록이 없습니다",
+      "noEmotionTags": "감정 태그가 기록된 일기가 없습니다",
+      "prevMonth": "이전 달",
+      "nextMonth": "다음 달",
+      "emotionStatsLabel": "감정 통계 보기",
+      "countUnit": "{count}회",
+      "backToCalendar": "감정 캘린더로 돌아가기"
+    },
+    "menu": {
+      "diary": {
+        "description": "오늘의 기록 작성 및 조회"
+      },
+      "diarySearch": {
+        "title": "일기 검색",
+        "description": "키워드·감정 태그로 검색"
+      },
+      "emotionCalendar": {
+        "title": "감정 캘린더",
+        "description": "날짜별 감정 기록 확인"
+      },
+      "emotionStats": {
+        "title": "감정 통계",
+        "description": "월별 감정 분포 분석"
+      },
+      "relations": {
+        "description": "인물 정보 및 메모 관리"
+      }
     }
   },
   "reports": {
@@ -938,7 +1074,10 @@
       "exportingAll": "전체 내보내는 중...",
       "encrypted": "(암호화)",
       "encryptedHint": "일기 및 인간관계 메모는 PIN 인증이 완료된 경우 복호화하여 내보냅니다. PIN 미인증 상태에서는 암호화된 데이터로 내보내집니다."
-    }
+    },
+    "userGuideTitle": "사용자 가이드",
+    "userGuideDescription": "앱 사용 방법 및 자주 묻는 질문",
+    "userGuideLink": "사용자 가이드 열기 →"
   },
   "currency": {
     "KRW": "한국 원",

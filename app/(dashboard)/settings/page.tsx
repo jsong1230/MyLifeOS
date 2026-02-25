@@ -30,7 +30,7 @@ export default function SettingsPage() {
   const tPin = useTranslations('pin')
   const locale = useLocale()
   const manualHref = locale === 'en' ? '/manual.en.html' : '/manual.html'
-  const manualLabel = locale === 'en' ? 'Open User Guide →' : '사용자 가이드 열기 →'
+  const manualLabel = t('userGuideLink')
   const [view, setView] = useState<SettingsView>('main')
   const [successMessage, setSuccessMessage] = useState('')
   const [pinSet, setPinSet] = useState<boolean | null>(null)
@@ -209,9 +209,9 @@ export default function SettingsPage() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <BookOpen className="w-4 h-4" />
-            사용자 가이드
+            {t('userGuideTitle')}
           </CardTitle>
-          <CardDescription>앱 사용 방법 및 자주 묻는 질문</CardDescription>
+          <CardDescription>{t('userGuideDescription')}</CardDescription>
         </CardHeader>
         <CardContent>
           <a

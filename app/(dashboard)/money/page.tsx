@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import dynamic from 'next/dynamic'
+import { useLocale, useTranslations } from 'next-intl'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -64,6 +65,8 @@ const MonthlyTrendChart = dynamic(
 
 // 금전 관리 대시보드 페이지 — 수입/지출 요약, 파이차트, 바차트
 export default function MoneyPage() {
+  const locale = useLocale()
+  const t = useTranslations('money.overview')
   const [currentMonth, setCurrentMonth] = useState<string>(getCurrentMonth)
 
   const {
@@ -79,6 +82,9 @@ export default function MoneyPage() {
   } = useBudgets(currentMonth)
 
   const { year, month } = parseMonth(currentMonth)
+  const monthLabel = new Intl.DateTimeFormat(locale, { year: 'numeric', month: 'long' }).format(
+    new Date(year, month - 1, 1)
+  )
 
   function handlePrevMonth() {
     setCurrentMonth((prev) => shiftMonth(prev, -1))
@@ -97,24 +103,24 @@ export default function MoneyPage() {
     <div className="p-4 md:p-6 space-y-6 max-w-5xl mx-auto">
       {/* 월 선택 헤더 */}
       <div className="flex items-center justify-between">
-        <h1 className="text-xl font-semibold">지출 현황</h1>
+        <h1 className="text-xl font-semibold">{t('title')}</h1>
         <div className="flex items-center gap-2">
           <Button
             variant="ghost"
             size="icon"
             onClick={handlePrevMonth}
-            aria-label="이전 달"
+            aria-label={t('prevMonth')}
           >
             <ChevronLeft className="h-4 w-4" />
           </Button>
           <span className="text-base font-medium min-w-[110px] text-center">
-            {year}년 {String(month).padStart(2, '0')}월
+            {monthLabel}
           </span>
           <Button
             variant="ghost"
             size="icon"
             onClick={handleNextMonth}
-            aria-label="다음 달"
+            aria-label={t('nextMonth')}
           >
             <ChevronRight className="h-4 w-4" />
           </Button>
@@ -124,7 +130,7 @@ export default function MoneyPage() {
       {/* 에러 상태 */}
       {hasError && (
         <div className="rounded-lg border border-destructive/50 bg-destructive/10 px-4 py-3 text-sm text-destructive">
-          데이터를 불러오는 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.
+          {t('loadError')}
         </div>
       )}
 
@@ -146,7 +152,7 @@ export default function MoneyPage() {
         {/* 카테고리별 지출 비율 파이차트 */}
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">카테고리별 지출 비율</CardTitle>
+            <CardTitle className="text-base">{t('categoryRatio')}</CardTitle>
           </CardHeader>
           <CardContent>
             {isLoadingTransactions ? (
@@ -160,7 +166,7 @@ export default function MoneyPage() {
         {/* 카테고리별 예산 대비 지출 달성률 바차트 */}
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">예산 대비 지출 현황</CardTitle>
+            <CardTitle className="text-base">{t('budgetVsExpense')}</CardTitle>
           </CardHeader>
           <CardContent>
             {isLoadingBudgets ? (
@@ -177,15 +183,15 @@ export default function MoneyPage() {
         <div className="flex flex-wrap gap-3 text-xs text-muted-foreground">
           <span className="flex items-center gap-1">
             <span className="inline-block w-3 h-3 rounded-sm bg-blue-500" />
-            80% 미만 (양호)
+            {t('legendGood')}
           </span>
           <span className="flex items-center gap-1">
             <span className="inline-block w-3 h-3 rounded-sm bg-orange-500" />
-            80~100% (주의)
+            {t('legendCaution')}
           </span>
           <span className="flex items-center gap-1">
             <span className="inline-block w-3 h-3 rounded-sm bg-red-500" />
-            100% 초과 (초과)
+            {t('legendExceeded')}
           </span>
         </div>
       )}

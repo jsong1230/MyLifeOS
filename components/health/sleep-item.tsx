@@ -42,11 +42,11 @@ export function SleepItem({ sleep, onEdit, onDelete }: SleepItemProps) {
     return `${h}${t('hourUnit')} ${m}${t('minuteUnit')}`
   }
 
-  // 날짜 포맷 (YYYY-MM-DD → M월 D일 (요일))
+  // 날짜 포맷 (YYYY-MM-DD → M/D (요일))
   function formatDate(dateStr: string): string {
-    const date = new Date(dateStr)
+    const date = new Date(dateStr + 'T00:00:00')
     const dayKey = dayKeys[date.getDay()]
-    return `${date.getMonth() + 1}월 ${date.getDate()}일 (${tCalendar(`weekdays.${dayKey}`)})`
+    return `${date.getMonth() + 1}/${date.getDate()} (${tCalendar(`weekdays.${dayKey}`)})`
   }
 
   return (

@@ -29,19 +29,10 @@ import type { EmotionType } from '@/types/diary'
 // 날짜를 locale 기반으로 포맷 (YYYY-MM-DD → 로케일 날짜 문자열)
 function formatDate(dateStr: string, locale: string): string {
   const date = new Date(dateStr + 'T00:00:00')
-  const [year, month, dayNum] = dateStr.split('-').map(Number)
-
-  if (locale === 'ko') {
-    const days = ['일', '월', '화', '수', '목', '금', '토']
-    const day = days[date.getDay()]
-    return `${year}년 ${month}월 ${dayNum}일 (${day})`
-  }
-
-  // 영어 포맷: e.g. "Wed, Feb 25, 2026"
-  return new Intl.DateTimeFormat('en-US', {
+  return new Intl.DateTimeFormat(locale, {
     weekday: 'short',
     year: 'numeric',
-    month: 'short',
+    month: 'long',
     day: 'numeric',
   }).format(date)
 }
@@ -155,7 +146,7 @@ export default function DiaryPage() {
           variant="ghost"
           size="icon"
           onClick={goToPrevDay}
-          aria-label="이전 날짜"
+          aria-label={t('common.prev')}
         >
           <ChevronLeft className="h-5 w-5" />
         </Button>
@@ -168,7 +159,7 @@ export default function DiaryPage() {
             variant="ghost"
             size="icon"
             onClick={() => router.push('/private/diary/search')}
-            aria-label="일기 검색"
+            aria-label={t('private.diary.search')}
           >
             <Search className="h-5 w-5" />
           </Button>
@@ -177,7 +168,7 @@ export default function DiaryPage() {
             size="icon"
             onClick={goToNextDay}
             disabled={isNextDisabled}
-            aria-label="다음 날짜"
+            aria-label={t('common.next')}
           >
             <ChevronRight className="h-5 w-5" />
           </Button>

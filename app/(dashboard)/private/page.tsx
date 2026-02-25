@@ -1,50 +1,55 @@
+'use client'
+
 import Link from 'next/link'
+import { useTranslations } from 'next-intl'
 import { BookOpen, Search, SmilePlus, BarChart2, Users } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
 
-const MENU_ITEMS = [
-  {
-    href: '/private/diary',
-    icon: BookOpen,
-    title: '일기',
-    description: '오늘의 기록 작성 및 조회',
-    color: 'text-violet-500',
-  },
-  {
-    href: '/private/diary/search',
-    icon: Search,
-    title: '일기 검색',
-    description: '키워드·감정 태그로 검색',
-    color: 'text-blue-500',
-  },
-  {
-    href: '/private/emotion',
-    icon: SmilePlus,
-    title: '감정 캘린더',
-    description: '날짜별 감정 기록 확인',
-    color: 'text-yellow-500',
-  },
-  {
-    href: '/private/emotion/stats',
-    icon: BarChart2,
-    title: '감정 통계',
-    description: '월별 감정 분포 분석',
-    color: 'text-pink-500',
-  },
-  {
-    href: '/private/relations',
-    icon: Users,
-    title: '인간관계 메모',
-    description: '인물 정보 및 메모 관리',
-    color: 'text-green-500',
-  },
-]
-
 // 사적 기록 모듈 홈
 export default function PrivatePage() {
+  const t = useTranslations('private')
+
+  const MENU_ITEMS = [
+    {
+      href: '/private/diary',
+      icon: BookOpen,
+      title: t('diary.title'),
+      description: t('menu.diary.description'),
+      color: 'text-violet-500',
+    },
+    {
+      href: '/private/diary/search',
+      icon: Search,
+      title: t('menu.diarySearch.title'),
+      description: t('menu.diarySearch.description'),
+      color: 'text-blue-500',
+    },
+    {
+      href: '/private/emotion',
+      icon: SmilePlus,
+      title: t('menu.emotionCalendar.title'),
+      description: t('menu.emotionCalendar.description'),
+      color: 'text-yellow-500',
+    },
+    {
+      href: '/private/emotion/stats',
+      icon: BarChart2,
+      title: t('menu.emotionStats.title'),
+      description: t('menu.emotionStats.description'),
+      color: 'text-pink-500',
+    },
+    {
+      href: '/private/relations',
+      icon: Users,
+      title: t('relations.title'),
+      description: t('menu.relations.description'),
+      color: 'text-green-500',
+    },
+  ]
+
   return (
     <div className="px-4 pt-2 max-w-2xl mx-auto space-y-4">
-      <h1 className="text-xl font-semibold">사적 기록</h1>
+      <h1 className="text-xl font-semibold">{t('title')}</h1>
       <div className="grid grid-cols-1 gap-3">
         {MENU_ITEMS.map(({ href, icon: Icon, title, description, color }) => (
           <Link key={href} href={href}>

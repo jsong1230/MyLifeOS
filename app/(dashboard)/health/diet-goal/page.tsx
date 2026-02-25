@@ -1,6 +1,7 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
+import { useTranslations } from 'next-intl'
 import { DietGoalForm } from '@/components/health/diet-goal-form'
 import { useDietGoal, useUpsertDietGoal } from '@/hooks/use-diet-goal'
 import type { UpsertDietGoalInput } from '@/types/diet-goal'
@@ -8,6 +9,7 @@ import type { UpsertDietGoalInput } from '@/types/diet-goal'
 // 식단 목표 설정 페이지
 export default function DietGoalPage() {
   const router = useRouter()
+  const t = useTranslations('health.dietGoal')
   const { data: goal, isLoading } = useDietGoal()
   const upsertGoal = useUpsertDietGoal()
 
@@ -24,9 +26,9 @@ export default function DietGoalPage() {
     <div className="p-4 md:p-6 max-w-lg mx-auto space-y-6">
       {/* 페이지 헤더 */}
       <div>
-        <h1 className="text-xl font-semibold">식단 목표 설정</h1>
+        <h1 className="text-xl font-semibold">{t('title')}</h1>
         <p className="text-sm text-muted-foreground mt-1">
-          일일 칼로리 및 영양소 목표를 설정합니다
+          {t('description')}
         </p>
       </div>
 
@@ -51,7 +53,7 @@ export default function DietGoalPage() {
       {/* 저장 실패 에러 메시지 */}
       {upsertGoal.isError && (
         <p className="text-sm text-destructive" role="alert">
-          {upsertGoal.error?.message ?? '목표 저장에 실패했습니다'}
+          {upsertGoal.error?.message ?? t('saveError')}
         </p>
       )}
     </div>

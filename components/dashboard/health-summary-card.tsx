@@ -41,7 +41,7 @@ export function HealthSummaryCard() {
                 <div className="flex items-center gap-1.5">
                   <Utensils className="w-3 h-3 text-muted-foreground" />
                   <span className="text-xs">
-                    {totalCalories > 0 ? `${totalCalories} kcal` : `식사 ${mealCount}회`}
+                    {totalCalories > 0 ? `${totalCalories} kcal` : t('mealCountFallback', { count: mealCount })}
                   </span>
                 </div>
               )}

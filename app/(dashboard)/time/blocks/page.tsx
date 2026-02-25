@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { useLocale } from 'next-intl'
+import { useLocale, useTranslations } from 'next-intl'
 import { ChevronLeft, ChevronRight, Plus } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
@@ -57,6 +57,8 @@ function addDays(dateStr: string, days: number): string {
 // 타임블록 페이지
 export default function TimeBlocksPage() {
   const locale = useLocale()
+  const t = useTranslations('time.blocks')
+  const tc = useTranslations('common')
   const [selectedDate, setSelectedDate] = useState<string>(getTodayString())
 
   // 다이얼로그 상태
@@ -161,7 +163,7 @@ export default function TimeBlocksPage() {
             size="icon"
             variant="ghost"
             onClick={handlePrevDay}
-            aria-label="이전 날"
+            aria-label={tc('prev')}
           >
             <ChevronLeft className="size-4" />
           </Button>
@@ -177,7 +179,7 @@ export default function TimeBlocksPage() {
                 onClick={handleToday}
                 className="text-xs h-7 px-2"
               >
-                오늘
+                {t('today')}
               </Button>
             )}
           </div>
@@ -186,7 +188,7 @@ export default function TimeBlocksPage() {
             size="icon"
             variant="ghost"
             onClick={handleNextDay}
-            aria-label="다음 날"
+            aria-label={tc('next')}
           >
             <ChevronRight className="size-4" />
           </Button>
@@ -195,10 +197,10 @@ export default function TimeBlocksPage() {
         <Button
           size="sm"
           onClick={() => handleOpenCreate()}
-          aria-label="새 시간 블록 추가"
+          aria-label={t('addTitle')}
         >
           <Plus className="size-4" />
-          추가
+          {tc('add')}
         </Button>
       </div>
 
@@ -206,13 +208,13 @@ export default function TimeBlocksPage() {
       <div className="flex-1 overflow-auto p-4">
         {isLoading ? (
           <div className="flex justify-center py-8">
-            <span className="text-muted-foreground text-sm">불러오는 중...</span>
+            <span className="text-muted-foreground text-sm">{tc('loading')}</span>
           </div>
         ) : (
           <>
             {blocks.length === 0 && (
               <p className="text-center text-muted-foreground text-sm py-4">
-                이 날의 시간 블록이 없습니다. 타임라인을 클릭하거나 추가 버튼을 눌러 블록을 만드세요.
+                {t('noBlocks')}
               </p>
             )}
             <TimeBlockTimeline
@@ -234,7 +236,7 @@ export default function TimeBlocksPage() {
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>
-              {selectedBlock ? '시간 블록 수정' : '새 시간 블록 추가'}
+              {selectedBlock ? t('editTitle') : t('addTitle')}
             </DialogTitle>
           </DialogHeader>
           <TimeBlockForm
@@ -255,19 +257,18 @@ export default function TimeBlocksPage() {
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>시간 블록 삭제</AlertDialogTitle>
+            <AlertDialogTitle>{t('deleteTitle')}</AlertDialogTitle>
             <AlertDialogDescription>
-              &ldquo;{deleteTargetBlock?.title}&rdquo; 블록을 삭제하시겠습니까?
-              삭제된 블록은 복구할 수 없습니다.
+              {t('deleteConfirm', { title: deleteTargetBlock?.title ?? '' })}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel onClick={handleDeleteCancel}>취소</AlertDialogCancel>
+            <AlertDialogCancel onClick={handleDeleteCancel}>{tc('cancel')}</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDeleteConfirm}
               className="bg-destructive text-white hover:bg-destructive/90"
             >
-              삭제
+              {tc('delete')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

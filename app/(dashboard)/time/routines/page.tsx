@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useLocale, useTranslations } from 'next-intl'
 import { RoutineList } from '@/components/time/routine-list'
 import { RoutineForm } from '@/components/time/routine-form'
 import { Button } from '@/components/ui/button'
@@ -31,16 +32,15 @@ import { Plus } from 'lucide-react'
 import type { Routine, CreateRoutineInput, UpdateRoutineInput } from '@/types/routine'
 
 /**
- * 오늘 날짜를 "YYYY년 MM월 DD일 (요일)" 형식으로 반환
+ * 오늘 날짜를 로케일 기반으로 포맷
  */
-function formatTodayLabel(): string {
-  const now = new Date()
-  const year = now.getFullYear()
-  const month = now.getMonth() + 1
-  const day = now.getDate()
-  const weekdays = ['일', '월', '화', '수', '목', '금', '토']
-  const weekday = weekdays[now.getDay()]
-  return `${year}년 ${month}월 ${day}일 (${weekday})`
+function formatTodayLabel(locale: string): string {
+  return new Intl.DateTimeFormat(locale, {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    weekday: 'short',
+  }).format(new Date())
 }
 
 /**
@@ -54,6 +54,9 @@ function getTodayString(): string {
  * 루틴 관리 페이지 (오늘의 루틴 체크인)
  */
 export default function RoutinesPage() {
+  const locale = useLocale()
+  const t = useTranslations('time.routines')
+  const tc = useTranslations('common')
   // 수정 중인 루틴
   const [editingRoutine, setEditingRoutine] = useState<Routine | null>(null)
   // 추가 다이얼로그 열림 여부
@@ -139,16 +142,16 @@ export default function RoutinesPage() {
       {/* 헤더 */}
       <div className="flex items-center justify-between mb-4">
         <div>
-          <h1 className="text-lg font-semibold">루틴</h1>
-          <p className="text-sm text-muted-foreground">{formatTodayLabel()}</p>
+          <h1 className="text-lg font-semibold">{t('title')}</h1>
+          <p className="text-sm text-muted-foreground">{formatTodayLabel(locale)}</p>
         </div>
         <Button
           size="sm"
           onClick={() => setIsAddDialogOpen(true)}
-          aria-label="루틴 추가"
+          aria-label={t('add')}
         >
           <Plus className="size-4" />
-          루틴 추가
+          {t('add')}
         </Button>
       </div>
 
@@ -158,7 +161,7 @@ export default function RoutinesPage() {
           role="alert"
           className="rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive mb-4"
         >
-          루틴을 불러오는 중 오류가 발생했습니다. 새로고침 해주세요.
+          {t('loadError')}
         </div>
       )}
 
@@ -186,7 +189,7 @@ export default function RoutinesPage() {
       <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>루틴 추가</DialogTitle>
+            <DialogTitle>{t('add')}</DialogTitle>
           </DialogHeader>
           <RoutineForm
             onSubmit={handleAddSubmit}
@@ -203,7 +206,7 @@ export default function RoutinesPage() {
       >
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>루틴 수정</DialogTitle>
+            <DialogTitle>{t('edit')}</DialogTitle>
           </DialogHeader>
           {editingRoutine && (
             <RoutineForm
@@ -223,21 +226,20 @@ export default function RoutinesPage() {
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>루틴을 삭제하시겠습니까?</AlertDialogTitle>
+            <AlertDialogTitle>{t('deleteTitle')}</AlertDialogTitle>
             <AlertDialogDescription>
-              이 루틴과 모든 체크인 기록이 영구적으로 삭제됩니다. 이 작업은
-              되돌릴 수 없습니다.
+              {t('deleteConfirm')}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel onClick={handleDeleteCancel}>
-              취소
+              {tc('cancel')}
             </AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDeleteConfirm}
               className="bg-destructive text-white hover:bg-destructive/90"
             >
-              {deleteMutation.isPending ? '삭제 중...' : '삭제'}
+              {deleteMutation.isPending ? tc('deleting') : tc('delete')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

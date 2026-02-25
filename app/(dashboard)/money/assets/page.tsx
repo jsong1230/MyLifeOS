@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { useLocale } from 'next-intl'
+import { useLocale, useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import {
@@ -66,6 +66,8 @@ function formatMonthLabel(ym: string, locale: string): string {
 // 자산 현황 페이지 — F-21
 export default function AssetsPage() {
   const locale = useLocale()
+  const t = useTranslations('money.assets')
+  const tc = useTranslations('common')
   const [month, setMonth] = useState(getCurrentMonth)
   const isCurrentMonth = month === getCurrentMonth()
 
@@ -132,7 +134,7 @@ export default function AssetsPage() {
     <div className="p-4 space-y-4 max-w-lg mx-auto">
       {/* 월 네비게이션 */}
       <div className="flex items-center justify-between">
-        <Button variant="ghost" size="icon" onClick={() => setMonth((m) => shiftMonth(m, -1))} aria-label="이전 달">
+        <Button variant="ghost" size="icon" onClick={() => setMonth((m) => shiftMonth(m, -1))} aria-label={tc('prev')}>
           <ChevronLeft className="h-5 w-5" />
         </Button>
         <div className="text-center">
@@ -143,11 +145,11 @@ export default function AssetsPage() {
               onClick={() => setMonth(getCurrentMonth())}
               className="text-xs text-primary hover:underline"
             >
-              이번 달로
+              {t('goToCurrentMonth')}
             </button>
           )}
         </div>
-        <Button variant="ghost" size="icon" onClick={() => setMonth((m) => shiftMonth(m, 1))} aria-label="다음 달">
+        <Button variant="ghost" size="icon" onClick={() => setMonth((m) => shiftMonth(m, 1))} aria-label={tc('next')}>
           <ChevronRight className="h-5 w-5" />
         </Button>
       </div>
@@ -156,7 +158,7 @@ export default function AssetsPage() {
       {isLoading ? (
         <Card>
           <CardContent className="py-8 text-center text-sm text-muted-foreground">
-            불러오는 중...
+            {tc('loading')}
           </CardContent>
         </Card>
       ) : (
@@ -168,10 +170,10 @@ export default function AssetsPage() {
 
       {/* 자산 목록 헤더 */}
       <div className="flex items-center justify-between">
-        <h2 className="text-sm font-medium text-muted-foreground">자산 항목</h2>
+        <h2 className="text-sm font-medium text-muted-foreground">{t('items')}</h2>
         <Button size="sm" onClick={handleAddClick} disabled={isMutating} className="gap-1">
           <Plus className="h-4 w-4" />
-          추가
+          {tc('add')}
         </Button>
       </div>
 
@@ -182,7 +184,7 @@ export default function AssetsPage() {
             {assets.map((asset) => (
               <div key={asset.id} className="flex items-center justify-between px-4 py-3 border-b last:border-b-0">
                 <div>
-                  <p className="text-sm font-medium">{ASSET_TYPE_LABEL[asset.asset_type]}</p>
+                  <p className="text-sm font-medium">{t(`types.${asset.asset_type}` as Parameters<typeof t>[0])}</p>
                   {asset.note && (
                     <p className="text-xs text-muted-foreground">{asset.note}</p>
                   )}
@@ -215,10 +217,10 @@ export default function AssetsPage() {
       ) : !isLoading ? (
         <Card>
           <CardContent className="py-10 text-center">
-            <p className="text-sm text-muted-foreground">이번 달 자산 기록이 없습니다</p>
+            <p className="text-sm text-muted-foreground">{t('noThisMonth')}</p>
             <Button variant="outline" size="sm" className="mt-3" onClick={handleAddClick}>
               <Plus className="h-4 w-4 mr-1" />
-              첫 자산 추가
+              {t('addFirst')}
             </Button>
           </CardContent>
         </Card>
@@ -228,7 +230,7 @@ export default function AssetsPage() {
       <Dialog open={isFormOpen} onOpenChange={(open) => { if (!open) handleFormClose() }}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>{editTarget ? '자산 수정' : '자산 추가'}</DialogTitle>
+            <DialogTitle>{editTarget ? t('edit') : t('add')}</DialogTitle>
           </DialogHeader>
           <AssetForm
             asset={editTarget ?? undefined}
@@ -247,19 +249,19 @@ export default function AssetsPage() {
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>자산 항목 삭제</AlertDialogTitle>
+            <AlertDialogTitle>{t('deleteTitle')}</AlertDialogTitle>
             <AlertDialogDescription>
-              이 자산 항목을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.
+              {t('deleteConfirm')}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={deleteMutation.isPending}>취소</AlertDialogCancel>
+            <AlertDialogCancel disabled={deleteMutation.isPending}>{tc('cancel')}</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDeleteConfirm}
               disabled={deleteMutation.isPending}
               className="bg-destructive hover:bg-destructive/90"
             >
-              {deleteMutation.isPending ? '삭제 중...' : '삭제'}
+              {deleteMutation.isPending ? tc('deleting') : tc('delete')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

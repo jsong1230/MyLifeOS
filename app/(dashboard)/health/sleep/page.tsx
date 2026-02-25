@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -48,7 +49,7 @@ function getCurrentWeekStart(): string {
   return toLocalDateStr(today)
 }
 
-// 주간 레이블 포맷 (예: "2025년 12월 2주")
+// 주간 레이블 포맷 (예: "2/23 ~ 3/1")
 function formatWeekLabel(weekStart: string): string {
   const start = new Date(weekStart + 'T00:00:00')
   const end = new Date(weekStart + 'T00:00:00')
@@ -56,8 +57,7 @@ function formatWeekLabel(weekStart: string): string {
 
   const startLabel = `${start.getMonth() + 1}/${start.getDate()}`
   const endLabel = `${end.getMonth() + 1}/${end.getDate()}`
-  const year = start.getFullYear()
-  return `${year}년 ${startLabel} ~ ${endLabel}`
+  return `${startLabel} ~ ${endLabel}`
 }
 
 // 이번 주 여부 확인
@@ -67,6 +67,7 @@ function isCurrentWeek(weekStart: string): boolean {
 
 // 수면 페이지 — 주간 수면 기록 관리
 export default function SleepPage() {
+  const t = useTranslations()
   const [weekStart, setWeekStart] = useState<string>(getCurrentWeekStart())
 
   // 다이얼로그 상태
@@ -173,7 +174,7 @@ export default function SleepPage() {
             variant="ghost"
             size="sm"
             onClick={handlePrevWeek}
-            aria-label="이전 주"
+            aria-label={t('common.prevWeek')}
           >
             &lt;
           </Button>
@@ -186,11 +187,11 @@ export default function SleepPage() {
                 onClick={handleGoToCurrentWeek}
                 className="text-xs text-primary hover:underline"
               >
-                이번 주로
+                {t('common.goToCurrentWeek')}
               </button>
             )}
             {isCurrentWeek(weekStart) && (
-              <p className="text-xs text-primary">이번 주</p>
+              <p className="text-xs text-primary">{t('common.thisWeek')}</p>
             )}
           </div>
 
@@ -198,7 +199,7 @@ export default function SleepPage() {
             variant="ghost"
             size="sm"
             onClick={handleNextWeek}
-            aria-label="다음 주"
+            aria-label={t('common.nextWeek')}
           >
             &gt;
           </Button>
@@ -210,7 +211,7 @@ export default function SleepPage() {
         <div className="max-w-lg mx-auto space-y-4">
           {isLoading ? (
             <div className="flex items-center justify-center py-16">
-              <p className="text-sm text-muted-foreground">불러오는 중...</p>
+              <p className="text-sm text-muted-foreground">{t('common.loading')}</p>
             </div>
           ) : (
             <>
@@ -219,7 +220,7 @@ export default function SleepPage() {
                 logs={logs}
                 weekLabel={
                   summary
-                    ? `${weekLabel} · 평균 ${summary.avg_hours}h`
+                    ? t('health.sleep.weekAvgLabel', { week: weekLabel, hours: summary.avg_hours })
                     : weekLabel
                 }
               />
@@ -228,8 +229,8 @@ export default function SleepPage() {
               <div className="space-y-2">
                 {logs.length === 0 ? (
                   <div className="text-center py-8 text-sm text-muted-foreground">
-                    <p>이번 주 수면 기록이 없습니다</p>
-                    <p className="mt-1">아래 버튼을 눌러 기록을 추가하세요</p>
+                    <p>{t('health.sleep.noSleepThisWeek')}</p>
+                    <p className="mt-1">{t('health.sleep.addHint')}</p>
                   </div>
                 ) : (
                   logs.map((log) => (
@@ -255,7 +256,7 @@ export default function SleepPage() {
             onClick={handleOpenCreate}
             disabled={isLoading || isMutating}
           >
-            + 수면 기록 추가
+            + {t('health.sleep.add')}
           </Button>
         </div>
       </div>
@@ -269,7 +270,9 @@ export default function SleepPage() {
       >
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>{editingSleep ? '수면 기록 수정' : '수면 기록 추가'}</DialogTitle>
+            <DialogTitle>
+              {editingSleep ? t('health.sleep.edit') : t('health.sleep.add')}
+            </DialogTitle>
           </DialogHeader>
           <SleepForm
             sleep={editingSleep}
@@ -289,9 +292,9 @@ export default function SleepPage() {
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>수면 기록을 삭제하시겠습니까?</AlertDialogTitle>
+            <AlertDialogTitle>{t('health.sleep.deleteConfirmTitle')}</AlertDialogTitle>
             <AlertDialogDescription>
-              삭제된 수면 기록은 복구할 수 없습니다.
+              {t('health.sleep.deleteConfirmDesc')}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -299,14 +302,14 @@ export default function SleepPage() {
               onClick={handleDeleteCancel}
               disabled={deleteSleep.isPending}
             >
-              취소
+              {t('common.cancel')}
             </AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDeleteConfirm}
               disabled={deleteSleep.isPending}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
-              {deleteSleep.isPending ? '삭제 중...' : '삭제'}
+              {deleteSleep.isPending ? t('common.deleting') : t('common.delete')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

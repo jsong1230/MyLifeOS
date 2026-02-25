@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { useLocale } from 'next-intl'
+import { useLocale, useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -52,6 +52,8 @@ function isToday(dateStr: string): boolean {
 // 식사 기록 페이지
 export default function MealsPage() {
   const locale = useLocale()
+  const t = useTranslations('health.meals')
+  const tc = useTranslations('common')
   const [selectedDate, setSelectedDate] = useState<string>(
     new Date().toISOString().split('T')[0]
   )
@@ -158,7 +160,7 @@ export default function MealsPage() {
             variant="ghost"
             size="sm"
             onClick={handlePrevDay}
-            aria-label="이전 날짜"
+            aria-label={t('prevDay')}
           >
             &lt;
           </Button>
@@ -166,7 +168,7 @@ export default function MealsPage() {
           <div className="text-center">
             <p className="text-sm font-semibold">{formatDisplayDate(selectedDate, locale)}</p>
             {isToday(selectedDate) && (
-              <p className="text-xs text-primary">오늘</p>
+              <p className="text-xs text-primary">{t('today')}</p>
             )}
           </div>
 
@@ -174,7 +176,7 @@ export default function MealsPage() {
             variant="ghost"
             size="sm"
             onClick={handleNextDay}
-            aria-label="다음 날짜"
+            aria-label={t('nextDay')}
           >
             &gt;
           </Button>
@@ -199,7 +201,7 @@ export default function MealsPage() {
 
           {isLoading ? (
             <div className="flex items-center justify-center py-16">
-              <p className="text-sm text-muted-foreground">불러오는 중...</p>
+              <p className="text-sm text-muted-foreground">{tc('loading')}</p>
             </div>
           ) : (
             <MealList
@@ -220,7 +222,7 @@ export default function MealsPage() {
             onClick={handleOpenCreate}
             disabled={isLoading || isMutating}
           >
-            + 식사 추가
+            {t('addButton')}
           </Button>
         </div>
       </div>
@@ -229,7 +231,7 @@ export default function MealsPage() {
       <Dialog open={isFormOpen} onOpenChange={(open) => { if (!open) handleFormCancel() }}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>{editingMeal ? '식사 수정' : '식사 추가'}</DialogTitle>
+            <DialogTitle>{editingMeal ? t('editTitle') : t('addTitle')}</DialogTitle>
           </DialogHeader>
           <MealForm
             meal={editingMeal}
@@ -247,21 +249,21 @@ export default function MealsPage() {
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>식사 기록을 삭제하시겠습니까?</AlertDialogTitle>
+            <AlertDialogTitle>{t('deleteTitle')}</AlertDialogTitle>
             <AlertDialogDescription>
-              삭제된 식사 기록은 복구할 수 없습니다.
+              {t('deleteConfirm')}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel onClick={handleDeleteCancel} disabled={deleteMeal.isPending}>
-              취소
+              {tc('cancel')}
             </AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDeleteConfirm}
               disabled={deleteMeal.isPending}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
-              {deleteMeal.isPending ? '삭제 중...' : '삭제'}
+              {deleteMeal.isPending ? tc('deleting') : tc('delete')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

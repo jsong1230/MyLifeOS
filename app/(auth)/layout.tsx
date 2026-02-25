@@ -1,12 +1,13 @@
-import { getLocale } from 'next-intl/server'
+import { getLocale, getTranslations } from 'next-intl/server'
 import { Card } from '@/components/ui/card'
 import { LocaleToggle } from '@/components/auth/locale-toggle'
 
 // 인증 전용 레이아웃 — 중앙 정렬 카드 구조
 export default async function AuthLayout({ children }: { children: React.ReactNode }) {
   const locale = await getLocale()
+  const t = await getTranslations('settings')
   const manualHref = locale === 'en' ? '/manual.en.html' : '/manual.html'
-  const manualLabel = locale === 'en' ? 'User Guide' : '사용자 가이드'
+  const manualLabel = t('userGuideTitle')
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">

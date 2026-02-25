@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useMemo } from 'react'
+import { useLocale, useTranslations } from 'next-intl'
 import { CalendarView } from '@/components/time/calendar-view'
 import { TodoFormDialog } from '@/components/time/todo-form-dialog'
 import { useTodos } from '@/hooks/use-todos'
@@ -14,6 +15,7 @@ import type { Todo } from '@/types/todo'
 
 // 캘린더 페이지 — 월간/주간/일간 캘린더 + 선택 날짜 상세 패널
 export default function CalendarPage() {
+  const locale = useLocale()
   const { selectedDate, setSelectedDate, monthQuery } = useCalendar()
 
   // 선택된 날짜로 TodoFormDialog 열기 여부
@@ -63,6 +65,7 @@ export default function CalendarPage() {
           date={selectedDate}
           todos={selectedDateTodos}
           onAddTodo={() => handleAddTodo(selectedDate)}
+          locale={locale}
         />
       </div>
 
@@ -81,16 +84,23 @@ interface SelectedDatePanelProps {
   date: string
   todos: Todo[]
   onAddTodo: () => void
+  locale: string
 }
 
-function SelectedDatePanel({ date, todos, onAddTodo }: SelectedDatePanelProps) {
-  // 날짜 표시 포맷
-  const dateObj = new Date(date + 'T00:00:00')
-  const DAY_KR = ['일', '월', '화', '수', '목', '금', '토'] as const
-  const dateLabel = `${dateObj.getMonth() + 1}월 ${dateObj.getDate()}일 (${DAY_KR[dateObj.getDay()]})`
+function SelectedDatePanel({ date, todos, onAddTodo, locale }: SelectedDatePanelProps) {
+  const t = useTranslations('time.calendar')
+  const tc = useTranslations('common')
 
-  const completedCount = todos.filter((t) => t.status === 'completed').length
-  const pendingCount = todos.filter((t) => t.status === 'pending').length
+  // 날짜 표시 포맷 (로케일 기반)
+  const dateObj = new Date(date + 'T00:00:00')
+  const dateLabel = new Intl.DateTimeFormat(locale, {
+    month: 'long',
+    day: 'numeric',
+    weekday: 'short',
+  }).format(dateObj)
+
+  const completedCount = todos.filter((td) => td.status === 'completed').length
+  const pendingCount = todos.filter((td) => td.status === 'pending').length
 
   return (
     <div className="flex flex-col h-full">
@@ -100,13 +110,13 @@ function SelectedDatePanel({ date, todos, onAddTodo }: SelectedDatePanelProps) {
           <span className="text-sm font-semibold">{dateLabel}</span>
           {todos.length > 0 && (
             <span className="text-xs text-muted-foreground">
-              전체 {todos.length}개 · 완료 {completedCount}개 · 미완료 {pendingCount}개
+              {t('summary', { total: todos.length, completed: completedCount, pending: pendingCount })}
             </span>
           )}
         </div>
         <Button size="sm" variant="outline" onClick={onAddTodo} className="gap-1 text-xs">
           <Plus className="h-3.5 w-3.5" />
-          추가
+          {tc('add')}
         </Button>
       </div>
 
@@ -131,13 +141,14 @@ function SelectedDatePanel({ date, todos, onAddTodo }: SelectedDatePanelProps) {
 
 // 빈 날짜 상태 컴포넌트
 function EmptyDateState({ onAddTodo }: { onAddTodo: () => void }) {
+  const t = useTranslations('time.calendar')
   return (
     <div className="flex flex-col items-center justify-center h-full gap-3 py-12 text-muted-foreground">
       <Calendar className="h-8 w-8 opacity-30" />
-      <p className="text-sm text-center">이 날에 등록된 할일이 없습니다</p>
+      <p className="text-sm text-center">{t('noTodosEmpty')}</p>
       <Button size="sm" variant="outline" onClick={onAddTodo} className="gap-1 text-xs">
         <Plus className="h-3.5 w-3.5" />
-        할일 추가하기
+        {t('addTodoHere')}
       </Button>
     </div>
   )
@@ -145,6 +156,7 @@ function EmptyDateState({ onAddTodo }: { onAddTodo: () => void }) {
 
 // 패널 내 할일 아이템 컴포넌트
 function PanelTodoItem({ todo }: { todo: Todo }) {
+  const tp = useTranslations('time.todos.priorities')
   const today = new Date().toISOString().split('T')[0]
   const isOverdue =
     todo.status !== 'completed' &&
@@ -153,9 +165,9 @@ function PanelTodoItem({ todo }: { todo: Todo }) {
     todo.due_date < today
 
   const PRIORITY_CONFIG = {
-    high: { label: '높음', className: 'bg-red-100 text-red-700' },
-    medium: { label: '중간', className: 'bg-yellow-100 text-yellow-700' },
-    low: { label: '낮음', className: 'bg-gray-100 text-gray-600' },
+    high: { label: tp('high'), className: 'bg-red-100 text-red-700' },
+    medium: { label: tp('medium'), className: 'bg-yellow-100 text-yellow-700' },
+    low: { label: tp('low'), className: 'bg-gray-100 text-gray-600' },
   }
 
   const { label: priorityLabel, className: priorityClassName } =
@@ -238,10 +250,11 @@ function CalendarSkeleton() {
 
 // 에러 상태
 function CalendarError() {
+  const t = useTranslations('time.calendar')
   return (
     <div className="flex items-center justify-center h-full py-16">
       <p className="text-sm text-muted-foreground">
-        할일 데이터를 불러오는 데 실패했습니다
+        {t('loadError')}
       </p>
     </div>
   )

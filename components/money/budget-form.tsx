@@ -121,7 +121,7 @@ export function BudgetForm({
           step={1000}
           value={amount}
           onChange={(e) => setAmount(e.target.value)}
-          placeholder="예: 500000"
+          placeholder={t('amountPlaceholder')}
           disabled={isLoading}
           aria-invalid={Boolean(errors.amount)}
         />

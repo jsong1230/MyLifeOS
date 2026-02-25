@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { Plus } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
@@ -33,6 +34,9 @@ import type { Category, CreateCategoryInput, UpdateCategoryInput } from '@/types
 // 카테고리 관리 페이지
 // 카테고리 목록 + 추가/수정/삭제 기능 제공
 export default function CategoriesPage() {
+  const t = useTranslations('money.categories')
+  const tc = useTranslations('common')
+
   // 카테고리 데이터 조회 (전체)
   const { data: categories, isLoading, error } = useCategories()
 
@@ -129,21 +133,21 @@ export default function CategoriesPage() {
       {/* 헤더 */}
       <div className="mb-6 flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-semibold">카테고리 관리</h1>
+          <h1 className="text-xl font-semibold">{t('manageTitle')}</h1>
           <p className="mt-0.5 text-sm text-muted-foreground">
-            수입/지출 카테고리를 관리합니다
+            {t('manageDescription')}
           </p>
         </div>
         <Button onClick={handleOpenCreate} size="sm">
           <Plus className="mr-1.5 h-4 w-4" aria-hidden="true" />
-          카테고리 추가
+          {t('add')}
         </Button>
       </div>
 
       {/* 카테고리 목록 카드 */}
       <Card>
         <CardHeader className="pb-3">
-          <CardTitle className="text-base">카테고리 목록</CardTitle>
+          <CardTitle className="text-base">{t('listTitle')}</CardTitle>
         </CardHeader>
         <CardContent>
           {/* 로딩 상태 */}
@@ -162,7 +166,7 @@ export default function CategoriesPage() {
           {/* 에러 상태 */}
           {error && (
             <div className="py-4 text-center text-sm text-destructive">
-              카테고리를 불러오는데 실패했습니다.
+              {t('loadError')}
             </div>
           )}
 
@@ -184,9 +188,9 @@ export default function CategoriesPage() {
             <DialogTitle>
               {editingCategory
                 ? editingCategory.is_system
-                  ? `${editingCategory.name} (시스템 카테고리)`
-                  : `카테고리 수정`
-                : '카테고리 추가'}
+                  ? t('systemCategoryLabel', { name: editingCategory.name })
+                  : t('edit')
+                : t('add')}
             </DialogTitle>
           </DialogHeader>
           <CategoryForm
@@ -205,28 +209,24 @@ export default function CategoriesPage() {
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>카테고리 삭제</AlertDialogTitle>
+            <AlertDialogTitle>{t('deleteTitle')}</AlertDialogTitle>
             <AlertDialogDescription>
               {deleteErrorMessage ? (
                 <span className="text-destructive">{deleteErrorMessage}</span>
               ) : (
-                <>
-                  <strong>{deletingCategory?.name}</strong> 카테고리를 삭제하시겠습니까?
-                  <br />
-                  <span className="text-destructive">이 작업은 되돌릴 수 없습니다.</span>
-                </>
+                t('deleteConfirm', { name: deletingCategory?.name ?? '' })
               )}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel onClick={handleCloseDelete}>취소</AlertDialogCancel>
+            <AlertDialogCancel onClick={handleCloseDelete}>{tc('cancel')}</AlertDialogCancel>
             {!deleteErrorMessage && (
               <AlertDialogAction
                 onClick={handleConfirmDelete}
                 className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                 disabled={deleteCategory.isPending}
               >
-                {deleteCategory.isPending ? '삭제 중...' : '삭제'}
+                {deleteCategory.isPending ? tc('deleting') : tc('delete')}
               </AlertDialogAction>
             )}
           </AlertDialogFooter>

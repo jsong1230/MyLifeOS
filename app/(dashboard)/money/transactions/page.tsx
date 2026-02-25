@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -43,6 +44,8 @@ function getCurrentMonth(): string {
 }
 
 export default function TransactionsPage() {
+  const t = useTranslations('money.transactions')
+  const tc = useTranslations('common')
   // 필터 상태 — 기본값: 현재 월
   const [filter, setFilter] = useState<TransactionFilter>({
     month: getCurrentMonth(),
@@ -142,7 +145,7 @@ export default function TransactionsPage() {
       <div className="flex-1 overflow-auto">
         {isLoading ? (
           <div className="flex items-center justify-center py-16 text-muted-foreground">
-            <span className="text-sm">불러오는 중...</span>
+            <span className="text-sm">{tc('loading')}</span>
           </div>
         ) : (
           <TransactionList
@@ -160,7 +163,7 @@ export default function TransactionsPage() {
           size="lg"
           onClick={handleOpenCreate}
           className="h-14 w-14 rounded-full shadow-lg text-2xl p-0"
-          aria-label="거래 추가"
+          aria-label={t('add')}
         >
           +
         </Button>
@@ -171,7 +174,7 @@ export default function TransactionsPage() {
         <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>
-              {editingTransaction ? '거래 수정' : '거래 추가'}
+              {editingTransaction ? t('edit') : t('add')}
             </DialogTitle>
           </DialogHeader>
           <TransactionForm
@@ -187,21 +190,21 @@ export default function TransactionsPage() {
       <AlertDialog open={!!deletingId} onOpenChange={(open) => { if (!open) setDeletingId(null) }}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>거래를 삭제하시겠습니까?</AlertDialogTitle>
+            <AlertDialogTitle>{t('deleteTitle')}</AlertDialogTitle>
             <AlertDialogDescription>
-              이 작업은 되돌릴 수 없습니다. 삭제된 거래 내역은 복구할 수 없습니다.
+              {t('deleteConfirm')}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel onClick={() => setDeletingId(null)}>
-              취소
+              {tc('cancel')}
             </AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDeleteConfirm}
               disabled={deleteMutation.isPending}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
-              {deleteMutation.isPending ? '삭제 중...' : '삭제'}
+              {deleteMutation.isPending ? tc('deleting') : tc('delete')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

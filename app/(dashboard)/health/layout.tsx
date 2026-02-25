@@ -27,7 +27,7 @@ export default function HealthLayout({ children }: { children: React.ReactNode }
   return (
     <div className="flex flex-col h-full w-full min-w-0">
       <div className="border-b bg-background sticky top-0 z-10">
-        <nav className="flex px-4 overflow-x-auto" aria-label="건강 관리 서브메뉴">
+        <nav className="flex px-4 overflow-x-auto" aria-label={t('nav.healthSubMenu')}>
           {HEALTH_NAV_ITEMS.map(({ labelKey, href }) => {
             const active = isActive(href)
             return (

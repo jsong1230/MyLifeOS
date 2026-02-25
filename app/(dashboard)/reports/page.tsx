@@ -133,7 +133,7 @@ export default function ReportsPage() {
               type="button"
               onClick={goToPrevWeek}
               className="p-2 rounded-full hover:bg-muted transition-colors"
-              aria-label="이전 주"
+              aria-label={t('common.prevWeek')}
             >
               <ChevronLeft className="w-5 h-5" aria-hidden="true" />
             </button>
@@ -142,7 +142,7 @@ export default function ReportsPage() {
               type="button"
               onClick={goToNextWeek}
               className="p-2 rounded-full hover:bg-muted transition-colors"
-              aria-label="다음 주"
+              aria-label={t('common.nextWeek')}
             >
               <ChevronRight className="w-5 h-5" aria-hidden="true" />
             </button>
@@ -172,7 +172,7 @@ export default function ReportsPage() {
               type="button"
               onClick={goToPrevMonth}
               className="p-2 rounded-full hover:bg-muted transition-colors"
-              aria-label="이전 달"
+              aria-label={t('common.prevMonth')}
             >
               <ChevronLeft className="w-5 h-5" aria-hidden="true" />
             </button>
@@ -181,7 +181,7 @@ export default function ReportsPage() {
               type="button"
               onClick={goToNextMonth}
               className="p-2 rounded-full hover:bg-muted transition-colors"
-              aria-label="다음 달"
+              aria-label={t('common.nextMonth')}
             >
               <ChevronRight className="w-5 h-5" aria-hidden="true" />
             </button>

@@ -76,8 +76,10 @@ export function AssetForm({ asset, defaultMonth, onSubmit, onCancel, isLoading =
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            {(Object.entries(ASSET_TYPE_LABEL) as [AssetType, string][]).map(([type, label]) => (
-              <SelectItem key={type} value={type}>{label}</SelectItem>
+            {(Object.keys(ASSET_TYPE_LABEL) as AssetType[]).map((type) => (
+              <SelectItem key={type} value={type}>
+                {t(`types.${type}` as Parameters<typeof t>[0])}
+              </SelectItem>
             ))}
           </SelectContent>
         </Select>
@@ -104,7 +106,7 @@ export function AssetForm({ asset, defaultMonth, onSubmit, onCancel, isLoading =
         <Input
           id="asset-note"
           type="text"
-          placeholder="예: 국민은행 정기예금"
+          placeholder={t('notePlaceholder')}
           value={note}
           onChange={(e) => setNote(e.target.value)}
           maxLength={100}
