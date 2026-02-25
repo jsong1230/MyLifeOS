@@ -1,3 +1,0 @@
-id,user_id,amount,type,category_id,memo,date,is_favorite,created_at,updated_at
-"f8eb0ffb-b75f-4315-97b8-96e1b4a0b49b","d010d5dd-4867-4ed9-a2c7-386660fba93e",15000,"expense","f773ee32-ba49-45fb-aa1d-be16315100df","점심 식사","2026-02-23",false,"2026-02-23T09:51:59.639595+00:00","2026-02-23T09:51:59.639595+00:00"
-"79ffdd24-d7d8-443b-a998-89953a8bbb64","d010d5dd-4867-4ed9-a2c7-386660fba93e",3000000,"income","","2월 급여","2026-02-23",false,"2026-02-23T09:52:26.953918+00:00","2026-02-23T09:52:26.953918+00:00"

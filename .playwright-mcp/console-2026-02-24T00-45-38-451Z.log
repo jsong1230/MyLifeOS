@@ -1,8 +1,0 @@
-[   32105ms] [ERROR] Failed to load resource: the server responded with a status of 400 () @ https://mylifeos-virid.vercel.app/api/routines:0
-[   79914ms] [ERROR] Failed to load resource: the server responded with a status of 405 () @ https://mylifeos-virid.vercel.app/api/body-logs:0
-[  103938ms] [ERROR] Failed to load resource: the server responded with a status of 400 () @ https://mylifeos-virid.vercel.app/api/health/exercise:0
-[  104615ms] [ERROR] Failed to load resource: the server responded with a status of 400 () @ https://mylifeos-virid.vercel.app/api/health/exercise:0
-[  105321ms] [ERROR] Failed to load resource: the server responded with a status of 400 () @ https://mylifeos-virid.vercel.app/api/health/exercise:0
-[  144758ms] [ERROR] Failed to load resource: the server responded with a status of 400 () @ https://mylifeos-virid.vercel.app/api/health/sleep:0
-[  145472ms] [ERROR] Failed to load resource: the server responded with a status of 400 () @ https://mylifeos-virid.vercel.app/api/health/sleep:0
-[  146296ms] [ERROR] Failed to load resource: the server responded with a status of 400 () @ https://mylifeos-virid.vercel.app/api/health/sleep:0

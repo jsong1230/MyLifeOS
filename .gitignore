@@ -45,3 +45,11 @@ next-env.d.ts
 # claude code
 .claude/
 .mcp.json
+
+# playwright / test artifacts
+.playwright-mcp/
+test-results/
+lighthouse-report.json
+
+# memory
+memory/
