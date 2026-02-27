@@ -1,11 +1,17 @@
 'use client'
 
 import { useState, useCallback } from 'react'
-import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Sparkles, RefreshCw } from 'lucide-react'
 import { useLocale, useTranslations } from 'next-intl'
 import { useWeeklyReport, useMonthlyReport } from '@/hooks/use-reports'
+import { useAiInsights, useGenerateInsights } from '@/hooks/use-ai-insights'
 import { WeeklyReportView } from '@/components/reports/weekly-report'
 import { MonthlyReportView } from '@/components/reports/monthly-report'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
+import { Skeleton } from '@/components/ui/skeleton'
+import type { AiInsight } from '@/app/api/ai/insights/route'
 
 // 오늘 날짜 기준으로 이번 주 월요일(주 시작) 반환 (YYYY-MM-DD)
 function getCurrentWeekStart(): string {
@@ -42,12 +48,52 @@ function formatMonthLabel(year: number, month: number, locale: string): string {
 }
 
 // 탭 타입
-type TabType = 'weekly' | 'monthly'
+type TabType = 'weekly' | 'monthly' | 'ai'
+
+function InsightCard({ insight, t }: { insight: AiInsight; t: ReturnType<typeof useTranslations<'insights'>> }) {
+  const bgColorMap: Record<AiInsight['type'], string> = {
+    positive: 'bg-green-50 border-green-200 dark:bg-green-950 dark:border-green-800',
+    warning: 'bg-amber-50 border-amber-200 dark:bg-amber-950 dark:border-amber-800',
+    suggestion: 'bg-blue-50 border-blue-200 dark:bg-blue-950 dark:border-blue-800',
+  }
+  const badgeVariantMap: Record<AiInsight['type'], string> = {
+    positive: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
+    warning: 'bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200',
+    suggestion: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200',
+  }
+  return (
+    <Card className={`border ${bgColorMap[insight.type]}`}>
+      <CardContent className="p-4">
+        <div className="flex items-start gap-3">
+          <span className="text-2xl shrink-0">{insight.emoji}</span>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 mb-1 flex-wrap">
+              <span className="font-semibold text-sm">{insight.title}</span>
+              <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${badgeVariantMap[insight.type]}`}>
+                {t(`types.${insight.type}`)}
+              </span>
+              <Badge variant="outline" className="text-xs">
+                {t(`categories.${insight.category}`)}
+              </Badge>
+            </div>
+            <p className="text-sm text-muted-foreground leading-relaxed">{insight.description}</p>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  )
+}
 
 export default function ReportsPage() {
   const locale = useLocale()
   const t = useTranslations()
+  const ti = useTranslations('insights')
   const [activeTab, setActiveTab] = useState<TabType>('weekly')
+
+  // AI 인사이트
+  const { data: savedInsights, isLoading: insightsLoading } = useAiInsights()
+  const { mutate: generateInsights, data: generatedInsights, isPending: isGenerating } = useGenerateInsights()
+  const insightsData = generatedInsights ?? savedInsights
 
   // 주간 — 현재 주 시작일 상태
   const [weekStart, setWeekStart] = useState<string>(getCurrentWeekStart)
@@ -98,30 +144,22 @@ export default function ReportsPage() {
 
       {/* ── 탭 전환 ── */}
       <div className="flex bg-muted rounded-lg p-1 mb-6">
-        <button
-          type="button"
-          onClick={() => setActiveTab('weekly')}
-          className={`flex-1 py-2 text-sm font-medium rounded-md transition-colors ${
-            activeTab === 'weekly'
-              ? 'bg-background text-foreground shadow-sm'
-              : 'text-muted-foreground hover:text-foreground'
-          }`}
-          aria-pressed={activeTab === 'weekly'}
-        >
-          {t('reports.weeklyTab')}
-        </button>
-        <button
-          type="button"
-          onClick={() => setActiveTab('monthly')}
-          className={`flex-1 py-2 text-sm font-medium rounded-md transition-colors ${
-            activeTab === 'monthly'
-              ? 'bg-background text-foreground shadow-sm'
-              : 'text-muted-foreground hover:text-foreground'
-          }`}
-          aria-pressed={activeTab === 'monthly'}
-        >
-          {t('reports.monthlyTab')}
-        </button>
+        {(['weekly', 'monthly', 'ai'] as const).map((tab) => (
+          <button
+            key={tab}
+            type="button"
+            onClick={() => setActiveTab(tab)}
+            className={`flex-1 py-2 text-sm font-medium rounded-md transition-colors flex items-center justify-center gap-1 ${
+              activeTab === tab
+                ? 'bg-background text-foreground shadow-sm'
+                : 'text-muted-foreground hover:text-foreground'
+            }`}
+            aria-pressed={activeTab === tab}
+          >
+            {tab === 'ai' && <Sparkles className="w-3.5 h-3.5" />}
+            {tab === 'weekly' ? t('reports.weeklyTab') : tab === 'monthly' ? t('reports.monthlyTab') : ti('title')}
+          </button>
+        ))}
       </div>
 
       {/* ── 주간 탭 ── */}
@@ -200,6 +238,67 @@ export default function ReportsPage() {
           )}
           {monthlyData && <MonthlyReportView report={monthlyData} />}
         </>
+      )}
+
+      {/* ── AI 인사이트 탭 ── */}
+      {activeTab === 'ai' && (
+        <div className="space-y-4 pb-24 md:pb-4">
+          <div className="flex items-center justify-between">
+            <p className="text-sm text-muted-foreground">{ti('emptyDesc')}</p>
+            {insightsData && (
+              <Button variant="outline" size="sm" onClick={() => generateInsights(locale)} disabled={isGenerating} className="flex items-center gap-1.5 shrink-0">
+                <RefreshCw className={`w-4 h-4 ${isGenerating ? 'animate-spin' : ''}`} />
+                {ti('regenerate')}
+              </Button>
+            )}
+          </div>
+
+          {/* 로딩 */}
+          {(insightsLoading || isGenerating) && (
+            <div className="space-y-3">
+              {isGenerating && <p className="text-sm text-muted-foreground text-center py-1">{ti('generating')}</p>}
+              <Skeleton className="h-24 w-full rounded-lg" />
+              <div className="grid gap-3 sm:grid-cols-2">
+                {Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-28 w-full rounded-lg" />)}
+              </div>
+            </div>
+          )}
+
+          {/* 결과 */}
+          {insightsData && !isGenerating && (
+            <div className="space-y-4">
+              {insightsData.summary && (
+                <Card className="bg-primary/5 border-primary/20">
+                  <CardHeader className="pb-2 pt-4 px-4">
+                    <CardTitle className="text-sm font-semibold text-primary">{ti('summary')}</CardTitle>
+                  </CardHeader>
+                  <CardContent className="px-4 pb-4">
+                    <p className="text-sm leading-relaxed">{insightsData.summary}</p>
+                    <p className="text-xs text-muted-foreground mt-2">
+                      {ti('generatedAt')}: {new Date(insightsData.generatedAt).toLocaleString(locale === 'ko' ? 'ko-KR' : 'en-US')}
+                    </p>
+                  </CardContent>
+                </Card>
+              )}
+              <div className="grid gap-3 sm:grid-cols-2">
+                {insightsData.insights.map((insight, i) => <InsightCard key={i} insight={insight} t={ti} />)}
+              </div>
+            </div>
+          )}
+
+          {/* 미생성 */}
+          {!insightsData && !insightsLoading && !isGenerating && (
+            <div className="flex flex-col items-center justify-center gap-6 py-16 text-center">
+              <div className="rounded-full bg-primary/10 p-6">
+                <Sparkles className="w-12 h-12 text-primary" />
+              </div>
+              <Button onClick={() => generateInsights(locale)} size="lg" className="flex items-center gap-2">
+                <Sparkles className="w-4 h-4" />
+                {ti('generate')}
+              </Button>
+            </div>
+          )}
+        </div>
       )}
     </div>
   )

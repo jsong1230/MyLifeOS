@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useTranslations } from 'next-intl'
-import { Home, Clock, Wallet, Heart, BookOpen, Settings, BarChart2, Target, Sparkles } from 'lucide-react'
+import { Home, Clock, Wallet, Heart, BookOpen, Settings, BarChart2, Target } from 'lucide-react'
 
 const NAV_ITEMS = [
   { key: 'home' as const, icon: Home, href: '/' },
@@ -13,7 +13,6 @@ const NAV_ITEMS = [
   { key: 'private' as const, icon: BookOpen, href: '/private' },
   { key: 'goals' as const, icon: Target, href: '/goals' },
   { key: 'reports' as const, icon: BarChart2, href: '/reports' },
-  { key: 'insights' as const, icon: Sparkles, href: '/insights' },
 ]
 
 // 데스크탑 사이드바
