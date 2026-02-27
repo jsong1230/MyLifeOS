@@ -251,7 +251,7 @@ export default function ExercisePage() {
           </DialogHeader>
           <ExerciseForm
             log={editingLog}
-            defaultDate={weekStart}
+            {...(editingLog ? { defaultDate: weekStart } : {})}
             onSubmit={handleFormSubmit}
             onCancel={handleFormCancel}
             isLoading={isMutating}

@@ -6,10 +6,10 @@ import { useTranslations } from 'next-intl'
 import { Plus, CheckSquare, Receipt, Utensils, PenLine } from 'lucide-react'
 
 const FAB_OPTIONS = [
-  { key: 'addTodo' as const, icon: CheckSquare, href: '/time' },
-  { key: 'addExpense' as const, icon: Receipt, href: '/money' },
-  { key: 'addMeal' as const, icon: Utensils, href: '/health' },
-  { key: 'addDiary' as const, icon: PenLine, href: '/private' },
+  { key: 'addTodo' as const, icon: CheckSquare, href: '/time?action=add' },
+  { key: 'addExpense' as const, icon: Receipt, href: '/money/transactions?action=add' },
+  { key: 'addMeal' as const, icon: Utensils, href: '/health/meals?action=add' },
+  { key: 'addDiary' as const, icon: PenLine, href: '/private/diary?action=add' },
 ]
 
 // Floating Action Button — 빠른 입력 진입점

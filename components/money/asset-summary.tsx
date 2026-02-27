@@ -4,6 +4,7 @@ import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend } from 'recha
 import { useTranslations } from 'next-intl'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { formatCurrency, formatCurrencyCompact } from '@/lib/currency'
+import { useSettingsStore } from '@/store/settings.store'
 import { ASSET_TYPE_LABEL, type Asset, type AssetType } from '@/types/asset'
 
 interface AssetSummaryProps {
@@ -20,6 +21,7 @@ const ASSET_COLORS: Record<AssetType, string> = {
 export function AssetSummary({ assets }: AssetSummaryProps) {
   const t = useTranslations('money.assets')
   type TFn = typeof t
+  const currency = useSettingsStore((s) => s.defaultCurrency)
 
   // 유형별 합계
   const byType = assets.reduce<Record<AssetType, number>>(
@@ -56,8 +58,8 @@ export function AssetSummary({ assets }: AssetSummaryProps) {
       <Card>
         <CardContent className="pt-5 pb-4">
           <p className="text-xs text-muted-foreground mb-1">{t('totalAssets')}</p>
-          <p className="text-2xl font-bold">{formatCurrency(total, 'KRW')}</p>
-          <p className="text-sm text-muted-foreground mt-0.5">{formatCurrencyCompact(total, 'KRW')}</p>
+          <p className="text-2xl font-bold">{formatCurrency(total, currency)}</p>
+          <p className="text-sm text-muted-foreground mt-0.5">{formatCurrencyCompact(total, currency)}</p>
         </CardContent>
       </Card>
 
@@ -85,7 +87,7 @@ export function AssetSummary({ assets }: AssetSummaryProps) {
                 </Pie>
                 <Tooltip
                   formatter={(value: number | undefined) => [
-                    value != null ? formatCurrency(value, 'KRW') : '-',
+                    value != null ? formatCurrency(value, currency) : '-',
                     '',
                   ]}
                 />
@@ -115,7 +117,7 @@ export function AssetSummary({ assets }: AssetSummaryProps) {
                   <span className="text-sm">{t(`types.${type}` as Parameters<TFn>[0])}</span>
                 </div>
                 <div className="text-right">
-                  <span className="text-sm font-medium">{formatCurrency(value, 'KRW')}</span>
+                  <span className="text-sm font-medium">{formatCurrency(value, currency)}</span>
                   {total > 0 && (
                     <span className="text-xs text-muted-foreground ml-1.5">
                       {Math.round((value / total) * 100)}%

@@ -23,6 +23,7 @@ import {
   useUpdateRecurring,
   useDeleteRecurring,
 } from '@/hooks/use-recurring'
+import { RecurringReminderBanner } from '@/components/money/recurring-reminder-banner'
 import { PlusIcon } from 'lucide-react'
 import type { RecurringExpense, CreateRecurringInput } from '@/types/recurring'
 
@@ -117,6 +118,9 @@ export default function RecurringPage() {
         </div>
       ) : (
         <>
+          {/* 미기록 정기지출 알림 배너 */}
+          <RecurringReminderBanner expenses={expenses} />
+
           {/* 월간 총액 요약 */}
           <RecurringSummary expenses={expenses} />
 

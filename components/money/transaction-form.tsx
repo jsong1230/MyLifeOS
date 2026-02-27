@@ -22,6 +22,13 @@ import type { Transaction, CreateTransactionInput, TransactionType } from '@/typ
 
 interface TransactionFormProps {
   transaction?: Transaction
+  defaultValues?: {
+    amount?: number
+    currency?: CurrencyCode
+    category_id?: string
+    memo?: string
+    type?: TransactionType
+  }
   onSubmit: (data: CreateTransactionInput) => void
   onCancel?: () => void
   isLoading?: boolean
@@ -34,20 +41,25 @@ function getTodayString(): string {
 
 export function TransactionForm({
   transaction,
+  defaultValues,
   onSubmit,
   onCancel,
   isLoading = false,
 }: TransactionFormProps) {
   const t = useTranslations('money.transactions')
   const tc = useTranslations('common')
-  const [type, setType] = useState<TransactionType>(transaction?.type ?? 'expense')
-  const [currency, setCurrency] = useState<CurrencyCode>(transaction?.currency ?? 'KRW')
+  const [type, setType] = useState<TransactionType>(transaction?.type ?? defaultValues?.type ?? 'expense')
+  const [currency, setCurrency] = useState<CurrencyCode>(transaction?.currency ?? defaultValues?.currency ?? 'KRW')
   const [amountDisplay, setAmountDisplay] = useState<string>(
-    transaction ? formatAmount(transaction.amount, transaction.currency ?? 'KRW') : ''
+    transaction
+      ? formatAmount(transaction.amount, transaction.currency ?? 'KRW')
+      : defaultValues?.amount
+        ? formatAmount(defaultValues.amount, defaultValues.currency ?? 'KRW')
+        : ''
   )
   const [date, setDate] = useState<string>(transaction?.date ?? getTodayString())
-  const [categoryId, setCategoryId] = useState<string>(transaction?.category_id ?? '')
-  const [memo, setMemo] = useState<string>(transaction?.memo ?? '')
+  const [categoryId, setCategoryId] = useState<string>(transaction?.category_id ?? defaultValues?.category_id ?? '')
+  const [memo, setMemo] = useState<string>(transaction?.memo ?? defaultValues?.memo ?? '')
   const [isFavorite, setIsFavorite] = useState<boolean>(transaction?.is_favorite ?? false)
   const [amountError, setAmountError] = useState<string>('')
 

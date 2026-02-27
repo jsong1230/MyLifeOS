@@ -5,13 +5,18 @@ import { useLocale, useTranslations } from 'next-intl'
 import { CalendarView } from '@/components/time/calendar-view'
 import { TodoFormDialog } from '@/components/time/todo-form-dialog'
 import { useTodos } from '@/hooks/use-todos'
+import { useRoutines, useToggleRoutine } from '@/hooks/use-routines'
+import { useTimeBlocks } from '@/hooks/use-time-blocks'
 import { useCalendar } from '@/hooks/use-calendar'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
+import { Checkbox } from '@/components/ui/checkbox'
 import { Button } from '@/components/ui/button'
-import { Plus, Check, Calendar } from 'lucide-react'
+import { Plus, Check, Calendar, Clock, RotateCw } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import type { Todo } from '@/types/todo'
+import type { RoutineWithLog } from '@/types/routine'
+import type { TimeBlock } from '@/types/time-block'
 
 // 캘린더 페이지 — 월간/주간/일간 캘린더 + 선택 날짜 상세 패널
 export default function CalendarPage() {
@@ -24,6 +29,11 @@ export default function CalendarPage() {
 
   // 해당 월 전체 할일 조회
   const { data: todos = [], isLoading, isError } = useTodos({ month: monthQuery })
+
+  // 선택 날짜의 루틴 + 타임블록 조회
+  const { data: routines = [] } = useRoutines(selectedDate)
+  const { data: timeBlocks = [] } = useTimeBlocks(selectedDate)
+  const toggleRoutine = useToggleRoutine()
 
   // 선택된 날짜의 할일 필터링
   const selectedDateTodos = useMemo(
@@ -64,7 +74,12 @@ export default function CalendarPage() {
         <SelectedDatePanel
           date={selectedDate}
           todos={selectedDateTodos}
+          routines={routines}
+          timeBlocks={timeBlocks}
           onAddTodo={() => handleAddTodo(selectedDate)}
+          onToggleRoutine={(routineId, completed) => {
+            toggleRoutine.mutate({ routineId, date: selectedDate, completed })
+          }}
           locale={locale}
         />
       </div>
@@ -83,11 +98,14 @@ export default function CalendarPage() {
 interface SelectedDatePanelProps {
   date: string
   todos: Todo[]
+  routines: RoutineWithLog[]
+  timeBlocks: TimeBlock[]
   onAddTodo: () => void
+  onToggleRoutine: (routineId: string, completed: boolean) => void
   locale: string
 }
 
-function SelectedDatePanel({ date, todos, onAddTodo, locale }: SelectedDatePanelProps) {
+function SelectedDatePanel({ date, todos, routines, timeBlocks, onAddTodo, onToggleRoutine, locale }: SelectedDatePanelProps) {
   const t = useTranslations('time.calendar')
   const tc = useTranslations('common')
 
@@ -122,16 +140,75 @@ function SelectedDatePanel({ date, todos, onAddTodo, locale }: SelectedDatePanel
 
       {/* 할일 목록 */}
       <div className="flex-1 overflow-auto p-4">
-        {todos.length === 0 ? (
+        {todos.length === 0 && routines.length === 0 && timeBlocks.length === 0 ? (
           <EmptyDateState onAddTodo={onAddTodo} />
         ) : (
-          <div className="flex flex-col gap-2">
-            {todos.map((todo, index) => (
-              <div key={todo.id}>
-                <PanelTodoItem todo={todo} />
-                {index < todos.length - 1 && <Separator className="mt-2" />}
+          <div className="flex flex-col gap-4">
+            {/* 할일 섹션 */}
+            {todos.length > 0 && (
+              <div className="flex flex-col gap-2">
+                {todos.map((todo, index) => (
+                  <div key={todo.id}>
+                    <PanelTodoItem todo={todo} />
+                    {index < todos.length - 1 && <Separator className="mt-2" />}
+                  </div>
+                ))}
               </div>
-            ))}
+            )}
+
+            {/* 루틴 섹션 */}
+            {routines.length > 0 && (
+              <div>
+                <div className="flex items-center gap-1.5 mb-2">
+                  <RotateCw className="h-3.5 w-3.5 text-orange-500" />
+                  <h3 className="text-sm font-medium">{t('routines')}</h3>
+                </div>
+                <div className="flex flex-col gap-1.5">
+                  {routines.map((routine) => (
+                    <div key={routine.id} className="flex items-center gap-2 py-1">
+                      <Checkbox
+                        checked={routine.log?.completed ?? false}
+                        onCheckedChange={(checked) =>
+                          onToggleRoutine(routine.id, checked === true)
+                        }
+                      />
+                      <span className={cn(
+                        'text-sm',
+                        routine.log?.completed && 'line-through text-muted-foreground'
+                      )}>
+                        {routine.title}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* 타임블록 섹션 */}
+            {timeBlocks.length > 0 && (
+              <div>
+                <div className="flex items-center gap-1.5 mb-2">
+                  <Clock className="h-3.5 w-3.5 text-violet-500" />
+                  <h3 className="text-sm font-medium">{t('timeBlocks')}</h3>
+                </div>
+                <div className="flex flex-col gap-1.5">
+                  {timeBlocks.map((block) => (
+                    <div key={block.id} className="flex items-center gap-2 text-sm py-1">
+                      {block.color && (
+                        <span
+                          className="w-2 h-2 rounded-full shrink-0"
+                          style={{ backgroundColor: block.color }}
+                        />
+                      )}
+                      <span className="text-muted-foreground shrink-0">
+                        {block.start_time} - {block.end_time}
+                      </span>
+                      <span className="truncate">{block.title}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>

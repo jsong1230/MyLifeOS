@@ -1,6 +1,7 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useSearchParams } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button'
 import {
@@ -34,6 +35,7 @@ import type {
   CreateTransactionInput,
   UpdateTransactionInput,
 } from '@/types/transaction'
+import type { CurrencyCode } from '@/lib/currency'
 
 // 현재 월을 YYYY-MM 형식으로 반환
 function getCurrentMonth(): string {
@@ -44,6 +46,7 @@ function getCurrentMonth(): string {
 }
 
 export default function TransactionsPage() {
+  const searchParams = useSearchParams()
   const t = useTranslations('money.transactions')
   const tc = useTranslations('common')
   // 필터 상태 — 기본값: 현재 월
@@ -55,6 +58,21 @@ export default function TransactionsPage() {
   const [isFormOpen, setIsFormOpen] = useState(false)
   const [editingTransaction, setEditingTransaction] = useState<Transaction | undefined>(undefined)
   const [deletingId, setDeletingId] = useState<string | null>(null)
+
+  // URL 파라미터에서 기본값 읽기 (정기지출 "기록" 버튼에서 전달)
+  const urlDefaultValues = (() => {
+    const amount = searchParams.get('amount')
+    const currency = searchParams.get('currency')
+    const category = searchParams.get('category')
+    const memo = searchParams.get('memo')
+    if (!amount && !category && !memo) return undefined
+    return {
+      amount: amount ? Number(amount) : undefined,
+      currency: (currency as CurrencyCode) ?? undefined,
+      category_id: category ?? undefined,
+      memo: memo ?? undefined,
+    }
+  })()
 
   // 데이터 훅
   const { data: transactions = [], isLoading } = useTransactions(filter)
@@ -136,6 +154,13 @@ export default function TransactionsPage() {
     createMutation.isPending ||
     updateMutation.isPending
 
+  // FAB action=add 파라미터 감지 → 폼 자동 오픈
+  useEffect(() => {
+    if (searchParams.get('action') === 'add') {
+      handleOpenCreate()
+    }
+  }, [searchParams])
+
   return (
     <div className="flex flex-col h-full">
       {/* 필터 바 */}
@@ -157,18 +182,6 @@ export default function TransactionsPage() {
         )}
       </div>
 
-      {/* 거래 추가 플로팅 버튼 */}
-      <div className="fixed bottom-6 right-6 z-20">
-        <Button
-          size="lg"
-          onClick={handleOpenCreate}
-          className="h-14 w-14 rounded-full shadow-lg text-2xl p-0"
-          aria-label={t('add')}
-        >
-          +
-        </Button>
-      </div>
-
       {/* 거래 추가/수정 다이얼로그 */}
       <Dialog open={isFormOpen} onOpenChange={(open) => { if (!open) handleFormCancel() }}>
         <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
@@ -179,6 +192,7 @@ export default function TransactionsPage() {
           </DialogHeader>
           <TransactionForm
             transaction={editingTransaction}
+            defaultValues={!editingTransaction ? urlDefaultValues : undefined}
             onSubmit={handleFormSubmit}
             onCancel={handleFormCancel}
             isLoading={isMutating}

@@ -1,14 +1,30 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { useTranslations, useLocale } from 'next-intl'
 import { BookOpen } from 'lucide-react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog'
 import { PinChange } from '@/components/auth/pin-change'
 import { PinForm } from '@/components/private/pin-form'
 import { ThemeToggle } from '@/components/common/theme-toggle'
 import { DataExport } from '@/components/settings/data-export'
+import { NicknameForm } from '@/components/settings/nickname-form'
 import { CurrencySelect } from '@/components/common/currency-select'
+import { createClient } from '@/lib/supabase/client'
+import { useAuthStore } from '@/store/auth.store'
 import { useSettings, useUpdateSettings } from '@/hooks/use-settings'
 import type { LocaleCode } from '@/types/settings'
 import type { CurrencyCode } from '@/lib/currency'
@@ -27,8 +43,11 @@ type SettingsView = 'main' | 'pinSetup' | 'pinChange'
  */
 export default function SettingsPage() {
   const t = useTranslations('settings')
+  const tCommon = useTranslations('common')
   const tPin = useTranslations('pin')
   const locale = useLocale()
+  const router = useRouter()
+  const reset = useAuthStore((s) => s.reset)
   const manualHref = locale === 'en' ? '/manual.en.html' : '/manual.html'
   const manualLabel = t('userGuideLink')
   const [view, setView] = useState<SettingsView>('main')
@@ -79,6 +98,20 @@ export default function SettingsPage() {
     })
   }
 
+  async function handleLogout() {
+    const supabase = createClient()
+    await supabase.auth.signOut()
+    reset()
+    router.push('/login')
+  }
+
+  async function handleDeleteRequest() {
+    const res = await fetch('/api/users/delete-request', { method: 'POST' })
+    if (res.ok) {
+      setSuccessMessage(t('deleteAccountRequested'))
+    }
+  }
+
   if (view === 'pinSetup') {
     return (
       <div className="container max-w-lg mx-auto py-8 px-4">
@@ -123,6 +156,17 @@ export default function SettingsPage() {
           {successMessage}
         </div>
       )}
+
+      {/* 프로필 섹션 */}
+      <Card className="mb-4">
+        <CardHeader>
+          <CardTitle>{t('profile')}</CardTitle>
+          <CardDescription>{t('profileDescription')}</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <NicknameForm />
+        </CardContent>
+      </Card>
 
       {/* 언어 섹션 */}
       <Card className="mb-4">
@@ -266,6 +310,60 @@ export default function SettingsPage() {
               {tPin('changePin')}
             </button>
           )}
+        </CardContent>
+      </Card>
+
+      {/* 계정 섹션 */}
+      <Card className="mt-4">
+        <CardHeader>
+          <CardTitle>{t('account')}</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {/* 로그아웃 */}
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="font-medium">{t('logout')}</p>
+              <p className="text-sm text-muted-foreground">{t('logoutDescription')}</p>
+            </div>
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button variant="outline">{t('logout')}</Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>{t('logoutConfirm')}</AlertDialogTitle>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>{tCommon('cancel')}</AlertDialogCancel>
+                  <AlertDialogAction onClick={handleLogout}>{t('logout')}</AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          </div>
+          {/* 회원 탈퇴 */}
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="font-medium text-destructive">{t('deleteAccount')}</p>
+              <p className="text-sm text-muted-foreground">{t('deleteAccountDescription')}</p>
+            </div>
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button variant="destructive">{t('deleteAccount')}</Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>{t('deleteAccountConfirm')}</AlertDialogTitle>
+                  <AlertDialogDescription>{t('deleteAccountDescription')}</AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>{tCommon('cancel')}</AlertDialogCancel>
+                  <AlertDialogAction onClick={handleDeleteRequest} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                    {t('deleteAccount')}
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          </div>
         </CardContent>
       </Card>
     </div>

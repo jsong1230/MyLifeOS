@@ -11,6 +11,7 @@ import {
   type CurrencyCode,
 } from '@/lib/currency'
 import { useExchangeRates } from '@/hooks/use-exchange-rates'
+import { useSettingsStore } from '@/store/settings.store'
 import type { Transaction } from '@/types/transaction'
 
 interface SummaryCardsProps {
@@ -24,6 +25,7 @@ const BASE_CURRENCIES: CurrencyCode[] = ['KRW', 'CAD', 'USD']
 export function SummaryCards({ transactions }: SummaryCardsProps) {
   const td = useTranslations('dashboard')
   const te = useTranslations('exchangeRates')
+  const defaultCurrency = useSettingsStore((s) => s.defaultCurrency)
 
   // 기준 통화 상태 (null = 환산 미선택)
   const [baseCurrency, setBaseCurrency] = useState<CurrencyCode | null>(null)
@@ -95,7 +97,7 @@ export function SummaryCards({ transactions }: SummaryCardsProps) {
             })}
             {currencies.every((c) => totalsByCurrency[c].income === 0) && (
               <p className="text-xl font-bold tracking-tight text-blue-600">
-                {formatCurrency(0, (currencies[0] ?? 'KRW') as CurrencyCode)}
+                {formatCurrency(0, (currencies[0] ?? defaultCurrency) as CurrencyCode)}
               </p>
             )}
             {/* 환산 합계 */}
@@ -130,7 +132,7 @@ export function SummaryCards({ transactions }: SummaryCardsProps) {
             })}
             {currencies.every((c) => totalsByCurrency[c].expense === 0) && (
               <p className="text-xl font-bold tracking-tight text-red-500">
-                {formatCurrency(0, (currencies[0] ?? 'KRW') as CurrencyCode)}
+                {formatCurrency(0, (currencies[0] ?? defaultCurrency) as CurrencyCode)}
               </p>
             )}
             {/* 환산 합계 */}
@@ -173,7 +175,7 @@ export function SummaryCards({ transactions }: SummaryCardsProps) {
             })}
             {currencies.length === 0 && (
               <p className="text-xl font-bold tracking-tight text-green-600">
-                {formatCurrency(0, 'KRW')}
+                {formatCurrency(0, defaultCurrency)}
               </p>
             )}
             {/* 환산 합계 */}

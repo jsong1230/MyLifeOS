@@ -1,6 +1,7 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useSearchParams } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import { Plus } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -33,6 +34,7 @@ import type { Todo, CreateTodoInput, UpdateTodoInput, ReorderTodoInput } from '@
 
 // 할일 관리 페이지
 export default function TimePage() {
+  const searchParams = useSearchParams()
   const t = useTranslations('time.todos')
   const tc = useTranslations('common')
   // 폼 다이얼로그 상태
@@ -124,6 +126,13 @@ export default function TimePage() {
   }
 
   const isFormLoading = createTodo.isPending || updateTodo.isPending
+
+  // FAB action=add 파라미터 감지 → 폼 자동 오픈
+  useEffect(() => {
+    if (searchParams.get('action') === 'add') {
+      handleOpenCreate()
+    }
+  }, [searchParams])
 
   return (
     <div className="relative min-h-full p-4">

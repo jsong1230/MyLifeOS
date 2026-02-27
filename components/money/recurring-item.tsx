@@ -1,5 +1,6 @@
 'use client'
 
+import { useRouter } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -82,7 +83,21 @@ function DDayBadge({ daysLeft }: { daysLeft: number }) {
 export function RecurringItem({ expense, onEdit, onDelete }: RecurringItemProps) {
   const t = useTranslations('money.recurring')
   const tc = useTranslations('common')
+  const router = useRouter()
   const daysLeft = calcDaysUntilBilling(expense.billing_day)
+
+  function handleRecord() {
+    const params = new URLSearchParams({
+      action: 'add',
+      amount: String(expense.amount),
+      currency: expense.currency ?? 'KRW',
+      memo: expense.name,
+    })
+    if (expense.category_id) {
+      params.set('category', expense.category_id)
+    }
+    router.push(`/money/transactions?${params.toString()}`)
+  }
 
   const cycleLabel = t(expense.cycle === 'yearly' ? 'perYear' : 'perMonth')
 
@@ -112,8 +127,18 @@ export function RecurringItem({ expense, onEdit, onDelete }: RecurringItemProps)
           {t('billingInfo', { cycle: cycleLabel, day: expense.billing_day })}
         </p>
 
-        {/* 수정/삭제 버튼 */}
+        {/* 기록/수정/삭제 버튼 */}
         <div className="flex justify-end gap-2 mt-3">
+          {expense.is_active && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleRecord}
+              className="text-xs h-7 px-2"
+            >
+              {t('record')}
+            </Button>
+          )}
           <Button
             variant="ghost"
             size="sm"

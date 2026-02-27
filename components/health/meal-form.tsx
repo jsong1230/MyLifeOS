@@ -6,7 +6,9 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { cn } from '@/lib/utils'
+import { FoodSearchCombobox } from '@/components/health/food-search-combobox'
 import type { MealLog, MealType, CreateMealInput } from '@/types/health'
+import type { FoodNutrition } from '@/types/food'
 
 // 식사 유형 메타데이터 (레이블은 번역 키로 처리)
 const MEAL_TYPE_VALUES: {
@@ -55,6 +57,15 @@ export function MealForm({ meal, onSubmit, onCancel, isLoading = false }: MealFo
   const [fat, setFat] = useState(meal?.fat != null ? String(meal.fat) : '')
   const [date, setDate] = useState(meal?.date ?? new Date().toISOString().split('T')[0])
   const [errors, setErrors] = useState<Record<string, string>>({})
+
+  // 음식 DB 자동 계산 상태
+  const [baseNutrition, setBaseNutrition] = useState<{
+    calories: number
+    protein: number
+    carbs: number
+    fat: number
+  } | null>(null)
+  const [multiplier, setMultiplier] = useState(1)
 
   function parseOptionalNumber(value: string): number | undefined {
     if (value.trim() === '') return undefined
@@ -108,6 +119,30 @@ export function MealForm({ meal, onSubmit, onCancel, isLoading = false }: MealFo
     })
   }
 
+  function handleFoodSelect(food: FoodNutrition) {
+    const base = {
+      calories: food.calories,
+      protein: food.protein,
+      carbs: food.carbs,
+      fat: food.fat,
+    }
+    setBaseNutrition(base)
+    applyMultiplier(1, base)
+  }
+
+  function applyMultiplier(
+    m: number,
+    base?: { calories: number; protein: number; carbs: number; fat: number }
+  ) {
+    const src = base ?? baseNutrition
+    if (!src) return
+    setMultiplier(m)
+    setCalories(String(Math.round(src.calories * m)))
+    setProtein(String(Math.round(src.protein * m * 10) / 10))
+    setCarbs(String(Math.round(src.carbs * m * 10) / 10))
+    setFat(String(Math.round(src.fat * m * 10) / 10))
+  }
+
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       {/* 식사 유형 선택 버튼 토글 */}
@@ -130,15 +165,15 @@ export function MealForm({ meal, onSubmit, onCancel, isLoading = false }: MealFo
         </div>
       </div>
 
-      {/* 음식명 입력 (필수) */}
+      {/* 음식명 입력 (필수) — 음식 검색 Combobox */}
       <div className="space-y-2">
         <Label htmlFor="food-name">
           {t('foodName')} <span className="text-destructive">*</span>
         </Label>
-        <Input
-          id="food-name"
+        <FoodSearchCombobox
           value={foodName}
-          onChange={(e) => setFoodName(e.target.value)}
+          onChange={setFoodName}
+          onSelect={handleFoodSelect}
           placeholder={t('foodNamePlaceholder')}
           disabled={isLoading}
         />
@@ -146,6 +181,31 @@ export function MealForm({ meal, onSubmit, onCancel, isLoading = false }: MealFo
           <p className="text-xs text-destructive">{errors.foodName}</p>
         )}
       </div>
+
+      {/* 분량 선택 (음식 DB에서 선택한 경우만 표시) */}
+      {baseNutrition && (
+        <div className="space-y-1.5">
+          <Label>{t('portion')}</Label>
+          <div className="flex flex-wrap gap-2">
+            {[0.5, 1, 1.5, 2].map((m) => (
+              <button
+                key={m}
+                type="button"
+                onClick={() => applyMultiplier(m)}
+                className={cn(
+                  'px-3 py-1 rounded-full text-xs border transition-colors',
+                  multiplier === m
+                    ? 'bg-primary text-primary-foreground'
+                    : 'bg-background hover:bg-accent'
+                )}
+              >
+                {m === 1 ? t('oneServing') : `×${m}`}
+              </button>
+            ))}
+          </div>
+          <p className="text-xs text-muted-foreground">{t('autoFilled')}</p>
+        </div>
+      )}
 
       {/* 칼로리 입력 (선택) */}
       <div className="space-y-2">

@@ -246,7 +246,12 @@
     "diaryWritten": "오늘 일기 작성됨",
     "noDiaryYet": "아직 일기가 없어요",
     "noDiaryDesc": "오늘의 감정과 이야기를 기록해보세요",
-    "mealCountFallback": "식사 {count}회"
+    "mealCountFallback": "식사 {count}회",
+    "mealTypeBreakfast": "아침",
+    "mealTypeLunch": "점심",
+    "mealTypeDinner": "저녁",
+    "mealTypeSnack": "간식",
+    "mealTypeCount": "{type} {count}끼"
   },
   "money": {
     "title": "금전 관리",
@@ -378,7 +383,11 @@
       "perMonthSuffix": "/월",
       "yearlyEquivalentLabel": "연간 환산 약 {amount}",
       "activeItems": "활성 항목",
-      "yearlyNoteWithTotal": "* 연간 항목 {count}건 포함 — 연 총액 {amount}"
+      "yearlyNoteWithTotal": "* 연간 항목 {count}건 포함 — 연 총액 {amount}",
+      "record": "기록",
+      "unrecordedAlert": "이번 달 정기지출 {count}건이 아직 기록되지 않았습니다.",
+      "batchRecord": "일괄 기록",
+      "dismissAlert": "나중에"
     },
     "categories": {
       "title": "카테고리",
@@ -544,7 +553,9 @@
       "summary": "전체 {total}개 · 완료 {completed}개 · 미완료 {pending}개",
       "noTodosEmpty": "이 날에 등록된 할일이 없습니다",
       "addTodoHere": "할일 추가하기",
-      "loadError": "할일 데이터를 불러오는 데 실패했습니다"
+      "loadError": "할일 데이터를 불러오는 데 실패했습니다",
+      "routines": "루틴",
+      "timeBlocks": "타임블록"
     },
     "blocks": {
       "title": "타임블록",
@@ -746,7 +757,13 @@
       "deleteTitle": "기록 삭제",
       "deleteConfirm": "삭제된 식사 기록은 복구할 수 없습니다.",
       "prevDay": "이전 날짜",
-      "nextDay": "다음 날짜"
+      "nextDay": "다음 날짜",
+      "searchFood": "음식 검색",
+      "searchingFood": "검색 중...",
+      "noFoodResults": "검색 결과가 없습니다. 직접 입력하세요.",
+      "portion": "분량",
+      "oneServing": "1인분",
+      "autoFilled": "자동 입력됨"
     },
     "sleep": {
       "title": "수면",
@@ -1088,6 +1105,20 @@
       "encrypted": "(암호화)",
       "encryptedHint": "일기 및 인간관계 메모는 PIN 인증이 완료된 경우 복호화하여 내보냅니다. PIN 미인증 상태에서는 암호화된 데이터로 내보내집니다."
     },
+    "profile": "프로필",
+    "profileDescription": "표시 이름을 설정합니다.",
+    "nickname": "닉네임",
+    "nicknamePlaceholder": "표시 이름을 입력하세요",
+    "nicknameSaved": "저장됨",
+    "save": "저장",
+    "account": "계정",
+    "logout": "로그아웃",
+    "logoutConfirm": "로그아웃하시겠습니까?",
+    "logoutDescription": "30분 비활동 후에도 자동으로 로그아웃됩니다.",
+    "deleteAccount": "회원 탈퇴",
+    "deleteAccountDescription": "탈퇴 요청 후 관리자 검토를 거쳐 처리됩니다. 탈퇴 전 데이터는 복구할 수 없습니다.",
+    "deleteAccountConfirm": "정말로 탈퇴를 요청하시겠습니까?",
+    "deleteAccountRequested": "탈퇴 요청이 접수되었습니다.",
     "userGuideTitle": "사용자 가이드",
     "userGuideDescription": "앱 사용 방법 및 자주 묻는 질문",
     "userGuideLink": "사용자 가이드 열기 →"

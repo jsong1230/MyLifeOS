@@ -24,12 +24,14 @@ function getTodoBadgeVariant(todo: Todo): string {
 
 interface CalendarViewProps {
   todos: Todo[]
+  routineDates?: Set<string>
+  timeBlockDates?: Set<string>
   onAddTodo?: (date: string) => void
   onSelectDate?: (date: string) => void
 }
 
 // 캘린더 메인 컴포넌트
-export function CalendarView({ todos, onAddTodo, onSelectDate }: CalendarViewProps) {
+export function CalendarView({ todos, routineDates, timeBlockDates, onAddTodo, onSelectDate }: CalendarViewProps) {
   const t = useTranslations('time.calendar')
   const tTodos = useTranslations('time.todos')
   const tCommon = useTranslations('common')
@@ -146,6 +148,8 @@ export function CalendarView({ todos, onAddTodo, onSelectDate }: CalendarViewPro
           <MonthView
             days={monthDays}
             todosByDate={todosByDate}
+            routineDates={routineDates}
+            timeBlockDates={timeBlockDates}
             onDateClick={handleDateClick}
           />
         )}
@@ -172,10 +176,12 @@ export function CalendarView({ todos, onAddTodo, onSelectDate }: CalendarViewPro
 interface MonthViewProps {
   days: CalendarDay[]
   todosByDate: (date: string) => Todo[]
+  routineDates?: Set<string>
+  timeBlockDates?: Set<string>
   onDateClick: (date: string) => void
 }
 
-function MonthView({ days, todosByDate, onDateClick }: MonthViewProps) {
+function MonthView({ days, todosByDate, routineDates, timeBlockDates, onDateClick }: MonthViewProps) {
   const t = useTranslations('time.calendar')
   const dayKeys = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'] as const
 
@@ -204,8 +210,10 @@ function MonthView({ days, todosByDate, onDateClick }: MonthViewProps) {
           const dayTodos = todosByDate(day.date)
           const dayNum = parseInt(day.date.split('-')[2], 10)
           const dayOfWeek = new Date(day.date + 'T00:00:00').getDay()
-          const visibleTodos = dayTodos.slice(0, 2)
-          const extraCount = dayTodos.length - 2
+          const priorityOrder: Record<string, number> = { urgent: 0, high: 0, medium: 1, low: 2 }
+          const sortedTodos = [...dayTodos].sort((a, b) => (priorityOrder[a.priority] ?? 3) - (priorityOrder[b.priority] ?? 3))
+          const visibleTodos = sortedTodos.slice(0, 3)
+          const extraCount = dayTodos.length - 3
 
           return (
             <button
@@ -253,6 +261,18 @@ function MonthView({ days, todosByDate, onDateClick }: MonthViewProps) {
                   </span>
                 )}
               </div>
+
+              {/* 루틴/타임블록 점 표시 */}
+              {(routineDates?.has(day.date) || timeBlockDates?.has(day.date)) && (
+                <div className="flex gap-0.5 mt-auto pt-0.5">
+                  {routineDates?.has(day.date) && (
+                    <span className="w-1.5 h-1.5 rounded-full bg-orange-400" title={t('routines')} />
+                  )}
+                  {timeBlockDates?.has(day.date) && (
+                    <span className="w-1.5 h-1.5 rounded-full bg-violet-400" title={t('timeBlocks')} />
+                  )}
+                </div>
+              )}
             </button>
           )
         })}

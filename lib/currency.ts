@@ -112,6 +112,13 @@ export function getCurrencyDecimals(currency: CurrencyCode): number {
   return CURRENCY_META[currency].decimals
 }
 
+/**
+ * 통화별 입력 step: KRW=1000, CAD/USD=1
+ */
+export function getCurrencyStep(currency: CurrencyCode): number {
+  return currency === 'KRW' ? 1000 : 1
+}
+
 /** 거래 타입 (currency 계산용 최소 인터페이스) */
 export interface TxForTotals {
   type: 'income' | 'expense'

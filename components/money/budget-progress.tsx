@@ -3,6 +3,7 @@
 import { useTranslations } from 'next-intl'
 import { cn } from '@/lib/utils'
 import { formatCurrency } from '@/lib/currency'
+import { useSettingsStore } from '@/store/settings.store'
 import type { BudgetStatus } from '@/types/budget'
 
 interface BudgetProgressProps {
@@ -16,6 +17,7 @@ interface BudgetProgressProps {
  */
 export function BudgetProgress({ budget }: BudgetProgressProps) {
   const t = useTranslations('money.budget')
+  const currency = useSettingsStore((s) => s.defaultCurrency)
   const { category, amount, spent, remaining, percentage } = budget
 
   // 퍼센트를 바 너비로 클램프 (초과분은 100%로 표시)
@@ -50,10 +52,10 @@ export function BudgetProgress({ budget }: BudgetProgressProps) {
               isWarning && 'text-orange-500'
             )}
           >
-            {formatCurrency(spent, 'KRW')}
+            {formatCurrency(spent, budget.currency ?? currency)}
           </span>
           <span className="text-muted-foreground">/</span>
-          <span className="text-muted-foreground">{formatCurrency(amount, 'KRW')}</span>
+          <span className="text-muted-foreground">{formatCurrency(amount, budget.currency ?? currency)}</span>
         </div>
       </div>
 
@@ -99,8 +101,8 @@ export function BudgetProgress({ budget }: BudgetProgressProps) {
         )}
       >
         {isDanger
-          ? t('exceededAmount', { amount: formatCurrency(Math.abs(remaining), 'KRW') })
-          : t('remainingAmount', { amount: formatCurrency(remaining, 'KRW') })}
+          ? t('exceededAmount', { amount: formatCurrency(Math.abs(remaining), budget.currency ?? currency) })
+          : t('remainingAmount', { amount: formatCurrency(remaining, budget.currency ?? currency) })}
       </p>
     </div>
   )

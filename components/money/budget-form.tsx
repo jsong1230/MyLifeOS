@@ -13,6 +13,8 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { useCategories } from '@/hooks/use-categories'
+import { useSettingsStore } from '@/store/settings.store'
+import { getCurrencyStep } from '@/lib/currency'
 import type { Budget, CreateBudgetInput } from '@/types/budget'
 
 interface BudgetFormProps {
@@ -38,6 +40,7 @@ export function BudgetForm({
 }: BudgetFormProps) {
   const t = useTranslations('money.budget')
   const tc = useTranslations('common')
+  const currency = useSettingsStore((s) => s.defaultCurrency)
 
   // 지출 카테고리 목록 조회
   const { data: categories, isLoading: isCategoriesLoading } = useCategories('expense')
@@ -118,7 +121,7 @@ export function BudgetForm({
           id="budget-amount"
           type="number"
           min={1}
-          step={1000}
+          step={getCurrencyStep(currency)}
           value={amount}
           onChange={(e) => setAmount(e.target.value)}
           placeholder={t('amountPlaceholder')}

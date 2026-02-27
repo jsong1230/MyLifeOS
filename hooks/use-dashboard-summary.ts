@@ -23,6 +23,12 @@ export interface DashboardSummary {
   meals: {
     count: number
     totalCalories: number
+    byType: {
+      breakfast: number
+      lunch: number
+      dinner: number
+      snack: number
+    }
   }
   sleep: {
     hours: number | null

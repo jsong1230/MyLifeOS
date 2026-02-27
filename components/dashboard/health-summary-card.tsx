@@ -13,7 +13,11 @@ export function HealthSummaryCard() {
   const t = useTranslations('dashboard')
   const { data, isLoading } = useDashboardSummary()
 
-  const { count: mealCount, totalCalories } = data?.meals ?? { count: 0, totalCalories: 0 }
+  const { count: mealCount, totalCalories, byType } = data?.meals ?? {
+    count: 0,
+    totalCalories: 0,
+    byType: { breakfast: 0, lunch: 0, dinner: 0, snack: 0 },
+  }
   const sleepHours = data?.sleep.hours ?? null
   const hasData = mealCount > 0 || sleepHours !== null
 
@@ -41,7 +45,16 @@ export function HealthSummaryCard() {
                 <div className="flex items-center gap-1.5">
                   <Utensils className="w-3 h-3 text-muted-foreground" />
                   <span className="text-xs">
-                    {totalCalories > 0 ? `${totalCalories} kcal` : t('mealCountFallback', { count: mealCount })}
+                    {totalCalories > 0
+                      ? `${totalCalories} kcal`
+                      : [
+                          byType?.breakfast > 0 && t('mealTypeCount', { type: t('mealTypeBreakfast'), count: byType.breakfast }),
+                          byType?.lunch > 0 && t('mealTypeCount', { type: t('mealTypeLunch'), count: byType.lunch }),
+                          byType?.dinner > 0 && t('mealTypeCount', { type: t('mealTypeDinner'), count: byType.dinner }),
+                          byType?.snack > 0 && t('mealTypeCount', { type: t('mealTypeSnack'), count: byType.snack }),
+                        ]
+                          .filter(Boolean)
+                          .join(', ') || t('mealCountFallback', { count: mealCount })}
                   </span>
                 </div>
               )}

@@ -246,7 +246,12 @@
     "diaryWritten": "Today's diary written",
     "noDiaryYet": "No diary yet",
     "noDiaryDesc": "Record today's emotions and stories",
-    "mealCountFallback": "{count} meals"
+    "mealCountFallback": "{count} meals",
+    "mealTypeBreakfast": "Breakfast",
+    "mealTypeLunch": "Lunch",
+    "mealTypeDinner": "Dinner",
+    "mealTypeSnack": "Snack",
+    "mealTypeCount": "{type} {count}"
   },
   "money": {
     "title": "Money",
@@ -378,7 +383,11 @@
       "perMonthSuffix": "/mo",
       "yearlyEquivalentLabel": "Annual equiv. ~{amount}",
       "activeItems": "Active",
-      "yearlyNoteWithTotal": "* Includes {count} annual item(s) — Annual total {amount}"
+      "yearlyNoteWithTotal": "* Includes {count} annual item(s) — Annual total {amount}",
+      "record": "Record",
+      "unrecordedAlert": "{count} recurring expense(s) not yet recorded this month.",
+      "batchRecord": "Record All",
+      "dismissAlert": "Later"
     },
     "categories": {
       "title": "Categories",
@@ -544,7 +553,9 @@
       "summary": "Total {total} · Completed {completed} · Pending {pending}",
       "noTodosEmpty": "No tasks registered for this day",
       "addTodoHere": "Add task",
-      "loadError": "Failed to load task data"
+      "loadError": "Failed to load task data",
+      "routines": "Routines",
+      "timeBlocks": "Time Blocks"
     },
     "blocks": {
       "title": "Time blocks",
@@ -746,7 +757,13 @@
       "deleteTitle": "Delete Record",
       "deleteConfirm": "Deleted meal records cannot be recovered.",
       "prevDay": "Previous day",
-      "nextDay": "Next day"
+      "nextDay": "Next day",
+      "searchFood": "Search food",
+      "searchingFood": "Searching...",
+      "noFoodResults": "No results found. Enter manually.",
+      "portion": "Portion",
+      "oneServing": "1 serving",
+      "autoFilled": "Auto-filled"
     },
     "sleep": {
       "title": "Sleep",
@@ -1088,6 +1105,20 @@
       "encrypted": "(encrypted)",
       "encryptedHint": "Diaries and relation notes will be decrypted if PIN is authenticated. Otherwise, encrypted data will be exported."
     },
+    "profile": "Profile",
+    "profileDescription": "Set your display name.",
+    "nickname": "Nickname",
+    "nicknamePlaceholder": "Enter your display name",
+    "nicknameSaved": "Saved",
+    "save": "Save",
+    "account": "Account",
+    "logout": "Logout",
+    "logoutConfirm": "Are you sure you want to logout?",
+    "logoutDescription": "You will also be automatically logged out after 30 minutes of inactivity.",
+    "deleteAccount": "Delete Account",
+    "deleteAccountDescription": "After requesting, your account will be reviewed by admin before deletion. Data cannot be recovered.",
+    "deleteAccountConfirm": "Are you sure you want to request account deletion?",
+    "deleteAccountRequested": "Your deletion request has been submitted.",
     "userGuideTitle": "User Guide",
     "userGuideDescription": "App usage guide and FAQ",
     "userGuideLink": "Open User Guide →"

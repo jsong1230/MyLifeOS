@@ -1,7 +1,7 @@
 'use client'
 
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useState, useEffect } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { ChevronLeft, ChevronRight, PenLine, Search, Loader2 } from 'lucide-react'
 import { useTranslations, useLocale } from 'next-intl'
 import { Button } from '@/components/ui/button'
@@ -52,6 +52,7 @@ function getTodayStr(): string {
 // 일기 페이지 — 날짜 탐색 + 일기 표시/작성
 export default function DiaryPage() {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const t = useTranslations()
   const locale = useLocale()
   const today = getTodayStr()
@@ -134,6 +135,13 @@ export default function DiaryPage() {
   }
 
   const isMutating = createMutation.isPending || updateMutation.isPending
+
+  // FAB action=add 파라미터 감지 → 일기 작성 폼 자동 오픈
+  useEffect(() => {
+    if (searchParams.get('action') === 'add') {
+      openCreateDialog()
+    }
+  }, [searchParams])
   const mutationError = createMutation.error ?? updateMutation.error
 
   const isNextDisabled = shiftDate(currentDate, 1) > today

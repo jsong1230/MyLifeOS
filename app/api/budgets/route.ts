@@ -75,19 +75,42 @@ export async function GET(request: NextRequest) {
       .map((b) => b.category_id)
       .filter((id): id is string => id !== null && id !== undefined)
 
-    // 카테고리별 지출 합계 조회
-    const { data: spentData, error: spentError } = await supabase
-      .from('transactions')
-      .select('category_id, amount')
-      .eq('user_id', userId)
-      .eq('type', 'expense')
-      .gte('date', monthRange.start)
-      .lt('date', monthRange.end)
-      .in('category_id', categoryIds.length > 0 ? categoryIds : [''])
+    // 미분류(null) 예산이 있는지 확인
+    const hasUncategorizedBudget = budgets.some((b) => b.category_id === null)
 
-    if (spentError) {
+    // 카테고리별 지출 합계 조회 + 미분류 지출 별도 조회
+    const [spentResult, uncategorizedResult] = await Promise.all([
+      categoryIds.length > 0
+        ? supabase
+            .from('transactions')
+            .select('category_id, amount')
+            .eq('user_id', userId)
+            .eq('type', 'expense')
+            .gte('date', monthRange.start)
+            .lt('date', monthRange.end)
+            .in('category_id', categoryIds)
+        : Promise.resolve({ data: [], error: null }),
+      hasUncategorizedBudget
+        ? supabase
+            .from('transactions')
+            .select('amount')
+            .eq('user_id', userId)
+            .eq('type', 'expense')
+            .gte('date', monthRange.start)
+            .lt('date', monthRange.end)
+            .is('category_id', null)
+        : Promise.resolve({ data: [], error: null }),
+    ])
+
+    if (spentResult.error || uncategorizedResult.error) {
       return apiError('SERVER_ERROR')
     }
+
+    const spentData = spentResult.data
+    const uncategorizedSpent = (uncategorizedResult.data ?? []).reduce(
+      (sum, tx) => sum + Number(tx.amount),
+      0
+    )
 
     // 카테고리 ID → 지출 합계 매핑
     const spentMap = new Map<string, number>()
@@ -100,7 +123,9 @@ export async function GET(request: NextRequest) {
 
     // BudgetStatus 계산
     const result: BudgetStatus[] = budgets.map((budget) => {
-      const spent = budget.category_id ? (spentMap.get(budget.category_id) ?? 0) : 0
+      const spent = budget.category_id
+        ? (spentMap.get(budget.category_id) ?? 0)
+        : uncategorizedSpent
       const amount = Number(budget.amount)
       const remaining = amount - spent
       const percentage = amount > 0 ? Math.round((spent / amount) * 100) : 0

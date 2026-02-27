@@ -13,6 +13,8 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { useCategories } from '@/hooks/use-categories'
+import { useSettingsStore } from '@/store/settings.store'
+import { getCurrencyStep } from '@/lib/currency'
 import type { RecurringExpense, CreateRecurringInput, RecurringCycle } from '@/types/recurring'
 
 interface RecurringFormProps {
@@ -41,6 +43,7 @@ export function RecurringForm({
 }: RecurringFormProps) {
   const t = useTranslations('money.recurring')
   const tc = useTranslations('common')
+  const defaultCurrency = useSettingsStore((s) => s.defaultCurrency)
 
   // 지출 카테고리 목록 조회
   const { data: categories, isLoading: isCategoriesLoading } = useCategories('expense')
@@ -100,6 +103,7 @@ export function RecurringForm({
       billing_day: parseInt(billingDay, 10),
       cycle,
       category_id: categoryId || undefined,
+      currency: defaultCurrency,
     }
 
     onSubmit(data)
@@ -135,7 +139,7 @@ export function RecurringForm({
           id="recurring-amount"
           type="number"
           min={1}
-          step={100}
+          step={getCurrencyStep(defaultCurrency)}
           value={amount}
           onChange={(e) => setAmount(e.target.value)}
           placeholder={t('amountPlaceholder')}

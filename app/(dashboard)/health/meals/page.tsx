@@ -1,6 +1,7 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useSearchParams } from 'next/navigation'
 import { useLocale, useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button'
 import {
@@ -51,6 +52,7 @@ function isToday(dateStr: string): boolean {
 
 // 식사 기록 페이지
 export default function MealsPage() {
+  const searchParams = useSearchParams()
   const locale = useLocale()
   const t = useTranslations('health.meals')
   const tc = useTranslations('common')
@@ -150,6 +152,13 @@ export default function MealsPage() {
 
   const isMutating =
     createMeal.isPending || updateMeal.isPending
+
+  // FAB action=add 파라미터 감지 → 폼 자동 오픈
+  useEffect(() => {
+    if (searchParams.get('action') === 'add') {
+      handleOpenCreate()
+    }
+  }, [searchParams])
 
   return (
     <div className="flex flex-col h-full">

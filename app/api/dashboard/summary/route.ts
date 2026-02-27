@@ -43,7 +43,7 @@ export async function GET(request: NextRequest) {
       .lte('date', monthEnd),
     supabase
       .from('meal_logs')
-      .select('calories')
+      .select('calories, meal_type')
       .eq('user_id', userId)
       .eq('date', today),
     supabase
@@ -79,6 +79,12 @@ export async function GET(request: NextRequest) {
       meals: {
         count: meals.length,
         totalCalories: meals.reduce((s, m) => s + (m.calories ?? 0), 0),
+        byType: {
+          breakfast: meals.filter((m) => m.meal_type === 'breakfast').length,
+          lunch: meals.filter((m) => m.meal_type === 'lunch').length,
+          dinner: meals.filter((m) => m.meal_type === 'dinner').length,
+          snack: meals.filter((m) => m.meal_type === 'snack').length,
+        },
       },
       sleep: {
         hours: sleep?.value ?? null,

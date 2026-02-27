@@ -213,6 +213,7 @@ export function RoutineForm({
         <Input
           id="routine-time"
           type="time"
+          step={60}
           value={timeOfDay}
           onChange={(e) => setTimeOfDay(e.target.value)}
           disabled={isLoading}
