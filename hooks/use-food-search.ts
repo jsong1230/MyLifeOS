@@ -1,6 +1,6 @@
 'use client'
 
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, keepPreviousData } from '@tanstack/react-query'
 import type { FoodNutrition } from '@/types/food'
 
 export function useFoodSearch(query: string) {
@@ -14,6 +14,7 @@ export function useFoodSearch(query: string) {
       return data.foods ?? []
     },
     enabled: query.length >= 1,
-    staleTime: 5 * 60 * 1000,
+    staleTime: 10 * 60 * 1000,         // 10분 — 같은 검색어 재요청 방지
+    placeholderData: keepPreviousData,   // 새 검색 중 이전 결과 유지 (깜빡임 방지)
   })
 }

@@ -41,9 +41,11 @@ export function Providers({ children }: { children: React.ReactNode }) {
       new QueryClient({
         defaultOptions: {
           queries: {
-            staleTime: 5 * 60 * 1000,  // 5분 — 불필요한 refetch 방지
-            gcTime: 10 * 60 * 1000,    // 10분 — 캐시 보존
+            staleTime: 5 * 60 * 1000,      // 5분 — 불필요한 refetch 방지
+            gcTime: 10 * 60 * 1000,         // 10분 — 캐시 보존
             retry: 1,
+            refetchOnWindowFocus: false,     // 탭 전환 시 불필요한 재요청 방지
+            refetchOnReconnect: 'always',    // 네트워크 재연결 시만 refetch
           },
         },
       })

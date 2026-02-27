@@ -18,7 +18,7 @@ export function useSettings() {
       if (!json.success) throw new Error(json.error ?? 'FETCH_FAILED')
       return json.data
     },
-    staleTime: 5 * 60 * 1000, // 5분
+    staleTime: 30 * 60 * 1000, // 30분 — 설정은 자주 변하지 않음
   })
 
   // 설정을 Zustand 스토어에도 동기화 (nickname 포함)

@@ -23,6 +23,7 @@ export function useCategories(type?: CategoryType) {
       if (!json.success) throw new Error(json.error ?? '카테고리 조회 실패')
       return json.data
     },
+    staleTime: 30 * 60 * 1000, // 30분 — 카테고리는 자주 변하지 않음
   })
 }
 

@@ -24,11 +24,19 @@ export function FoodSearchCombobox({
   const t = useTranslations('health.meals')
   const [open, setOpen] = useState(false)
   const [query, setQuery] = useState(value)
+  // debounce: 타이핑 중 API 과다 호출 방지 (300ms)
+  const [debouncedQuery, setDebouncedQuery] = useState(value)
   const containerRef = useRef<HTMLDivElement>(null)
-  const { data: foods = [], isLoading } = useFoodSearch(query)
+  const { data: foods = [], isLoading } = useFoodSearch(debouncedQuery)
+
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedQuery(query), 300)
+    return () => clearTimeout(timer)
+  }, [query])
 
   useEffect(() => {
     setQuery(value)
+    setDebouncedQuery(value)
   }, [value])
 
   useEffect(() => {
