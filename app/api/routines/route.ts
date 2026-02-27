@@ -63,6 +63,25 @@ export async function GET(request: NextRequest) {
     // date 파라미터 처리 (기본값: 오늘)
     const { searchParams } = new URL(request.url)
     const dateParam = searchParams.get('date')
+    const allActive = searchParams.get('allActive') === 'true'
+
+    // allActive=true: 날짜 필터 없이 모든 활성 루틴 반환 (캘린더 월간 그리드용)
+    if (allActive) {
+      const { data: routines, error: routinesError } = await supabase
+        .from('routines')
+        .select(
+          'id, user_id, title, description, frequency, days_of_week, interval_days, time_of_day, streak, is_active, created_at, updated_at'
+        )
+        .eq('user_id', userId)
+        .eq('is_active', true)
+        .order('created_at', { ascending: true })
+
+      if (routinesError) {
+        return apiError('SERVER_ERROR')
+      }
+
+      return NextResponse.json({ success: true, data: routines ?? [] })
+    }
 
     let targetDate: Date
     if (dateParam) {

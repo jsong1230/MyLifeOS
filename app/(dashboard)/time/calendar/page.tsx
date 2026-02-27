@@ -5,8 +5,8 @@ import { useLocale, useTranslations } from 'next-intl'
 import { CalendarView } from '@/components/time/calendar-view'
 import { TodoFormDialog } from '@/components/time/todo-form-dialog'
 import { useTodos } from '@/hooks/use-todos'
-import { useRoutines, useToggleRoutine } from '@/hooks/use-routines'
-import { useTimeBlocks } from '@/hooks/use-time-blocks'
+import { useRoutines, useToggleRoutine, useAllRoutines } from '@/hooks/use-routines'
+import { useTimeBlocks, useTimeBlockDates } from '@/hooks/use-time-blocks'
 import { useCalendar } from '@/hooks/use-calendar'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
@@ -15,13 +15,33 @@ import { Button } from '@/components/ui/button'
 import { Plus, Check, Calendar, Clock, RotateCw } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import type { Todo } from '@/types/todo'
-import type { RoutineWithLog } from '@/types/routine'
+import type { Routine, RoutineWithLog } from '@/types/routine'
 import type { TimeBlock } from '@/types/time-block'
+
+// 루틴이 특정 날짜에 해당하는지 클라이언트에서 계산
+function isRoutineScheduled(routine: Routine, date: Date): boolean {
+  if (!routine.is_active) return false
+  if (routine.frequency === 'daily') return true
+  if (routine.frequency === 'weekly') {
+    const dow = date.getDay()
+    return Array.isArray(routine.days_of_week) && routine.days_of_week.includes(dow)
+  }
+  if (routine.frequency === 'custom' && routine.interval_days && routine.interval_days > 0) {
+    const created = new Date(routine.created_at)
+    const createdMidnight = new Date(created.getFullYear(), created.getMonth(), created.getDate())
+    const targetMidnight = new Date(date.getFullYear(), date.getMonth(), date.getDate())
+    const diffDays = Math.round(
+      (targetMidnight.getTime() - createdMidnight.getTime()) / (1000 * 60 * 60 * 24)
+    )
+    return diffDays >= 0 && diffDays % routine.interval_days === 0
+  }
+  return false
+}
 
 // 캘린더 페이지 — 월간/주간/일간 캘린더 + 선택 날짜 상세 패널
 export default function CalendarPage() {
   const locale = useLocale()
-  const { selectedDate, setSelectedDate, monthQuery } = useCalendar()
+  const { selectedDate, setSelectedDate, monthQuery, currentMonth } = useCalendar()
 
   // 선택된 날짜로 TodoFormDialog 열기 여부
   const [dialogOpen, setDialogOpen] = useState(false)
@@ -30,10 +50,32 @@ export default function CalendarPage() {
   // 해당 월 전체 할일 조회
   const { data: todos = [], isLoading, isError } = useTodos({ month: monthQuery })
 
-  // 선택 날짜의 루틴 + 타임블록 조회
+  // 선택 날짜의 루틴 + 타임블록 조회 (패널용)
   const { data: routines = [] } = useRoutines(selectedDate)
   const { data: timeBlocks = [] } = useTimeBlocks(selectedDate)
   const toggleRoutine = useToggleRoutine()
+
+  // 월간 그리드 점 표시용: 전체 활성 루틴 + 월간 타임블록 날짜
+  const { data: allRoutines = [] } = useAllRoutines()
+  const { data: timeBlockDates = new Set<string>() } = useTimeBlockDates(monthQuery)
+
+  // 현재 월의 루틴 날짜 Set 계산 (클라이언트에서 스케줄 판단)
+  const routineDates = useMemo(() => {
+    const set = new Set<string>()
+    const { year, month } = currentMonth
+    const daysInMonth = new Date(year, month, 0).getDate()
+    for (let d = 1; d <= daysInMonth; d++) {
+      const date = new Date(year, month - 1, d)
+      const dateStr = `${year}-${String(month).padStart(2, '0')}-${String(d).padStart(2, '0')}`
+      for (const routine of allRoutines) {
+        if (isRoutineScheduled(routine, date)) {
+          set.add(dateStr)
+          break
+        }
+      }
+    }
+    return set
+  }, [allRoutines, currentMonth])
 
   // 선택된 날짜의 할일 필터링
   const selectedDateTodos = useMemo(
@@ -63,6 +105,8 @@ export default function CalendarPage() {
         ) : (
           <CalendarView
             todos={todos}
+            routineDates={routineDates}
+            timeBlockDates={timeBlockDates}
             onAddTodo={handleAddTodo}
             onSelectDate={handleSelectDate}
           />

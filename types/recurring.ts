@@ -35,4 +35,5 @@ export interface UpdateRecurringInput {
   category_id?: string | null
   is_active?: boolean
   currency?: CurrencyCode
+  last_recorded_date?: string | null  // 마지막으로 거래내역에 기록된 날짜 업데이트용
 }

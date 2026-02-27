@@ -53,6 +53,13 @@ export async function PATCH(
     return apiError('VALIDATION_ERROR')
   }
 
+  // last_recorded_date 검증 (입력된 경우)
+  if (body.last_recorded_date !== undefined && body.last_recorded_date !== null) {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(body.last_recorded_date)) {
+      return apiError('VALIDATION_ERROR')
+    }
+  }
+
   // 업데이트할 필드 구성
   const updateData: Record<string, unknown> = {}
   if (body.name !== undefined) updateData.name = body.name.trim()
@@ -61,6 +68,7 @@ export async function PATCH(
   if (body.cycle !== undefined) updateData.cycle = body.cycle
   if ('category_id' in body) updateData.category_id = body.category_id ?? null
   if (body.is_active !== undefined) updateData.is_active = body.is_active
+  if ('last_recorded_date' in body) updateData.last_recorded_date = body.last_recorded_date ?? null
 
   if (Object.keys(updateData).length === 0) {
     return apiError('VALIDATION_ERROR')
@@ -71,7 +79,7 @@ export async function PATCH(
     .update(updateData)
     .eq('id', id)
     .eq('user_id', userId)
-    .select('id, user_id, name, amount, billing_day, cycle, category_id, is_active, created_at, updated_at')
+    .select('id, user_id, name, amount, billing_day, cycle, category_id, currency, is_active, last_recorded_date, created_at, updated_at')
     .maybeSingle()
 
   if (error) {

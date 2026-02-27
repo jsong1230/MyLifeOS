@@ -3,6 +3,20 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import type { TimeBlock, CreateTimeBlockInput, UpdateTimeBlockInput } from '@/types/time-block'
 
+// 월 전체 타임블록이 있는 날짜 Set 조회 훅 (캘린더 월간 그리드 점 표시용)
+export function useTimeBlockDates(month: string) {
+  return useQuery<Set<string>>({
+    queryKey: ['time-block-dates', month],
+    queryFn: async () => {
+      const res = await fetch(`/api/time-blocks?month=${month}`)
+      const json = await res.json() as { success: boolean; data: TimeBlock[]; error?: string }
+      if (!json.success) return new Set<string>()
+      return new Set<string>(json.data.map((b) => b.date))
+    },
+    enabled: Boolean(month),
+  })
+}
+
 // 시간 블록 목록 조회 훅 (특정 날짜)
 export function useTimeBlocks(date: string) {
   return useQuery<TimeBlock[]>({

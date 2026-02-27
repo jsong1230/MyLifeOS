@@ -13,18 +13,30 @@ export async function GET(request: NextRequest) {
 
   const { searchParams } = new URL(request.url)
   const date = searchParams.get('date')
+  const month = searchParams.get('month')  // YYYY-MM 형식 (월 전체 조회용)
 
-  // 날짜 파라미터 검증
-  if (!date) {
+  // 날짜 또는 월 파라미터 중 하나는 필수
+  if (!date && !month) {
     return apiError('VALIDATION_ERROR')
   }
 
-  const { data, error } = await supabase
+  let query = supabase
     .from('time_blocks')
     .select('id, user_id, title, date, start_time, end_time, color, todo_id, created_at, updated_at')
     .eq('user_id', userId)
-    .eq('date', date)
-    .order('start_time', { ascending: true })
+
+  if (date) {
+    query = query.eq('date', date)
+  } else if (month) {
+    // YYYY-MM → 해당 월의 첫날~마지막날 범위 조회
+    const startDate = `${month}-01`
+    const [y, m] = month.split('-').map(Number)
+    const lastDay = new Date(y, m, 0).getDate()
+    const endDate = `${month}-${String(lastDay).padStart(2, '0')}`
+    query = query.gte('date', startDate).lte('date', endDate)
+  }
+
+  const { data, error } = await query.order('start_time', { ascending: true })
 
   if (error) {
     return apiError('SERVER_ERROR')

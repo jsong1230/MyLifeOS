@@ -99,6 +99,23 @@ async function toggleRoutineApi({
 }
 
 /**
+ * 모든 활성 루틴 목록 조회 훅 (날짜 필터 없음, 캘린더 월간 그리드 점 표시용)
+ */
+export function useAllRoutines() {
+  return useQuery<Routine[], Error>({
+    queryKey: ['routines', 'all-active'],
+    queryFn: async () => {
+      const res = await fetch('/api/routines?allActive=true')
+      const json = (await res.json()) as ApiResponse<Routine[]>
+      if (!res.ok || !json.success) {
+        throw new Error(json.error ?? '루틴 목록 조회에 실패했습니다')
+      }
+      return json.data ?? []
+    },
+  })
+}
+
+/**
  * 오늘의 루틴 + 로그 목록 조회 훅
  * @param date - 조회 날짜 (YYYY-MM-DD, 기본값: 오늘)
  */
