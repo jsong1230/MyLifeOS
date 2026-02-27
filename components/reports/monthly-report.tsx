@@ -113,39 +113,36 @@ export function MonthlyReportView({ report }: MonthlyReportProps) {
           {currencyEntries.length === 0 ? (
             <p className="p-4 text-sm text-center text-muted-foreground">{t('noSpending')}</p>
           ) : (
-            <div className="divide-y">
-              {currencyEntries.map(([curr, { income, expense, prev_expense, change_pct }]) => (
-                <div key={curr} className="p-4 space-y-2">
-                  {/* 통화 배지 + 전월 대비 트렌드 */}
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold bg-muted px-2 py-0.5 rounded">{curr}</span>
-                    <SpendingTrend changePct={change_pct} sameLabel={t('sameAsPrev')} vsLabel={t('vsLastMonth')} />
-                  </div>
-                  {/* 이번달 지출 */}
-                  <div className="flex items-baseline gap-1">
-                    <p className="text-xs text-muted-foreground">{t('thisMonthExpense')}</p>
-                    <p className="text-lg font-bold text-red-500 ml-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b bg-muted/40">
+                  <th className="px-4 py-2 text-left font-medium text-muted-foreground">{t('currency')}</th>
+                  <th className="px-4 py-2 text-right font-medium text-muted-foreground">{t('income')}</th>
+                  <th className="px-4 py-2 text-right font-medium text-muted-foreground">{t('expense')}</th>
+                  <th className="px-4 py-2 text-right font-medium text-muted-foreground">{t('prevMonthExpense')}</th>
+                  <th className="px-4 py-2 text-right font-medium text-muted-foreground">{t('vsLastMonth')}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {currencyEntries.map(([curr, { income, expense, prev_expense, change_pct }]) => (
+                  <tr key={curr} className="border-b last:border-0">
+                    <td className="px-4 py-3 font-semibold">{curr}</td>
+                    <td className="px-4 py-3 text-right text-emerald-600 dark:text-emerald-400 font-medium">
+                      +{formatCurrency(income, curr as CurrencyCode)}
+                    </td>
+                    <td className="px-4 py-3 text-right text-red-500 font-medium">
                       -{formatCurrency(expense, curr as CurrencyCode)}
-                    </p>
-                  </div>
-                  {/* 수입 + 전월 */}
-                  <div className="grid grid-cols-2 gap-3 pt-2 border-t">
-                    <div>
-                      <p className="text-xs text-muted-foreground mb-0.5">{t('income')}</p>
-                      <p className="text-sm font-semibold text-emerald-600 dark:text-emerald-400">
-                        +{formatCurrency(income, curr as CurrencyCode)}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-xs text-muted-foreground mb-0.5">{t('prevMonthExpense')}</p>
-                      <p className="text-sm font-semibold text-muted-foreground">
-                        {formatCurrency(prev_expense, curr as CurrencyCode)}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
+                    </td>
+                    <td className="px-4 py-3 text-right text-muted-foreground">
+                      {formatCurrency(prev_expense, curr as CurrencyCode)}
+                    </td>
+                    <td className="px-4 py-3 text-right">
+                      <SpendingTrend changePct={change_pct} sameLabel="—" vsLabel="" />
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           )}
         </div>
       </section>
