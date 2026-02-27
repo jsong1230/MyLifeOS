@@ -80,6 +80,7 @@
     "private": "사적 기록",
     "reports": "리포트",
     "goals": "목표",
+    "insights": "AI 인사이트",
     "settings": "설정",
     "sideMenu": "사이드 메뉴",
     "mainMenu": "메인 메뉴",
@@ -1250,5 +1251,27 @@
     "daysLeft": "{days}일 남음",
     "overdue": "기한 초과",
     "milestonesCount": "{completed}/{total} 완료"
+  },
+  "insights": {
+    "title": "AI 인사이트",
+    "generate": "인사이트 생성",
+    "regenerate": "다시 분석",
+    "generating": "AI가 분석 중...",
+    "summary": "종합 요약",
+    "empty": "아직 인사이트가 없습니다",
+    "emptyDesc": "버튼을 눌러 지난 30일 데이터를 AI로 분석해보세요",
+    "generatedAt": "생성 시각",
+    "categories": {
+      "spending": "지출",
+      "health": "건강",
+      "routine": "루틴",
+      "goal": "목표",
+      "overall": "종합"
+    },
+    "types": {
+      "positive": "긍정",
+      "warning": "주의",
+      "suggestion": "제안"
+    }
   }
 }

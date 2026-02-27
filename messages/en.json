@@ -80,6 +80,7 @@
     "private": "Journal",
     "reports": "Reports",
     "goals": "Goals",
+    "insights": "AI Insights",
     "settings": "Settings",
     "sideMenu": "Side menu",
     "mainMenu": "Main menu",
@@ -1250,5 +1251,27 @@
     "daysLeft": "{days} days left",
     "overdue": "Overdue",
     "milestonesCount": "{completed}/{total} done"
+  },
+  "insights": {
+    "title": "AI Insights",
+    "generate": "Generate Insights",
+    "regenerate": "Analyze Again",
+    "generating": "AI is analyzing...",
+    "summary": "Overall Summary",
+    "empty": "No insights yet",
+    "emptyDesc": "Press the button to analyze your last 30 days of data with AI",
+    "generatedAt": "Generated at",
+    "categories": {
+      "spending": "Spending",
+      "health": "Health",
+      "routine": "Routine",
+      "goal": "Goal",
+      "overall": "Overall"
+    },
+    "types": {
+      "positive": "Positive",
+      "warning": "Warning",
+      "suggestion": "Suggestion"
+    }
   }
 }
