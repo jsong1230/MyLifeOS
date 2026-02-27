@@ -3,12 +3,14 @@
 import { useQuery, keepPreviousData } from '@tanstack/react-query'
 import type { FoodNutrition } from '@/types/food'
 
-export function useFoodSearch(query: string) {
+export function useFoodSearch(query: string, locale = 'ko') {
   return useQuery<FoodNutrition[]>({
-    queryKey: ['food-search', query],
+    queryKey: ['food-search', query, locale],
     queryFn: async () => {
       if (query.length < 1) return []
-      const res = await fetch(`/api/food-search?q=${encodeURIComponent(query)}`)
+      const res = await fetch(
+        `/api/food-search?q=${encodeURIComponent(query)}&locale=${locale}`
+      )
       if (!res.ok) return []
       const data = (await res.json()) as { foods: FoodNutrition[] }
       return data.foods ?? []

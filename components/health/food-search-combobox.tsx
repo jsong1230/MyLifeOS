@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
-import { useTranslations } from 'next-intl'
+import { useTranslations, useLocale } from 'next-intl'
 import { Input } from '@/components/ui/input'
 import { useFoodSearch } from '@/hooks/use-food-search'
 import type { FoodNutrition } from '@/types/food'
@@ -22,12 +22,13 @@ export function FoodSearchCombobox({
   disabled,
 }: FoodSearchComboboxProps) {
   const t = useTranslations('health.meals')
+  const locale = useLocale()
   const [open, setOpen] = useState(false)
   const [query, setQuery] = useState(value)
   // debounce: 타이핑 중 API 과다 호출 방지 (300ms)
   const [debouncedQuery, setDebouncedQuery] = useState(value)
   const containerRef = useRef<HTMLDivElement>(null)
-  const { data: foods = [], isLoading } = useFoodSearch(debouncedQuery)
+  const { data: foods = [], isLoading } = useFoodSearch(debouncedQuery, locale)
 
   useEffect(() => {
     const timer = setTimeout(() => setDebouncedQuery(query), 300)

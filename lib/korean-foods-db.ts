@@ -6,7 +6,8 @@
 
 export interface KoreanFoodEntry {
   id: string
-  name: string           // 한글 음식명
+  name: string           // 한글 음식명 (기본)
+  name_en?: string       // 영문 음식명 (명시적으로 지정 시)
   aliases?: string[]     // 별명/표기 변형 (검색 매칭용)
   calories: number       // kcal / 1인분
   protein: number        // g / 1인분
@@ -14,6 +15,35 @@ export interface KoreanFoodEntry {
   fat: number            // g / 1인분
   serving_size: string   // 1인분 표시 문자열
   serving_size_g: number // 1인분 그램
+}
+
+/** aliases 중 영문(라틴 문자) 항목을 찾아 Title Case로 반환 */
+export function getEnglishAlias(item: KoreanFoodEntry): string | null {
+  if (item.name_en) return item.name_en
+  const englishAlias = item.aliases?.find((a) =>
+    /^[a-zA-Z0-9\s&'\/\-\(\)\.]+$/.test(a.trim())
+  )
+  if (!englishAlias) return null
+  // Title Case 변환 (e.g., "butter chicken" → "Butter Chicken")
+  return englishAlias.trim().replace(/\b\w/g, (c) => c.toUpperCase())
+}
+
+/** 로케일에 맞게 serving_size 단위를 변환 (영문 모드) */
+export function localizeServingSize(serving: string, locale: string): string {
+  if (locale !== 'en') return serving
+  return serving
+    .replace(/반마리/g, 'half')
+    .replace(/(\d+)마리/g, '$1 whole')
+    .replace(/(\d+)인분/g, '$1 serving')
+    .replace(/(\d+)그릇/g, '$1 bowl')
+    .replace(/(\d+)공기/g, '$1 cup')
+    .replace(/(\d+)개/g, '$1 pc')
+    .replace(/(\d+)접시/g, '$1 plate')
+    .replace(/(\d+)조각/g, '$1 slice')
+    .replace(/(\d+)장/g, '$1 sheet')
+    .replace(/(\d+)토막/g, '$1 pc')
+    .replace(/(\d+)잔/g, '$1 cup')
+    .replace(/(\d+)코스/g, '$1 course')
 }
 
 export const KOREAN_FOODS_DB: KoreanFoodEntry[] = [

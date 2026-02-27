@@ -1,5 +1,5 @@
 import type { FoodNutrition } from '@/types/food'
-import { searchKoreanFoods } from '@/lib/korean-foods-db'
+import { searchKoreanFoods, getEnglishAlias, localizeServingSize } from '@/lib/korean-foods-db'
 
 const USDA_API_BASE = 'https://api.nal.usda.gov/fdc/v1'
 
@@ -73,15 +73,20 @@ async function searchFoodsUsda(query: string): Promise<FoodNutrition[]> {
   }
 }
 
-function toFoodNutrition(item: import('@/lib/korean-foods-db').KoreanFoodEntry): FoodNutrition {
+function toFoodNutrition(
+  item: import('@/lib/korean-foods-db').KoreanFoodEntry,
+  locale = 'ko',
+): FoodNutrition {
+  const englishName = getEnglishAlias(item)
+  const name = locale === 'en' && englishName ? englishName : item.name
   return {
     id: item.id,
-    name: item.name,
+    name,
     calories: item.calories,
     protein: item.protein,
     carbs: item.carbs,
     fat: item.fat,
-    serving_size: item.serving_size,
+    serving_size: localizeServingSize(item.serving_size, locale),
     serving_size_g: item.serving_size_g,
     source: 'kr_internal',
   }
@@ -91,9 +96,10 @@ function toFoodNutrition(item: import('@/lib/korean-foods-db').KoreanFoodEntry):
  * 음식 검색 — 내장 DB + USDA 항상 병행 검색, 내장 DB 결과 우선 표시
  * - 한글 쿼리: 내장 DB 결과 먼저, 이어서 USDA 결과 (최대 10개)
  * - 영문 쿼리: 내장 DB(영어 별명 매칭) + USDA 병행, 내장 결과 먼저
+ * - locale: 검색 결과 음식명/단위를 해당 언어로 표시
  */
-export async function searchFoods(query: string): Promise<FoodNutrition[]> {
-  const localResults = searchKoreanFoods(query).map(toFoodNutrition)
+export async function searchFoods(query: string, locale = 'ko'): Promise<FoodNutrition[]> {
+  const localResults = searchKoreanFoods(query).map((item) => toFoodNutrition(item, locale))
 
   if (isKorean(query)) {
     // 한글 쿼리 → 내장 DB 결과로 충분하면 바로 반환
