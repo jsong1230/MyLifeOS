@@ -113,7 +113,17 @@
   - 초기 스키마 마이그레이션 000_initial_schema.sql (19테이블, 32인덱스, RLS)
   - types/database.types.ts 수동 작성 + gen:types 스크립트 추가
 - ⏸️ 보류: H-02 Web Crypto API 암호화 마이그레이션 (기존 데이터 재암호화 필요 — 별도 논의 후 진행)
-- ⏭️ 다음: 신규 기능 개발 (AI 인사이트 / 푸시 알림 / 투자 트래킹 / 장기 목표 관리)
+- ✅ 완료: F-34 장기 목표 관리 (2026-02-27, commit 98691ee)
+  - goals + goal_milestones 테이블, CRUD API 6개, React Query 훅 8개
+  - GoalCard/GoalForm/GoalProgressBar/MilestoneList 컴포넌트
+  - /goals 페이지 (탭 3개, 진척도 슬라이더, 마일스톤 체크리스트)
+  - 네비게이션 "목표" 항목 추가 (sidebar/bottom-nav/header)
+- ✅ 완료: F-35 푸시 알림 (2026-02-27, commit 98691ee)
+  - web-push + VAPID 기반 Web Push API
+  - push_subscriptions + notification_settings 테이블
+  - Service Worker (/public/sw.js), Vercel Cron (매일 09:00 UTC)
+  - 루틴·정기지출·목표 알림, 설정 페이지 UI 통합
+- ⏭️ 다음: 신규 기능 개발 (AI 인사이트 / 투자 트래킹)
 
 ## 중요 결정사항
 - `middleware.ts` (루트) 사용 — Next.js가 자동 인식하는 파일명 (proxy.ts는 내부 명명 의도였음)
