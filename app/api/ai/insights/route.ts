@@ -17,6 +17,29 @@ export interface AiInsightsResponse {
   generatedAt: string
 }
 
+// GET /api/ai/insights — 저장된 최신 인사이트 조회
+export async function GET() {
+  const supabase = await createClient()
+  const { data: { session } } = await supabase.auth.getSession()
+  if (!session) return apiError('AUTH_REQUIRED')
+
+  const { data, error } = await supabase
+    .from('ai_insights')
+    .select('insights, summary, locale, generated_at')
+    .eq('user_id', session.user.id)
+    .maybeSingle()
+
+  if (error) return apiError('SERVER_ERROR')
+  if (!data) return NextResponse.json({ success: true, data: null })
+
+  const responseData: AiInsightsResponse = {
+    insights: data.insights as AiInsight[],
+    summary: data.summary,
+    generatedAt: data.generated_at,
+  }
+  return NextResponse.json({ success: true, data: responseData })
+}
+
 // POST /api/ai/insights — 지난 30일 사용자 데이터를 Claude AI로 분석
 export async function POST(request: NextRequest) {
   if (!process.env.ANTHROPIC_API_KEY) {
@@ -192,11 +215,21 @@ locale이 'en'이면 영어로 응답하세요.
     parsedResponse = { insights: [], summary: '' }
   }
 
+  const generatedAt = new Date().toISOString()
   const responseData: AiInsightsResponse = {
     insights: parsedResponse.insights ?? [],
     summary: parsedResponse.summary ?? '',
-    generatedAt: new Date().toISOString(),
+    generatedAt,
   }
+
+  // DB에 UPSERT (user당 최신 1건 유지)
+  await supabase.from('ai_insights').upsert({
+    user_id: user.id,
+    insights: responseData.insights,
+    summary: responseData.summary,
+    locale,
+    generated_at: generatedAt,
+  }, { onConflict: 'user_id' })
 
   return NextResponse.json({ success: true, data: responseData })
 }

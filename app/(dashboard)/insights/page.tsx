@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
-import { useGenerateInsights } from '@/hooks/use-ai-insights'
+import { useAiInsights, useGenerateInsights } from '@/hooks/use-ai-insights'
 import type { AiInsight } from '@/app/api/ai/insights/route'
 
 function InsightCard({ insight, t }: { insight: AiInsight; t: ReturnType<typeof useTranslations> }) {
@@ -65,7 +65,11 @@ function InsightsSkeleton() {
 export default function InsightsPage() {
   const t = useTranslations('insights')
   const locale = useLocale()
-  const { mutate, data, isPending, error } = useGenerateInsights()
+  const { data: saved, isLoading: isSavedLoading } = useAiInsights()
+  const { mutate, data: generated, isPending, error } = useGenerateInsights()
+
+  // 생성된 결과 우선, 없으면 저장된 결과 표시
+  const data = generated ?? saved
 
   const handleGenerate = () => {
     mutate(locale)
@@ -93,7 +97,10 @@ export default function InsightsPage() {
         )}
       </div>
 
-      {/* 로딩 상태 */}
+      {/* 초기 로딩 */}
+      {isSavedLoading && !isPending && <InsightsSkeleton />}
+
+      {/* 생성 중 */}
       {isPending && (
         <div className="space-y-4">
           <p className="text-sm text-muted-foreground text-center py-2">{t('generating')}</p>
@@ -113,7 +120,6 @@ export default function InsightsPage() {
       {/* 결과 표시 */}
       {data && !isPending && (
         <div className="space-y-4">
-          {/* 종합 요약 카드 */}
           {data.summary && (
             <Card className="bg-primary/5 border-primary/20">
               <CardHeader className="pb-2 pt-4 px-4">
@@ -131,7 +137,6 @@ export default function InsightsPage() {
             </Card>
           )}
 
-          {/* 인사이트 그리드 */}
           {data.insights.length > 0 ? (
             <div className="grid gap-3 sm:grid-cols-2">
               {data.insights.map((insight, index) => (
@@ -149,7 +154,7 @@ export default function InsightsPage() {
       )}
 
       {/* 미생성 상태 */}
-      {!data && !isPending && !error && (
+      {!data && !isPending && !isSavedLoading && (
         <div className="flex flex-col items-center justify-center gap-6 py-16 text-center">
           <div className="rounded-full bg-primary/10 p-6">
             <Sparkles className="w-12 h-12 text-primary" />
