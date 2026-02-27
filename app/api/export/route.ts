@@ -123,9 +123,9 @@ function queryRelations(supabase: SupabaseClient, userId: string) {
  */
 export async function GET(request: NextRequest) {
   const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return apiError('AUTH_REQUIRED')
-  const userId = user.id
+  const { data: { session } } = await supabase.auth.getSession()
+  if (!session) return apiError('AUTH_REQUIRED')
+  const userId = session.user.id
 
   const { searchParams } = new URL(request.url)
   const moduleParam = searchParams.get('module')

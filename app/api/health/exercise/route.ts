@@ -9,9 +9,9 @@ const VALID_INTENSITIES = ['light', 'moderate', 'intense'] as const
 // GET /api/health/exercise?week_start=YYYY-MM-DD → 주간 운동 기록
 export async function GET(request: NextRequest) {
   const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return apiError('AUTH_REQUIRED')
-  const userId = user.id
+  const { data: { session } } = await supabase.auth.getSession()
+  const userId = session?.user?.id
+  if (!userId) return apiError('AUTH_REQUIRED')
 
   const { searchParams } = new URL(request.url)
   const weekStart = searchParams.get('week_start')

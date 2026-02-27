@@ -20,9 +20,9 @@ type TransactionDbRow = Database['public']['Tables']['transactions']['Row'] & {
 // 쿼리 파라미터: month (YYYY-MM), type (income/expense), category_id, is_favorite (true)
 export async function GET(request: NextRequest) {
   const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return apiError('AUTH_REQUIRED')
-  const userId = user.id
+  const { data: { session } } = await supabase.auth.getSession()
+  const userId = session?.user?.id
+  if (!userId) return apiError('AUTH_REQUIRED')
 
   const { searchParams } = new URL(request.url)
   const month = searchParams.get('month')

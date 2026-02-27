@@ -12,10 +12,8 @@ export async function GET(request: Request) {
   }
 
   const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-  if (!user) return apiError('AUTH_REQUIRED')
+  const { data: { session } } = await supabase.auth.getSession()
+  if (!session?.user) return apiError('AUTH_REQUIRED')
 
   const foods = await searchFoods(q, locale)
 

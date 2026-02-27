@@ -7,9 +7,9 @@ import type { CreateTodoInput, Todo } from '@/types/todo'
 // 쿼리 파라미터: date (YYYY-MM-DD) 또는 month (YYYY-MM) 지원, 없으면 전체
 export async function GET(request: NextRequest) {
   const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return apiError('AUTH_REQUIRED')
-  const userId = user.id
+  const { data: { session } } = await supabase.auth.getSession()
+  const userId = session?.user?.id
+  if (!userId) return apiError('AUTH_REQUIRED')
 
   const { searchParams } = new URL(request.url)
   const date = searchParams.get('date')

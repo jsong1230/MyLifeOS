@@ -14,9 +14,9 @@ export interface DiarySearchItem {
 // GET /api/diaries/search?months=N — 최근 N개월 일기 전체 조회 (검색용)
 export async function GET(request: NextRequest) {
   const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return apiError('AUTH_REQUIRED')
-  const userId = user.id
+  const { data: { session } } = await supabase.auth.getSession()
+  const userId = session?.user?.id
+  if (!userId) return apiError('AUTH_REQUIRED')
 
   const { searchParams } = new URL(request.url)
   const monthsParam = searchParams.get('months')

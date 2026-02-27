@@ -1,6 +1,6 @@
 import type { FoodNutrition } from '@/types/food'
 import { createClient } from '@/lib/supabase/server'
-import { localizeServingSize } from '@/lib/korean-foods-db'
+import { localizeServingSize } from '@/lib/food-utils'
 
 const USDA_API_BASE = 'https://api.nal.usda.gov/fdc/v1'
 

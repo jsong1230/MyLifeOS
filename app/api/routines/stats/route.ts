@@ -26,9 +26,9 @@ export interface RoutineStatsResponse {
  */
 export async function GET(request: NextRequest) {
   const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return apiError('AUTH_REQUIRED')
-  const userId = user.id
+  const { data: { session } } = await supabase.auth.getSession()
+  const userId = session?.user?.id
+  if (!userId) return apiError('AUTH_REQUIRED')
 
   const { searchParams } = new URL(request.url)
   const week = searchParams.get('week')

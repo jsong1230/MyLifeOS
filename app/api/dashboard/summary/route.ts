@@ -6,9 +6,9 @@ import { getToday, getCurrentMonthRange } from '@/lib/date-utils'
 // GET /api/dashboard/summary — 대시보드 4개 카드 집계 데이터 (단일 요청)
 export async function GET(request: NextRequest) {
   const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return apiError('AUTH_REQUIRED')
-  const userId = user.id
+  const { data: { session } } = await supabase.auth.getSession()
+  const userId = session?.user?.id
+  if (!userId) return apiError('AUTH_REQUIRED')
 
   const today = getToday()
   const { start: monthStart, end: monthEnd } = getCurrentMonthRange()

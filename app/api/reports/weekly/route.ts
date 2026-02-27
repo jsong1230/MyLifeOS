@@ -32,9 +32,9 @@ function round1(n: number): number {
 // week 파라미터: 주 시작 월요일 날짜. 생략 시 이번 주 월요일.
 export async function GET(request: NextRequest) {
   const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return apiError('AUTH_REQUIRED')
-  const userId = user.id
+  const { data: { session } } = await supabase.auth.getSession()
+  const userId = session?.user?.id
+  if (!userId) return apiError('AUTH_REQUIRED')
 
   const { searchParams } = new URL(request.url)
   const weekParam = searchParams.get('week')
