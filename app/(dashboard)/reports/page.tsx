@@ -12,6 +12,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
 import { GoalsTab } from '@/components/goals/goals-tab'
+import { InvestmentsTab } from '@/components/investments/investments-tab'
 import type { AiInsight } from '@/app/api/ai/insights/route'
 
 // 오늘 날짜 기준으로 이번 주 월요일(주 시작) 반환 (YYYY-MM-DD)
@@ -49,7 +50,7 @@ function formatMonthLabel(year: number, month: number, locale: string): string {
 }
 
 // 탭 타입
-type TabType = 'weekly' | 'monthly' | 'goals' | 'ai'
+type TabType = 'weekly' | 'monthly' | 'goals' | 'investments' | 'ai'
 
 function InsightCard({ insight, t }: { insight: AiInsight; t: ReturnType<typeof useTranslations<'insights'>> }) {
   const bgColorMap: Record<AiInsight['type'], string> = {
@@ -145,7 +146,7 @@ export default function ReportsPage() {
 
       {/* ── 탭 전환 ── */}
       <div className="flex bg-muted rounded-lg p-1 mb-6">
-        {(['weekly', 'monthly', 'goals', 'ai'] as const).map((tab) => (
+        {(['weekly', 'monthly', 'goals', 'investments', 'ai'] as const).map((tab) => (
           <button
             key={tab}
             type="button"
@@ -164,6 +165,8 @@ export default function ReportsPage() {
               ? t('reports.monthlyTab')
               : tab === 'goals'
               ? t('nav.goals')
+              : tab === 'investments'
+              ? t('money.investments.title')
               : ti('title')}
           </button>
         ))}
@@ -249,6 +252,9 @@ export default function ReportsPage() {
 
       {/* ── 목표 탭 ── */}
       {activeTab === 'goals' && <GoalsTab />}
+
+      {/* ── 투자 탭 ── */}
+      {activeTab === 'investments' && <InvestmentsTab />}
 
       {/* ── AI 인사이트 탭 ── */}
       {activeTab === 'ai' && (

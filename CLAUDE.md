@@ -127,11 +127,18 @@
   - investments + investment_transactions 테이블, RLS (migration 021)
   - 매수/매도 가중평균 단가 자동 재계산, 거래 삭제 시 전체 재계산
   - React Query 훅 7개, 포트폴리오 요약 (통화별 투자원금/평가금액/손익/수익률)
-  - 종목 카드 인라인 현재가 입력, Money 레이아웃 투자 탭 추가
-- ✅ 완료: F-37 AI 인사이트 (2026-02-27, commit a150ce7)
+  - 종목 카드 인라인 현재가 입력
+- ✅ 완료: F-37 AI 인사이트 (2026-02-27, commit a150ce7 → bea1da5)
   - Claude Haiku API로 지난 30일 데이터(지출/식사/수면/루틴/목표) 분석
   - 4-6개 카테고리별 인사이트 + 종합 요약, type별 색상 분기 (긍정/주의/제안)
-  - 사이드바/바텀내비 AI 인사이트 탭 (Sparkles 아이콘)
+  - ai_insights 테이블 DB 저장 → 기기 간 동기화 (migration 022)
+- ✅ 완료: 분석 탭 통합 + 네비 6개로 축소 (2026-02-27, commit 8b92204 → e0e2465)
+  - "리포트" → "분석(Analytics)"으로 명칭 변경
+  - 목표·투자·AI 인사이트를 분석 페이지 단일 탭으로 통합 (5개 탭: 주간/월간/목표/투자/AI)
+  - components/goals/goals-tab.tsx, components/investments/investments-tab.tsx 컴포넌트 추출
+  - 바텀 네비 + 사이드바: AI인사이트·목표·투자 항목 제거 → 6개 (홈/시간/머니/건강/프라이빗/분석)
+  - /goals, /insights → redirect('/reports'), /money/investments → redirect('/reports')
+  - 사용자 가이드 ko/en 분석 섹션 신규 추가 (08 분석: 5개 기능 설명)
 - ⏭️ 다음: 추가 기능 개발 (사용자 요청 기반)
 
 ## 중요 결정사항

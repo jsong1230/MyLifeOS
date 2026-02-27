@@ -1,5 +1,38 @@
 # Changelog
 
+## [미정] - 2026-02-27 (F-36~F-37 + 분석 탭 통합)
+
+### Added
+- **F-36 투자 트래킹**: 주식/ETF/가상화폐/부동산 자산 CRUD + 거래 내역(매수/매도) 기록
+  - `supabase/migrations/20260227000021_investments.sql` — investments + investment_transactions 테이블, RLS, 트리거
+  - `app/api/investments/route.ts`, `app/api/investments/[id]/route.ts` — CRUD Route Handlers
+  - `app/api/investments/[id]/transactions/route.ts` — 거래 내역 CRUD
+  - `components/investments/investments-tab.tsx` — 포트폴리오 요약 + 거래 이력 다이얼로그
+  - 다중 통화(KRW/CAD/USD) 지원, i18n 완전 적용
+- **F-37 AI 인사이트**: Claude Haiku API로 30일 데이터 분석 → 개인화 인사이트 생성
+  - `supabase/migrations/20260227000022_ai_insights.sql` — user당 최신 1건 저장하는 ai_insights 테이블 (UNIQUE user_id)
+  - `app/api/ai/insights/route.ts` — GET(저장 인사이트 조회) + POST(생성 후 DB UPSERT)
+  - `hooks/use-ai-insights.ts` — useQuery 자동 로드 + useMutation 생성 훅
+  - 기기 간 동기화: DB 저장 후 어느 기기에서나 동일 인사이트 확인 가능
+- **분석 탭 통합**: 목표·투자·AI 인사이트를 "분석" 페이지 단일 탭으로 통합
+  - `app/(dashboard)/reports/page.tsx` — 5개 탭: 주간/월간/목표/투자/AI 인사이트
+  - `components/goals/goals-tab.tsx` — GoalsPage → GoalsTab 컴포넌트로 추출
+  - `components/investments/investments-tab.tsx` — InvestmentsPage → InvestmentsTab 컴포넌트로 추출
+  - `app/(dashboard)/money/investments/page.tsx` → `redirect('/reports')` 교체
+  - `app/(dashboard)/goals/page.tsx` → `redirect('/reports')` 교체
+  - `app/(dashboard)/insights/page.tsx` → `redirect('/reports')` 교체
+- **네비게이션 축소**: 하단 바 + 사이드바 8개 → 6개 (AI인사이트·목표·투자 제거, 분석 탭으로 통합)
+  - `components/layout/bottom-nav.tsx`, `components/layout/sidebar.tsx` 업데이트
+- **리포트 → 분석 명칭 변경**: `nav.reports` ko→"분석" / en→"Analytics"
+- **사용자 가이드 업데이트** (`public/manual.html`, `public/manual.en.html`)
+  - 08 분석 섹션 신규 추가 (주간/월간/목표/투자/AI 인사이트 5개 설명)
+  - 기존 섹션 번호 갱신 (계정관리·보안·FAQ: 08~10 → 09~11)
+
+### Fixed
+- **VAPID 빌드 크래시**: `setVapidDetails`를 모듈 최상단 즉시 실행 → `sendPushNotification` 내부 lazy init으로 변경하여 빌드 타임 환경변수 미설정 크래시 방지
+
+---
+
 ## [미정] - 2026-02-24 (Wave 1~3)
 
 ### Fixed
