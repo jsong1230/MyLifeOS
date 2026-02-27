@@ -2,6 +2,7 @@
 
 import { useTranslations, useLocale } from 'next-intl'
 import { useAuthStore } from '@/store/auth.store'
+import { useSettingsStore } from '@/store/settings.store'
 
 function formatDate(date: Date, locale: string): string {
   return date.toLocaleDateString(locale === 'ko' ? 'ko-KR' : 'en-US', {
@@ -15,6 +16,7 @@ function formatDate(date: Date, locale: string): string {
 // 시간대별 인사말 + 사용자 이름 + 오늘 날짜 표시
 export function GreetingHeader() {
   const user = useAuthStore((s) => s.user)
+  const nickname = useSettingsStore((s) => s.nickname)
   const t = useTranslations('dashboard')
   const commonT = useTranslations('common')
   const locale = useLocale()
@@ -31,6 +33,7 @@ export function GreetingHeader() {
 
   const greeting = getGreeting()
   const name =
+    nickname ??
     user?.user_metadata?.full_name ??
     user?.email?.split('@')[0] ??
     commonT('user')
