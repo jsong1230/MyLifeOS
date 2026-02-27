@@ -1067,7 +1067,9 @@
     "incomeExpense": "수입 / 지출",
     "healthMetrics": "건강 지표",
     "noDiaryWeek": "이번 주 일기 기록이 없습니다",
-    "circularProgressLabel": "완료율 {rate}%"
+    "circularProgressLabel": "완료율 {rate}%",
+    "noSpending": "거래 내역이 없습니다",
+    "currency": "통화"
   },
   "settings": {
     "title": "설정",

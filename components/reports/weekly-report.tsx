@@ -2,8 +2,7 @@
 
 import { useTranslations } from 'next-intl'
 import { EMOTION_ICONS, type EmotionType } from '@/types/diary'
-import { formatCurrency } from '@/lib/currency'
-import { useSettingsStore } from '@/store/settings.store'
+import { formatCurrency, type CurrencyCode } from '@/lib/currency'
 import type { WeeklyReport } from '@/types/report'
 
 interface WeeklyReportProps {
@@ -61,8 +60,8 @@ function CircularProgress({ rate, ariaLabel }: { rate: number; ariaLabel: string
 export function WeeklyReportView({ report }: WeeklyReportProps) {
   const t = useTranslations('reports')
   const te = useTranslations('private.emotions')
-  const currency = useSettingsStore((s) => s.defaultCurrency)
   const { todos, spending, health, emotions } = report
+  const currencyEntries = Object.entries(spending.byCurrency)
 
   // 감정 분포: 횟수 내림차순 정렬
   const sortedEmotions = Object.entries(emotions).sort(([, a], [, b]) => b - a)
@@ -100,7 +99,7 @@ export function WeeklyReportView({ report }: WeeklyReportProps) {
         </div>
       </section>
 
-      {/* ── 수입/지출 요약 ── */}
+      {/* ── 수입/지출 요약 (통화별) ── */}
       <section aria-labelledby="weekly-spending-heading">
         <h3
           id="weekly-spending-heading"
@@ -108,19 +107,33 @@ export function WeeklyReportView({ report }: WeeklyReportProps) {
         >
           {t('incomeExpense')}
         </h3>
-        <div className="bg-card border rounded-xl p-4 grid grid-cols-2 gap-4">
-          <div>
-            <p className="text-xs text-muted-foreground mb-1">{t('income')}</p>
-            <p className="text-base font-bold text-emerald-600 dark:text-emerald-400">
-              +{formatCurrency(spending.income, currency)}
-            </p>
-          </div>
-          <div>
-            <p className="text-xs text-muted-foreground mb-1">{t('expense')}</p>
-            <p className="text-base font-bold text-red-500">
-              -{formatCurrency(spending.expense, currency)}
-            </p>
-          </div>
+        <div className="bg-card border rounded-xl overflow-hidden">
+          {currencyEntries.length === 0 ? (
+            <p className="p-4 text-sm text-center text-muted-foreground">{t('noSpending')}</p>
+          ) : (
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b bg-muted/40">
+                  <th className="px-4 py-2 text-left font-medium text-muted-foreground">{t('currency')}</th>
+                  <th className="px-4 py-2 text-right font-medium text-muted-foreground">{t('income')}</th>
+                  <th className="px-4 py-2 text-right font-medium text-muted-foreground">{t('expense')}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {currencyEntries.map(([curr, { income, expense }]) => (
+                  <tr key={curr} className="border-b last:border-0">
+                    <td className="px-4 py-3 font-semibold">{curr}</td>
+                    <td className="px-4 py-3 text-right text-emerald-600 dark:text-emerald-400 font-medium">
+                      +{formatCurrency(income, curr as CurrencyCode)}
+                    </td>
+                    <td className="px-4 py-3 text-right text-red-500 font-medium">
+                      -{formatCurrency(expense, curr as CurrencyCode)}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
         </div>
       </section>
 

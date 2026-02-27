@@ -1067,7 +1067,9 @@
     "incomeExpense": "Income / Expense",
     "healthMetrics": "Health metrics",
     "noDiaryWeek": "No diary entries this week",
-    "circularProgressLabel": "Completion rate {rate}%"
+    "circularProgressLabel": "Completion rate {rate}%",
+    "noSpending": "No transactions found",
+    "currency": "Currency"
   },
   "settings": {
     "title": "Settings",

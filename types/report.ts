@@ -10,10 +10,9 @@ export interface WeeklyReport {
     /** 완료율 0~100 */
     rate: number
   }
-  /** 수입/지출 집계 */
+  /** 통화별 수입/지출 집계 */
   spending: {
-    income: number
-    expense: number
+    byCurrency: Record<string, { income: number; expense: number }>
   }
   /** 건강 집계 */
   health: {
@@ -38,14 +37,16 @@ export interface MonthlyReport {
     /** 완료율 0~100 */
     rate: number
   }
-  /** 수입/지출 집계 (전월 대비 포함) */
+  /** 통화별 수입/지출 집계 (전월 대비 포함) */
   spending: {
-    income: number
-    expense: number
-    /** 전월 지출 합계 */
-    prev_expense: number
-    /** 전월 대비 증감률 (%) — 전월이 0이면 0 */
-    change_pct: number
+    byCurrency: Record<string, {
+      income: number
+      expense: number
+      /** 전월 지출 합계 */
+      prev_expense: number
+      /** 전월 대비 증감률 (%) — 전월이 0이면 0 */
+      change_pct: number
+    }>
   }
   /** 건강 집계 */
   health: {

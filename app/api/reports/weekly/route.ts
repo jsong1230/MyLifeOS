@@ -1,8 +1,6 @@
 import { NextResponse, type NextRequest } from 'next/server'
 import { apiError } from '@/lib/api-errors'
 import { createClient } from '@/lib/supabase/server'
-import { fetchExchangeRatesServer, sumConverted } from '@/lib/exchange-rates.server'
-import type { CurrencyCode } from '@/lib/currency'
 import type { WeeklyReport } from '@/types/report'
 
 // YYYY-MM-DD 날짜 형식 정규식
@@ -41,7 +39,6 @@ export async function GET(request: NextRequest) {
 
   const { searchParams } = new URL(request.url)
   const weekParam = searchParams.get('week')
-  const currencyParam = (searchParams.get('currency') ?? 'KRW') as CurrencyCode
 
   // 날짜 형식 검증
   if (weekParam && !DATE_PATTERN.test(weekParam)) {
@@ -70,22 +67,25 @@ export async function GET(request: NextRequest) {
   const todoCompleted = todosData?.filter((t) => t.status === 'completed').length ?? 0
   const todoRate = todoTotal > 0 ? Math.round((todoCompleted / todoTotal) * 100) : 0
 
-  // ── 2. 수입/지출 집계 (통화 환산 포함) ──────────────────────
-  const [transactionsResult, rates] = await Promise.all([
-    supabase
-      .from('transactions')
-      .select('amount, type, currency')
-      .eq('user_id', userId)
-      .gte('date', weekStart)
-      .lte('date', weekEnd),
-    fetchExchangeRatesServer(),
-  ])
+  // ── 2. 수입/지출 집계 (통화별 분리) ─────────────────────────
+  const transactionsResult = await supabase
+    .from('transactions')
+    .select('amount, type, currency')
+    .eq('user_id', userId)
+    .gte('date', weekStart)
+    .lte('date', weekEnd)
 
   if (transactionsResult.error) {
     return apiError('SERVER_ERROR')
   }
 
-  const { income, expense } = sumConverted(transactionsResult.data ?? [], currencyParam, rates)
+  const byCurrency: Record<string, { income: number; expense: number }> = {}
+  for (const tx of transactionsResult.data ?? []) {
+    const curr = (tx.currency as string) ?? 'KRW'
+    if (!byCurrency[curr]) byCurrency[curr] = { income: 0, expense: 0 }
+    if (tx.type === 'income') byCurrency[curr].income += tx.amount
+    else byCurrency[curr].expense += tx.amount
+  }
 
   // ── 3. 수면 집계 ─────────────────────────────────────────────
   // health_logs 테이블에서 log_type='sleep', value=수면시간(h)
@@ -156,8 +156,7 @@ export async function GET(request: NextRequest) {
       rate: todoRate,
     },
     spending: {
-      income,
-      expense,
+      byCurrency,
     },
     health: {
       avg_sleep: avgSleep,

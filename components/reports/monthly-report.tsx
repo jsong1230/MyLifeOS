@@ -3,8 +3,7 @@
 import { TrendingUp, TrendingDown, Minus } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { EMOTION_ICONS, type EmotionType } from '@/types/diary'
-import { formatCurrency } from '@/lib/currency'
-import { useSettingsStore } from '@/store/settings.store'
+import { formatCurrency, type CurrencyCode } from '@/lib/currency'
 import type { MonthlyReport } from '@/types/report'
 
 interface MonthlyReportProps {
@@ -69,8 +68,8 @@ function SpendingTrend({ changePct, sameLabel, vsLabel }: { changePct: number; s
 export function MonthlyReportView({ report }: MonthlyReportProps) {
   const t = useTranslations('reports')
   const te = useTranslations('private.emotions')
-  const currency = useSettingsStore((s) => s.defaultCurrency)
   const { todos, spending, health, emotions } = report
+  const currencyEntries = Object.entries(spending.byCurrency)
 
   // 감정 분포: 횟수 내림차순 정렬
   const sortedEmotions = Object.entries(emotions).sort(([, a], [, b]) => b - a)
@@ -102,7 +101,7 @@ export function MonthlyReportView({ report }: MonthlyReportProps) {
         </div>
       </section>
 
-      {/* ── 지출 현황 (전월 대비) ── */}
+      {/* ── 지출 현황 (통화별 + 전월 대비) ── */}
       <section aria-labelledby="monthly-spending-heading">
         <h3
           id="monthly-spending-heading"
@@ -110,30 +109,44 @@ export function MonthlyReportView({ report }: MonthlyReportProps) {
         >
           {t('spendingTitle')}
         </h3>
-        <div className="bg-card border rounded-xl p-4 space-y-3">
-          <div className="flex items-start justify-between">
-            <div>
-              <p className="text-xs text-muted-foreground mb-0.5">{t('thisMonthExpense')}</p>
-              <p className="text-xl font-bold text-red-500">
-                {formatCurrency(spending.expense, currency)}
-              </p>
+        <div className="bg-card border rounded-xl overflow-hidden">
+          {currencyEntries.length === 0 ? (
+            <p className="p-4 text-sm text-center text-muted-foreground">{t('noSpending')}</p>
+          ) : (
+            <div className="divide-y">
+              {currencyEntries.map(([curr, { income, expense, prev_expense, change_pct }]) => (
+                <div key={curr} className="p-4 space-y-2">
+                  {/* 통화 배지 + 전월 대비 트렌드 */}
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold bg-muted px-2 py-0.5 rounded">{curr}</span>
+                    <SpendingTrend changePct={change_pct} sameLabel={t('sameAsPrev')} vsLabel={t('vsLastMonth')} />
+                  </div>
+                  {/* 이번달 지출 */}
+                  <div className="flex items-baseline gap-1">
+                    <p className="text-xs text-muted-foreground">{t('thisMonthExpense')}</p>
+                    <p className="text-lg font-bold text-red-500 ml-auto">
+                      -{formatCurrency(expense, curr as CurrencyCode)}
+                    </p>
+                  </div>
+                  {/* 수입 + 전월 */}
+                  <div className="grid grid-cols-2 gap-3 pt-2 border-t">
+                    <div>
+                      <p className="text-xs text-muted-foreground mb-0.5">{t('income')}</p>
+                      <p className="text-sm font-semibold text-emerald-600 dark:text-emerald-400">
+                        +{formatCurrency(income, curr as CurrencyCode)}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground mb-0.5">{t('prevMonthExpense')}</p>
+                      <p className="text-sm font-semibold text-muted-foreground">
+                        {formatCurrency(prev_expense, curr as CurrencyCode)}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              ))}
             </div>
-            <SpendingTrend changePct={spending.change_pct} sameLabel={t('sameAsPrev')} vsLabel={t('vsLastMonth')} />
-          </div>
-          <div className="grid grid-cols-2 gap-3 pt-2 border-t">
-            <div>
-              <p className="text-xs text-muted-foreground mb-0.5">{t('income')}</p>
-              <p className="text-sm font-semibold text-emerald-600 dark:text-emerald-400">
-                +{formatCurrency(spending.income, currency)}
-              </p>
-            </div>
-            <div>
-              <p className="text-xs text-muted-foreground mb-0.5">{t('prevMonthExpense')}</p>
-              <p className="text-sm font-semibold text-muted-foreground">
-                {formatCurrency(spending.prev_expense, currency)}
-              </p>
-            </div>
-          </div>
+          )}
         </div>
       </section>
 

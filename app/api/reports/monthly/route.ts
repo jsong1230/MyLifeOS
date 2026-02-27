@@ -1,8 +1,6 @@
 import { NextResponse, type NextRequest } from 'next/server'
 import { apiError } from '@/lib/api-errors'
 import { createClient } from '@/lib/supabase/server'
-import { fetchExchangeRatesServer, sumConverted } from '@/lib/exchange-rates.server'
-import type { CurrencyCode } from '@/lib/currency'
 import type { MonthlyReport } from '@/types/report'
 
 // 소수점 첫째 자리 반올림 유틸
@@ -35,7 +33,6 @@ export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url)
   const yearParam = searchParams.get('year')
   const monthParam = searchParams.get('month')
-  const currencyParam = (searchParams.get('currency') ?? 'KRW') as CurrencyCode
 
   // year, month 파라미터 검증
   if (!yearParam || !monthParam) {
@@ -70,8 +67,8 @@ export async function GET(request: NextRequest) {
   const todoCompleted = todosData?.filter((t) => t.status === 'completed').length ?? 0
   const todoRate = todoTotal > 0 ? Math.round((todoCompleted / todoTotal) * 100) : 0
 
-  // ── 2. 이번달 + 전월 수입/지출 + 환율 병렬 조회 ─────────────
-  const [txResult, prevTxResult, rates] = await Promise.all([
+  // ── 2. 이번달 + 전월 수입/지출 병렬 조회 (통화별 분리) ───────
+  const [txResult, prevTxResult] = await Promise.all([
     supabase
       .from('transactions')
       .select('amount, type, currency')
@@ -85,19 +82,34 @@ export async function GET(request: NextRequest) {
       .eq('type', 'expense')
       .gte('date', prevStart)
       .lte('date', prevEnd),
-    fetchExchangeRatesServer(),
   ])
 
   if (txResult.error || prevTxResult.error) {
     return apiError('SERVER_ERROR')
   }
 
-  const { income, expense } = sumConverted(txResult.data ?? [], currencyParam, rates)
-  const { expense: prevExpense } = sumConverted(prevTxResult.data ?? [], currencyParam, rates)
+  // 이번달: 통화별 수입/지출 집계
+  const byCurrency: Record<string, { income: number; expense: number; prev_expense: number; change_pct: number }> = {}
+  for (const tx of txResult.data ?? []) {
+    const curr = (tx.currency as string) ?? 'KRW'
+    if (!byCurrency[curr]) byCurrency[curr] = { income: 0, expense: 0, prev_expense: 0, change_pct: 0 }
+    if (tx.type === 'income') byCurrency[curr].income += tx.amount
+    else byCurrency[curr].expense += tx.amount
+  }
 
-  // 전월 대비 증감률 계산: 전월이 0이면 0으로 처리
-  const changePct =
-    prevExpense > 0 ? Math.round(((expense - prevExpense) / prevExpense) * 100) : 0
+  // 전월: 통화별 지출 집계
+  for (const tx of prevTxResult.data ?? []) {
+    const curr = (tx.currency as string) ?? 'KRW'
+    if (!byCurrency[curr]) byCurrency[curr] = { income: 0, expense: 0, prev_expense: 0, change_pct: 0 }
+    byCurrency[curr].prev_expense += tx.amount
+  }
+
+  // 전월 대비 증감률 계산
+  for (const v of Object.values(byCurrency)) {
+    v.change_pct = v.prev_expense > 0
+      ? Math.round(((v.expense - v.prev_expense) / v.prev_expense) * 100)
+      : 0
+  }
 
   // ── 4. 수면 집계 ─────────────────────────────────────────────
   const { data: sleepData, error: sleepError } = await supabase
@@ -165,10 +177,7 @@ export async function GET(request: NextRequest) {
       rate: todoRate,
     },
     spending: {
-      income,
-      expense,
-      prev_expense: prevExpense,
-      change_pct: changePct,
+      byCurrency,
     },
     health: {
       avg_sleep: avgSleep,
