@@ -123,7 +123,12 @@
   - push_subscriptions + notification_settings 테이블
   - Service Worker (/public/sw.js), Vercel Cron (매일 09:00 UTC)
   - 루틴·정기지출·목표 알림, 설정 페이지 UI 통합
-- ⏭️ 다음: 신규 기능 개발 (AI 인사이트 / 투자 트래킹)
+- ✅ 완료: F-36 투자 트래킹 (2026-02-27, commit 9777ab7)
+  - investments + investment_transactions 테이블, RLS (migration 021)
+  - 매수/매도 가중평균 단가 자동 재계산, 거래 삭제 시 전체 재계산
+  - React Query 훅 7개, 포트폴리오 요약 (통화별 투자원금/평가금액/손익/수익률)
+  - 종목 카드 인라인 현재가 입력, Money 레이아웃 투자 탭 추가
+- ⏭️ 다음: 신규 기능 개발 (AI 인사이트)
 
 ## 중요 결정사항
 - `middleware.ts` (루트) 사용 — Next.js가 자동 인식하는 파일명 (proxy.ts는 내부 명명 의도였음)
