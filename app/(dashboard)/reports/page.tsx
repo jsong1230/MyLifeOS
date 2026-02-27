@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
+import { GoalsTab } from '@/components/goals/goals-tab'
 import type { AiInsight } from '@/app/api/ai/insights/route'
 
 // 오늘 날짜 기준으로 이번 주 월요일(주 시작) 반환 (YYYY-MM-DD)
@@ -48,7 +49,7 @@ function formatMonthLabel(year: number, month: number, locale: string): string {
 }
 
 // 탭 타입
-type TabType = 'weekly' | 'monthly' | 'ai'
+type TabType = 'weekly' | 'monthly' | 'goals' | 'ai'
 
 function InsightCard({ insight, t }: { insight: AiInsight; t: ReturnType<typeof useTranslations<'insights'>> }) {
   const bgColorMap: Record<AiInsight['type'], string> = {
@@ -140,24 +141,30 @@ export default function ReportsPage() {
 
   return (
     <div className="px-4 max-w-lg mx-auto">
-      <h1 className="text-xl font-bold mb-5">{t('reports.title')}</h1>
+      <h1 className="text-xl font-bold mb-5">{t('nav.reports')}</h1>
 
       {/* ── 탭 전환 ── */}
       <div className="flex bg-muted rounded-lg p-1 mb-6">
-        {(['weekly', 'monthly', 'ai'] as const).map((tab) => (
+        {(['weekly', 'monthly', 'goals', 'ai'] as const).map((tab) => (
           <button
             key={tab}
             type="button"
             onClick={() => setActiveTab(tab)}
-            className={`flex-1 py-2 text-sm font-medium rounded-md transition-colors flex items-center justify-center gap-1 ${
+            className={`flex-1 py-1.5 text-xs font-medium rounded-md transition-colors flex items-center justify-center gap-1 ${
               activeTab === tab
                 ? 'bg-background text-foreground shadow-sm'
                 : 'text-muted-foreground hover:text-foreground'
             }`}
             aria-pressed={activeTab === tab}
           >
-            {tab === 'ai' && <Sparkles className="w-3.5 h-3.5" />}
-            {tab === 'weekly' ? t('reports.weeklyTab') : tab === 'monthly' ? t('reports.monthlyTab') : ti('title')}
+            {tab === 'ai' && <Sparkles className="w-3 h-3" />}
+            {tab === 'weekly'
+              ? t('reports.weeklyTab')
+              : tab === 'monthly'
+              ? t('reports.monthlyTab')
+              : tab === 'goals'
+              ? t('nav.goals')
+              : ti('title')}
           </button>
         ))}
       </div>
@@ -239,6 +246,9 @@ export default function ReportsPage() {
           {monthlyData && <MonthlyReportView report={monthlyData} />}
         </>
       )}
+
+      {/* ── 목표 탭 ── */}
+      {activeTab === 'goals' && <GoalsTab />}
 
       {/* ── AI 인사이트 탭 ── */}
       {activeTab === 'ai' && (
