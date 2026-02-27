@@ -10,6 +10,7 @@ const MONEY_NAV_ITEMS = [
   { labelKey: 'money.budget.title', href: '/money/budget' },
   { labelKey: 'money.assets.title', href: '/money/assets' },
   { labelKey: 'money.recurring.title', href: '/money/recurring' },
+  { labelKey: 'money.investments.title', href: '/money/investments' },
   { labelKey: 'money.categories.title', href: '/money/categories' },
 ] as const
 
