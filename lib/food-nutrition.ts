@@ -1,9 +1,15 @@
 import type { FoodNutrition } from '@/types/food'
+import { searchKoreanFoods } from '@/lib/korean-foods-db'
 
 const USDA_API_BASE = 'https://api.nal.usda.gov/fdc/v1'
 
-function getApiKey(): string {
+function getUsdaApiKey(): string {
   return process.env.USDA_API_KEY ?? 'DEMO_KEY'
+}
+
+/** 쿼리에 한글이 포함되어 있는지 판단 */
+function isKorean(text: string): boolean {
+  return /[\uAC00-\uD7AF\u1100-\u11FF\u3130-\u318F]/.test(text)
 }
 
 interface UsdaNutrient {
@@ -23,10 +29,11 @@ function getNutrientPer100g(nutrients: UsdaNutrient[], nutrientId: number): numb
   return nutrients.find((n) => n.nutrientId === nutrientId)?.value ?? 0
 }
 
-export async function searchFoods(query: string): Promise<FoodNutrition[]> {
+/** USDA FoodData Central API 검색 (영문 위주) */
+async function searchFoodsUsda(query: string): Promise<FoodNutrition[]> {
   try {
     const url = new URL(`${USDA_API_BASE}/foods/search`)
-    url.searchParams.set('api_key', getApiKey())
+    url.searchParams.set('api_key', getUsdaApiKey())
     url.searchParams.set('query', query)
     url.searchParams.set('pageSize', '10')
     url.searchParams.set('dataType', 'Survey (FNDDS),Foundation')
@@ -52,7 +59,6 @@ export async function searchFoods(query: string): Promise<FoodNutrition[]> {
       return {
         id: String(food.fdcId),
         name: food.description,
-        // 1인분(servingSizeG) 기준 영양소
         calories: Math.round(per100g.calories * factor),
         protein:  Math.round(per100g.protein  * factor * 10) / 10,
         carbs:    Math.round(per100g.carbs    * factor * 10) / 10,
@@ -65,4 +71,47 @@ export async function searchFoods(query: string): Promise<FoodNutrition[]> {
   } catch {
     return []
   }
+}
+
+/**
+ * 음식 검색 — 한글이면 내장 한식 DB 우선, 없으면 USDA fallback
+ * 영문이면 USDA 우선, 결과 없으면 내장 DB도 검색
+ */
+export async function searchFoods(query: string): Promise<FoodNutrition[]> {
+  if (isKorean(query)) {
+    // 한글 쿼리 → 내장 한식 DB 먼저
+    const korResults = searchKoreanFoods(query).map((item): FoodNutrition => ({
+      id: item.id,
+      name: item.name,
+      calories: item.calories,
+      protein: item.protein,
+      carbs: item.carbs,
+      fat: item.fat,
+      serving_size: item.serving_size,
+      serving_size_g: item.serving_size_g,
+      source: 'kr_internal',
+    }))
+
+    if (korResults.length > 0) return korResults
+
+    // 한식 DB에 없으면 USDA fallback
+    return searchFoodsUsda(query)
+  }
+
+  // 영문 쿼리 → USDA 먼저
+  const usdaResults = await searchFoodsUsda(query)
+  if (usdaResults.length > 0) return usdaResults
+
+  // USDA에 없으면 내장 DB에서도 검색 (영어 별명)
+  return searchKoreanFoods(query).map((item): FoodNutrition => ({
+    id: item.id,
+    name: item.name,
+    calories: item.calories,
+    protein: item.protein,
+    carbs: item.carbs,
+    fat: item.fat,
+    serving_size: item.serving_size,
+    serving_size_g: item.serving_size_g,
+    source: 'kr_internal',
+  }))
 }

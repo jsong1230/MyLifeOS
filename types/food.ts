@@ -7,7 +7,7 @@ export interface FoodNutrition {
   fat: number           // 1인분 기준 g
   serving_size: string  // 표시용 문자열 (예: "150g", "1 cup")
   serving_size_g: number // 1인분 그램 수 (계산 기준)
-  source: 'usda' | 'manual'
+  source: 'usda' | 'kr_internal' | 'manual'
 }
 
 export interface FoodSearchResult {
