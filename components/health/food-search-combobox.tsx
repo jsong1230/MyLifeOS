@@ -45,7 +45,7 @@ export function FoodSearchCombobox({
     const val = e.target.value
     setQuery(val)
     onChange(val)
-    setOpen(val.length >= 2)
+    setOpen(val.length >= 1)
   }
 
   function handleSelect(food: FoodNutrition) {
@@ -61,7 +61,7 @@ export function FoodSearchCombobox({
         type="text"
         value={query}
         onChange={handleInputChange}
-        onFocus={() => query.length >= 2 && setOpen(true)}
+        onFocus={() => query.length >= 1 && setOpen(true)}
         placeholder={placeholder ?? t('foodNamePlaceholder')}
         disabled={disabled}
       />
@@ -85,7 +85,7 @@ export function FoodSearchCombobox({
                 </li>
               ))}
             </ul>
-          ) : query.length >= 2 ? (
+          ) : query.length >= 1 ? (
             <div className="p-2 text-xs text-muted-foreground">{t('noFoodResults')}</div>
           ) : null}
         </div>
