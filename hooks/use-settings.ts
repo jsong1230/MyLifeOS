@@ -21,12 +21,13 @@ export function useSettings() {
     staleTime: 5 * 60 * 1000, // 5분
   })
 
-  // 설정을 Zustand 스토어에도 동기화
+  // 설정을 Zustand 스토어에도 동기화 (nickname 포함)
   useEffect(() => {
     if (query.data) {
       setSettings({
         locale: query.data.locale,
         defaultCurrency: query.data.default_currency,
+        nickname: query.data.nickname ?? null,
       })
     }
   }, [query.data, setSettings])

@@ -105,10 +105,16 @@ export default function SettingsPage() {
     router.push('/login')
   }
 
-  async function handleDeleteRequest() {
+  async function handleDeleteAccount() {
     const res = await fetch('/api/users/delete-request', { method: 'POST' })
     if (res.ok) {
-      setSuccessMessage(t('deleteAccountRequested'))
+      // 계정 삭제 완료 → 세션 정리 후 로그인 페이지로 이동
+      const supabase = createClient()
+      await supabase.auth.signOut()
+      reset()
+      router.push('/login')
+    } else {
+      setSuccessMessage(t('deleteAccountFailed'))
     }
   }
 
@@ -357,7 +363,7 @@ export default function SettingsPage() {
                 </AlertDialogHeader>
                 <AlertDialogFooter>
                   <AlertDialogCancel>{tCommon('cancel')}</AlertDialogCancel>
-                  <AlertDialogAction onClick={handleDeleteRequest} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                  <AlertDialogAction onClick={handleDeleteAccount} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
                     {t('deleteAccount')}
                   </AlertDialogAction>
                 </AlertDialogFooter>
