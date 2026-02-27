@@ -4,6 +4,7 @@ import { Header } from '@/components/layout/header'
 import { BottomNav } from '@/components/layout/bottom-nav'
 import { Sidebar } from '@/components/layout/sidebar'
 import { FAB } from '@/components/layout/fab'
+import { useSettings } from '@/hooks/use-settings'
 
 interface AppShellProps {
   children: React.ReactNode
@@ -11,6 +12,8 @@ interface AppShellProps {
 
 // 대시보드 전체 레이아웃 셸 — 헤더, 사이드바(데스크탑), 하단 네비(모바일), FAB 조합
 export function AppShell({ children }: AppShellProps) {
+  // 레이아웃 마운트 시 settings(닉네임 포함) 즉시 로드 → Zustand store 동기화
+  useSettings()
   return (
     <div className="flex min-h-screen">
       {/* 데스크탑 사이드바 */}
