@@ -35,6 +35,7 @@
 - `NEXT_PUBLIC_SUPABASE_URL`
 - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
 - `NEXT_PUBLIC_APP_URL`
+- `USDA_API_KEY` — 식품 영양정보 검색 (선택, 없으면 DEMO_KEY 사용)
 
 ## 현재 작업 상태
 - ✅ 완료: 프로젝트 초기화, 스캐폴딩, docs/specs/F-01 설계 문서
@@ -81,6 +82,20 @@
   - layout aria-label, error.tsx, categories page, emotion/stats, reports nav 번역 키 적용
   - auth/layout getTranslations 서버사이드 처리, dialog.tsx sr-only 번역 키 적용
   - messages에 20+ 신규 키 추가 (ko/en 완전 동기화), 타입 체크 0 오류
+- ✅ 완료: 사용자 피드백 기반 버그 수정 및 기능 개선 (Wave 1-4, 2026-02-27)
+  - Wave 1(버그 8개): 운동 날짜 기본값, FAB 겹침, KRW 하드코딩 제거, input step 동적화, 정기지출 currency 전송, FAB 경로 + action=add, 캘린더 우선순위 정렬/3개 표시, 루틴 time step
+  - Wave 2(필수 기능): 로그아웃 버튼, 회원탈퇴 요청 API(012 마이그레이션), 닉네임 설정
+  - Wave 3(중규모): 대시보드 식사 유형별 표시, 정기지출 "기록" 버튼+프리필, 예산 미분류 지출 처리
+  - Wave 4(대규모): 식사 칼로리 자동계산(USDA API+분량 선택기), 캘린더 루틴/타임블록 통합 뷰, 정기지출 자동체크/일괄기록(013 마이그레이션), 사용자 가이드 업데이트(ko/en)
+  - Supabase CLI로 마이그레이션 012·013 원격 DB에 직접 적용 완료
+- ✅ 완료: 리포트 통화별 분리 표시 (2026-02-27)
+  - 수입/지출을 단일 환산 합계 대신 KRW·CAD·USD 각각 행으로 표시 (주간/월간)
+  - 월간: 통화별 지출+수입+전월지출+전월대비% 테이블
+- ✅ 완료: 식사 분량 입력 UX 개선 (2026-02-27)
+  - USDA 100g 기준 → 실제 servingSize로 환산하여 1인분 정확히 계산
+  - "1인분 = Xg / Y kcal" 기준 표시, 빠른 선택(½·1·2·3인분), 직접 입력 + 실시간 칼로리 미리보기
+- ✅ 완료: 닉네임 새로고침 초기화 버그 수정 (2026-02-27)
+  - providers.tsx에 AuthInitializer 추가: 앱 로드 시 getUser()로 store 복구 + onAuthStateChange 동기화
 - ⏭️ 다음: 신규 기능 개발 (AI 인사이트 / 푸시 알림 / 투자 트래킹 / 장기 목표 관리)
 
 ## 중요 결정사항
@@ -88,6 +103,10 @@
 - `categories` 독립 테이블 분리 (F-09 커스텀 카테고리 지원)
 - 클라이언트 전용 AES-256 암호화: PIN → PBKDF2(100,000회) → 키 파생, sessionStorage 보관
 - 폼 검증은 네이티브 함수 사용 (zod/react-hook-form은 복잡한 폼 기능 시 도입)
+- 리포트 수입/지출: 환율 변환 없이 통화별 분리 표시 (KRW/CAD/USD 각각 행)
+- 인증 store 초기화: providers.tsx AuthInitializer에서 onAuthStateChange로 세션 동기화
+- USDA FoodData Central API: 서빙 사이즈 기준 영양소 계산 (100g 기준 → servingSize 환산)
+- Supabase CLI로 마이그레이션 관리: `supabase migration list/push` 사용
 
 ## Supabase 수동 선행 작업
 - [x] `.env.local` 환경변수 입력 (Supabase URL, anon key)
@@ -95,6 +114,8 @@
 - [x] Redirect URLs 등록: `http://localhost:3000/callback`
 - [x] SQL Editor → `handle_new_user()` 트리거 실행
 - [x] 009_user_settings_currency.sql 실행 (user_settings 테이블 + currency 컬럼)
+- [x] 012_deletion_request.sql — users.deletion_requested_at 컬럼 (CLI push 완료)
+- [x] 013_recurring_last_recorded.sql — recurring_expenses.last_recorded_date 컬럼 (CLI push 완료)
 
 ## 프로젝트 관리
 - 방식: file
