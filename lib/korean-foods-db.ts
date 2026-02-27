@@ -367,6 +367,84 @@ export const KOREAN_FOODS_DB: KoreanFoodEntry[] = [
   { id: 'kr-283', name: '연어스테이크', aliases: ['구운연어', '연어필레'], calories: 350, protein: 32.0, carbs: 2.0, fat: 24.0, serving_size: '1인분 (200g)', serving_size_g: 200 },
   { id: 'kr-284', name: '한우구이', aliases: ['한우', '한우채끝', '한우등심'], calories: 460, protein: 36.0, carbs: 0.0, fat: 34.0, serving_size: '1인분 (150g)', serving_size_g: 150 },
   { id: 'kr-285', name: '스시오마카세', aliases: ['오마카세', '스시코스'], calories: 750, protein: 42.0, carbs: 80.0, fat: 22.0, serving_size: '1코스 (350g)', serving_size_g: 350 },
+
+  // ──────────────── 캐나다 특산/향토 음식 ────────────────
+  { id: 'kr-286', name: '푸틴', aliases: ['poutine', '감자튀김그레이비치즈', '캐나다푸틴'], calories: 740, protein: 22.0, carbs: 72.0, fat: 40.0, serving_size: '1인분 (400g)', serving_size_g: 400 },
+  { id: 'kr-287', name: '몬트리올훈제고기샌드위치', aliases: ['smoked meat', '훈제육샌드위치', '몬트리올샌드위치'], calories: 450, protein: 30.0, carbs: 38.0, fat: 20.0, serving_size: '1개 (280g)', serving_size_g: 280 },
+  { id: 'kr-288', name: '버터타르트', aliases: ['butter tart', '캐나다버터과자'], calories: 250, protein: 3.0, carbs: 36.0, fat: 11.0, serving_size: '1개 (75g)', serving_size_g: 75 },
+  { id: 'kr-289', name: '비버테일', aliases: ['BeaverTail', '캐나다도넛', '납작도넛'], calories: 300, protein: 5.0, carbs: 55.0, fat: 7.0, serving_size: '1개 (130g)', serving_size_g: 130 },
+  { id: 'kr-290', name: '피민밀베이컨샌드위치', aliases: ['peameal bacon', '캐나다베이컨', '베이컨에그샌드위치'], calories: 380, protein: 22.0, carbs: 35.0, fat: 16.0, serving_size: '1개 (220g)', serving_size_g: 220 },
+  { id: 'kr-291', name: '투르티에르', aliases: ['tourtière', '캐나다미트파이', '미트파이'], calories: 480, protein: 22.0, carbs: 35.0, fat: 28.0, serving_size: '1조각 (200g)', serving_size_g: 200 },
+  { id: 'kr-292', name: '메이플팬케이크', aliases: ['메이플시럽팬케이크', '캐나다팬케이크', '단풍시럽팬케이크'], calories: 450, protein: 9.0, carbs: 75.0, fat: 14.0, serving_size: '2장+시럽 (180g)', serving_size_g: 180 },
+  { id: 'kr-293', name: '랍스터롤', aliases: ['lobster roll', '랍스터빵', '바닷가재롤'], calories: 420, protein: 28.0, carbs: 32.0, fat: 20.0, serving_size: '1개 (200g)', serving_size_g: 200 },
+  { id: 'kr-294', name: '나나이모바', aliases: ['Nanaimo bar', '캐나다초코바', '초콜릿바디저트'], calories: 280, protein: 3.0, carbs: 35.0, fat: 14.0, serving_size: '1개 (60g)', serving_size_g: 60 },
+  { id: 'kr-295', name: '메이플도넛', aliases: ['maple donut', '단풍시럽도넛', '메이플글레이즈'], calories: 260, protein: 4.0, carbs: 38.0, fat: 11.0, serving_size: '1개 (85g)', serving_size_g: 85 },
+
+  // ──────────────── 캐나다 카페/패스트푸드 체인 ────────────────
+  { id: 'kr-296', name: '더블더블', aliases: ['double double', '팀홀튼커피', 'Tim Hortons'], calories: 230, protein: 5.0, carbs: 28.0, fat: 12.0, serving_size: '1잔 (300ml)', serving_size_g: 300 },
+  { id: 'kr-297', name: '팀빗', aliases: ['Timbit', '도넛홀', '미니도넛'], calories: 60, protein: 1.0, carbs: 9.0, fat: 2.5, serving_size: '1개 (20g)', serving_size_g: 20 },
+  { id: 'kr-298', name: '크림치즈베이글', aliases: ['베이글', 'bagel', '베이글크림치즈'], calories: 380, protein: 12.0, carbs: 58.0, fat: 12.0, serving_size: '1개 (150g)', serving_size_g: 150 },
+  { id: 'kr-299', name: '아이스캡', aliases: ['Iced Capp', '아이스카푸치노', '냉커피'], calories: 280, protein: 4.0, carbs: 42.0, fat: 11.0, serving_size: '1잔 (350ml)', serving_size_g: 350 },
+  { id: 'kr-300', name: '브렉퍼스트샌드위치', aliases: ['아침샌드위치', '에그머핀', 'breakfast sandwich'], calories: 430, protein: 22.0, carbs: 42.0, fat: 20.0, serving_size: '1개 (200g)', serving_size_g: 200 },
+  { id: 'kr-301', name: '칠리', aliases: ['chili', '칠리콩', 'beef chili'], calories: 220, protein: 16.0, carbs: 26.0, fat: 6.0, serving_size: '1그릇 (250g)', serving_size_g: 250 },
+  { id: 'kr-302', name: 'A&W버거', aliases: ['Teen Burger', '에이앤더블유', 'teen burger'], calories: 540, protein: 26.0, carbs: 46.0, fat: 28.0, serving_size: '1개 (220g)', serving_size_g: 220 },
+  { id: 'kr-303', name: '로티세리치킨', aliases: ['rotisserie chicken', '오픈바베큐치킨', '통구이치킨'], calories: 450, protein: 45.0, carbs: 5.0, fat: 28.0, serving_size: '반마리 (350g)', serving_size_g: 350 },
+
+  // ──────────────── 인도/남아시아 음식 ────────────────
+  { id: 'kr-304', name: '버터치킨', aliases: ['butter chicken', '치킨커리', '인도치킨카레'], calories: 420, protein: 32.0, carbs: 15.0, fat: 26.0, serving_size: '1인분 (280g)', serving_size_g: 280 },
+  { id: 'kr-305', name: '비리야니', aliases: ['biryani', '향신료밥', '인도향신료쌀밥'], calories: 580, protein: 28.0, carbs: 78.0, fat: 16.0, serving_size: '1그릇 (400g)', serving_size_g: 400 },
+  { id: 'kr-306', name: '사모사', aliases: ['samosa', '인도튀김만두', '삼각튀김빵'], calories: 180, protein: 5.0, carbs: 22.0, fat: 8.0, serving_size: '2개 (80g)', serving_size_g: 80 },
+  { id: 'kr-307', name: '난', aliases: ['naan', '인도빵', '마늘난'], calories: 260, protein: 7.0, carbs: 45.0, fat: 6.0, serving_size: '1장 (90g)', serving_size_g: 90 },
+  { id: 'kr-308', name: '치킨티카마살라', aliases: ['tikka masala', '티카마살라', '인도카레'], calories: 380, protein: 30.0, carbs: 18.0, fat: 22.0, serving_size: '1인분 (280g)', serving_size_g: 280 },
+  { id: 'kr-309', name: '달커리', aliases: ['dal', '렌틸카레', '렌틸콩수프'], calories: 250, protein: 12.0, carbs: 38.0, fat: 6.0, serving_size: '1그릇 (250g)', serving_size_g: 250 },
+  { id: 'kr-310', name: '탄두리치킨', aliases: ['tandoori chicken', '탄두리', '인도구운닭'], calories: 280, protein: 32.0, carbs: 8.0, fat: 14.0, serving_size: '1인분 (200g)', serving_size_g: 200 },
+  { id: 'kr-311', name: '팔락파니르', aliases: ['palak paneer', '시금치치즈카레', '인도채식카레'], calories: 280, protein: 14.0, carbs: 16.0, fat: 18.0, serving_size: '1인분 (250g)', serving_size_g: 250 },
+
+  // ──────────────── 중동/지중해 음식 ────────────────
+  { id: 'kr-312', name: '샤와르마', aliases: ['shawarma', '케밥랩', '중동랩'], calories: 480, protein: 28.0, carbs: 42.0, fat: 22.0, serving_size: '1개 (280g)', serving_size_g: 280 },
+  { id: 'kr-313', name: '팔라펠랩', aliases: ['falafel wrap', '팔라펠', '채식케밥'], calories: 380, protein: 14.0, carbs: 48.0, fat: 16.0, serving_size: '1개 (220g)', serving_size_g: 220 },
+  { id: 'kr-314', name: '훔무스', aliases: ['hummus', '후무스', '병아리콩딥'], calories: 180, protein: 7.0, carbs: 18.0, fat: 10.0, serving_size: '1접시 (100g)', serving_size_g: 100 },
+  { id: 'kr-315', name: '케밥', aliases: ['kebab', '시시케밥', '터키케밥'], calories: 420, protein: 30.0, carbs: 25.0, fat: 22.0, serving_size: '1인분 (250g)', serving_size_g: 250 },
+  { id: 'kr-316', name: '그릭샐러드', aliases: ['Greek salad', '그리스샐러드', '페타치즈샐러드'], calories: 200, protein: 6.0, carbs: 12.0, fat: 16.0, serving_size: '1그릇 (200g)', serving_size_g: 200 },
+  { id: 'kr-317', name: '자이로스', aliases: ['gyros', '그리스샌드위치', '피타케밥'], calories: 450, protein: 26.0, carbs: 38.0, fat: 22.0, serving_size: '1개 (250g)', serving_size_g: 250 },
+
+  // ──────────────── 서양 메인 요리 ────────────────
+  { id: 'kr-318', name: '맥앤치즈', aliases: ['mac and cheese', '마카로니치즈', '치즈마카로니'], calories: 480, protein: 18.0, carbs: 62.0, fat: 18.0, serving_size: '1그릇 (280g)', serving_size_g: 280 },
+  { id: 'kr-319', name: '피쉬앤칩스', aliases: ['fish and chips', '생선튀김감자튀김', '피쉬칩스'], calories: 720, protein: 32.0, carbs: 68.0, fat: 36.0, serving_size: '1인분 (400g)', serving_size_g: 400 },
+  { id: 'kr-320', name: 'BBQ립', aliases: ['BBQ ribs', '바베큐립', '폭립', '스페어립'], calories: 680, protein: 48.0, carbs: 28.0, fat: 42.0, serving_size: '1인분 (350g)', serving_size_g: 350 },
+  { id: 'kr-321', name: '풀드포크샌드위치', aliases: ['pulled pork', '풀드포크', '슬로우쿡돼지'], calories: 520, protein: 30.0, carbs: 45.0, fat: 24.0, serving_size: '1개 (280g)', serving_size_g: 280 },
+  { id: 'kr-322', name: '치킨팟파이', aliases: ['chicken pot pie', '닭고기파이', '크림치킨파이'], calories: 520, protein: 24.0, carbs: 48.0, fat: 26.0, serving_size: '1인분 (300g)', serving_size_g: 300 },
+  { id: 'kr-323', name: '비프스튜', aliases: ['beef stew', '소고기스튜', '포토푀'], calories: 380, protein: 28.0, carbs: 32.0, fat: 16.0, serving_size: '1그릇 (350g)', serving_size_g: 350 },
+  { id: 'kr-324', name: '클램차우더', aliases: ['clam chowder', '조개수프', '크림조개수프'], calories: 320, protein: 14.0, carbs: 28.0, fat: 18.0, serving_size: '1그릇 (280g)', serving_size_g: 280 },
+  { id: 'kr-325', name: '시저샐러드', aliases: ['Caesar salad', '시저드레싱샐러드'], calories: 280, protein: 10.0, carbs: 18.0, fat: 20.0, serving_size: '1그릇 (200g)', serving_size_g: 200 },
+
+  // ──────────────── 건강/그릇 음식 ────────────────
+  { id: 'kr-326', name: '포케볼', aliases: ['poke bowl', '포케', '하와이안볼'], calories: 520, protein: 28.0, carbs: 62.0, fat: 16.0, serving_size: '1그릇 (350g)', serving_size_g: 350 },
+  { id: 'kr-327', name: '퀴노아볼', aliases: ['quinoa bowl', '퀴노아', '슈퍼푸드볼'], calories: 380, protein: 14.0, carbs: 55.0, fat: 12.0, serving_size: '1그릇 (300g)', serving_size_g: 300 },
+  { id: 'kr-328', name: '부다볼', aliases: ['Buddha bowl', '비건볼', '채식볼'], calories: 450, protein: 16.0, carbs: 65.0, fat: 14.0, serving_size: '1그릇 (350g)', serving_size_g: 350 },
+  { id: 'kr-329', name: '코브샐러드', aliases: ['Cobb salad', '미국식샐러드'], calories: 380, protein: 22.0, carbs: 12.0, fat: 28.0, serving_size: '1그릇 (300g)', serving_size_g: 300 },
+  { id: 'kr-330', name: '케일샐러드', aliases: ['kale salad', '케일', '슈퍼그린샐러드'], calories: 220, protein: 8.0, carbs: 20.0, fat: 14.0, serving_size: '1그릇 (200g)', serving_size_g: 200 },
+
+  // ──────────────── 캐나다 베이커리/디저트 ────────────────
+  { id: 'kr-331', name: '시나몬롤', aliases: ['cinnamon roll', '계피롤', '시나몬번'], calories: 350, protein: 6.0, carbs: 55.0, fat: 12.0, serving_size: '1개 (120g)', serving_size_g: 120 },
+  { id: 'kr-332', name: '바나나브레드', aliases: ['banana bread', '바나나케이크'], calories: 220, protein: 4.0, carbs: 34.0, fat: 8.0, serving_size: '1조각 (80g)', serving_size_g: 80 },
+  { id: 'kr-333', name: '애플파이', aliases: ['apple pie', '사과파이'], calories: 320, protein: 3.0, carbs: 48.0, fat: 14.0, serving_size: '1조각 (120g)', serving_size_g: 120 },
+  { id: 'kr-334', name: '스콘', aliases: ['scone', '영국스콘', '크림스콘'], calories: 280, protein: 5.0, carbs: 40.0, fat: 12.0, serving_size: '1개 (80g)', serving_size_g: 80 },
+  { id: 'kr-335', name: '블루베리머핀', aliases: ['blueberry muffin', '머핀'], calories: 380, protein: 5.0, carbs: 58.0, fat: 15.0, serving_size: '1개 (130g)', serving_size_g: 130 },
+
+  // ──────────────── 아시안 퓨전/동남아 ────────────────
+  { id: 'kr-336', name: '그린카레', aliases: ['green curry', '태국그린카레', '코코넛카레'], calories: 420, protein: 22.0, carbs: 22.0, fat: 28.0, serving_size: '1인분 (300g)', serving_size_g: 300 },
+  { id: 'kr-337', name: '반미', aliases: ['bánh mì', '베트남샌드위치', '반미샌드위치'], calories: 420, protein: 20.0, carbs: 55.0, fat: 14.0, serving_size: '1개 (250g)', serving_size_g: 250 },
+  { id: 'kr-338', name: '망고찹쌀밥', aliases: ['mango sticky rice', '태국찹쌀망고'], calories: 380, protein: 5.0, carbs: 75.0, fat: 8.0, serving_size: '1인분 (250g)', serving_size_g: 250 },
+  { id: 'kr-339', name: '버블티', aliases: ['boba tea', '타피오카', '버블밀크티', '보바'], calories: 350, protein: 3.0, carbs: 72.0, fat: 5.0, serving_size: '1잔 (500ml)', serving_size_g: 500 },
+  { id: 'kr-340', name: '덤플링', aliases: ['gyoza', '교자', '중국만두', '물교자'], calories: 280, protein: 14.0, carbs: 35.0, fat: 8.0, serving_size: '8개 (200g)', serving_size_g: 200 },
+  { id: 'kr-341', name: '레드카레', aliases: ['red curry', '태국레드카레', '타이카레'], calories: 440, protein: 22.0, carbs: 20.0, fat: 30.0, serving_size: '1인분 (300g)', serving_size_g: 300 },
+
+  // ──────────────── 캐나다 음료/카페 ────────────────
+  { id: 'kr-342', name: '차이라떼', aliases: ['chai latte', '마살라차이', '스파이스라떼'], calories: 240, protein: 6.0, carbs: 40.0, fat: 6.0, serving_size: '1잔 (350ml)', serving_size_g: 350 },
+  { id: 'kr-343', name: '핫초코', aliases: ['hot chocolate', '핫코코아', '코코아'], calories: 280, protein: 8.0, carbs: 42.0, fat: 10.0, serving_size: '1잔 (300ml)', serving_size_g: 300 },
+  { id: 'kr-344', name: '과일스무디', aliases: ['스무디', 'smoothie', '베리스무디'], calories: 280, protein: 4.0, carbs: 55.0, fat: 5.0, serving_size: '1잔 (400ml)', serving_size_g: 400 },
+  { id: 'kr-345', name: '카푸치노', aliases: ['cappuccino', '카푸치', '거품커피'], calories: 120, protein: 6.0, carbs: 12.0, fat: 5.0, serving_size: '1잔 (240ml)', serving_size_g: 240 },
 ]
 
 /**
