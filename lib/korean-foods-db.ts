@@ -161,6 +161,103 @@ export const KOREAN_FOODS_DB: KoreanFoodEntry[] = [
   { id: 'kr-123', name: '족발', aliases: ['앞발', '뒷발', '족발보쌈'], calories: 420, protein: 32.0, carbs: 3.0, fat: 30.0, serving_size: '1인분 (200g)', serving_size_g: 200 },
   { id: 'kr-124', name: '순댓국', aliases: ['순대국밥'], calories: 450, protein: 22.0, carbs: 45.0, fat: 16.0, serving_size: '1그릇 (450g)', serving_size_g: 450 },
   { id: 'kr-125', name: '곰탕', aliases: ['곰국', '도가니탕'], calories: 330, protein: 30.0, carbs: 15.0, fat: 14.0, serving_size: '1그릇 (500g)', serving_size_g: 500 },
+
+  // ──────────────── 죽류 ────────────────
+  { id: 'kr-126', name: '흰죽', aliases: ['쌀죽', '미음', '죽'], calories: 150, protein: 3.0, carbs: 33.0, fat: 0.5, serving_size: '1그릇 (300g)', serving_size_g: 300 },
+  { id: 'kr-127', name: '호박죽', aliases: ['단호박죽'], calories: 170, protein: 2.5, carbs: 38.0, fat: 1.0, serving_size: '1그릇 (300g)', serving_size_g: 300 },
+  { id: 'kr-128', name: '팥죽', aliases: ['팥', '새알심죽'], calories: 300, protein: 7.0, carbs: 62.0, fat: 2.0, serving_size: '1그릇 (350g)', serving_size_g: 350 },
+  { id: 'kr-129', name: '전복죽', aliases: ['해물죽', '전복'], calories: 250, protein: 12.0, carbs: 40.0, fat: 4.0, serving_size: '1그릇 (350g)', serving_size_g: 350 },
+  { id: 'kr-130', name: '닭죽', aliases: ['닭고기죽', '계죽'], calories: 290, protein: 18.0, carbs: 40.0, fat: 5.0, serving_size: '1그릇 (400g)', serving_size_g: 400 },
+
+  // ──────────────── 덮밥류 ────────────────
+  { id: 'kr-131', name: '소고기덮밥', aliases: ['규동', '쇠고기덮밥', '불고기덮밥'], calories: 640, protein: 25.0, carbs: 88.0, fat: 18.0, serving_size: '1그릇 (450g)', serving_size_g: 450 },
+  { id: 'kr-132', name: '참치마요덮밥', aliases: ['참치덮밥', '참치마요'], calories: 580, protein: 22.0, carbs: 80.0, fat: 16.0, serving_size: '1그릇 (400g)', serving_size_g: 400 },
+  { id: 'kr-133', name: '카츠동', aliases: ['돈까스덮밥', '가츠동'], calories: 690, protein: 28.0, carbs: 90.0, fat: 24.0, serving_size: '1그릇 (450g)', serving_size_g: 450 },
+  { id: 'kr-134', name: '연어덮밥', aliases: ['연어', '연어초밥'], calories: 560, protein: 30.0, carbs: 72.0, fat: 14.0, serving_size: '1그릇 (400g)', serving_size_g: 400 },
+  { id: 'kr-135', name: '마파두부덮밥', aliases: ['마파두부', '마파'], calories: 550, protein: 18.0, carbs: 76.0, fat: 18.0, serving_size: '1그릇 (450g)', serving_size_g: 450 },
+  { id: 'kr-136', name: '나물비빔덮밥', aliases: ['나물덮밥', '채소덮밥'], calories: 480, protein: 12.0, carbs: 88.0, fat: 8.0, serving_size: '1그릇 (400g)', serving_size_g: 400 },
+  { id: 'kr-137', name: '치킨덮밥', aliases: ['닭고기덮밥', '닭덮밥'], calories: 620, protein: 32.0, carbs: 80.0, fat: 18.0, serving_size: '1그릇 (450g)', serving_size_g: 450 },
+
+  // ──────────────── 국/찌개 추가 ────────────────
+  { id: 'kr-138', name: '떡국', aliases: ['설날떡국', '떡만둣국'], calories: 450, protein: 12.0, carbs: 85.0, fat: 6.0, serving_size: '1그릇 (450g)', serving_size_g: 450 },
+  { id: 'kr-139', name: '만둣국', aliases: ['만두국', '물만두국'], calories: 480, protein: 16.0, carbs: 80.0, fat: 10.0, serving_size: '1그릇 (450g)', serving_size_g: 450 },
+  { id: 'kr-140', name: '알탕', aliases: ['명란탕', '대구탕'], calories: 180, protein: 20.0, carbs: 8.0, fat: 6.0, serving_size: '1인분 (350g)', serving_size_g: 350 },
+  { id: 'kr-141', name: '닭개장', aliases: ['닭육개장'], calories: 200, protein: 22.0, carbs: 12.0, fat: 7.0, serving_size: '1그릇 (400g)', serving_size_g: 400 },
+  { id: 'kr-142', name: '북엇국', aliases: ['황태국', '북어탕'], calories: 80, protein: 12.0, carbs: 4.0, fat: 2.0, serving_size: '1그릇 (300g)', serving_size_g: 300 },
+
+  // ──────────────── 전/부침류 ────────────────
+  { id: 'kr-143', name: '김치전', aliases: ['김치부침개', '부침개'], calories: 320, protein: 8.0, carbs: 40.0, fat: 14.0, serving_size: '1장 (180g)', serving_size_g: 180 },
+  { id: 'kr-144', name: '감자전', aliases: ['감자부침개', '감자요리'], calories: 280, protein: 6.0, carbs: 38.0, fat: 12.0, serving_size: '1장 (150g)', serving_size_g: 150 },
+  { id: 'kr-145', name: '계란찜', aliases: ['달걀찜', '뚝배기계란찜'], calories: 150, protein: 12.0, carbs: 4.0, fat: 10.0, serving_size: '1인분 (150g)', serving_size_g: 150 },
+  { id: 'kr-146', name: '녹두전', aliases: ['빈대떡', '녹두빈대떡'], calories: 350, protein: 14.0, carbs: 35.0, fat: 16.0, serving_size: '1장 (180g)', serving_size_g: 180 },
+  { id: 'kr-147', name: '동그랑땡', aliases: ['전유어', '고기전'], calories: 220, protein: 14.0, carbs: 18.0, fat: 10.0, serving_size: '4개 (120g)', serving_size_g: 120 },
+
+  // ──────────────── 반찬 추가 ────────────────
+  { id: 'kr-148', name: '장조림', aliases: ['소고기장조림', '계란장조림'], calories: 185, protein: 22.0, carbs: 5.0, fat: 8.0, serving_size: '1접시 (80g)', serving_size_g: 80 },
+  { id: 'kr-149', name: '깻잎무침', aliases: ['깻잎', '깻잎절임'], calories: 45, protein: 2.0, carbs: 5.0, fat: 2.0, serving_size: '1접시 (60g)', serving_size_g: 60 },
+  { id: 'kr-150', name: '콩자반', aliases: ['콩조림', '검은콩조림'], calories: 130, protein: 7.0, carbs: 15.0, fat: 5.0, serving_size: '1접시 (60g)', serving_size_g: 60 },
+  { id: 'kr-151', name: '어묵볶음', aliases: ['오뎅볶음', '어묵조림'], calories: 140, protein: 8.0, carbs: 14.0, fat: 5.0, serving_size: '1접시 (100g)', serving_size_g: 100 },
+  { id: 'kr-152', name: '고사리나물', aliases: ['고사리무침', '고사리'], calories: 65, protein: 3.0, carbs: 7.0, fat: 3.0, serving_size: '1접시 (80g)', serving_size_g: 80 },
+  { id: 'kr-153', name: '미역줄기볶음', aliases: ['미역볶음', '미역줄기'], calories: 30, protein: 2.0, carbs: 3.0, fat: 1.0, serving_size: '1접시 (60g)', serving_size_g: 60 },
+  { id: 'kr-154', name: '나물무침', aliases: ['취나물', '봄나물'], calories: 55, protein: 2.5, carbs: 6.0, fat: 2.5, serving_size: '1접시 (80g)', serving_size_g: 80 },
+  { id: 'kr-155', name: '마늘쫑볶음', aliases: ['마늘쫑', '마늘대볶음'], calories: 70, protein: 2.0, carbs: 9.0, fat: 3.0, serving_size: '1접시 (60g)', serving_size_g: 60 },
+
+  // ──────────────── 일식류 ────────────────
+  { id: 'kr-156', name: '초밥', aliases: ['스시', '스시세트', '초밥세트'], calories: 320, protein: 15.0, carbs: 55.0, fat: 5.0, serving_size: '8피스 (200g)', serving_size_g: 200 },
+  { id: 'kr-157', name: '돈까스', aliases: ['돈가스', '카츠', '포크커틀릿'], calories: 550, protein: 26.0, carbs: 52.0, fat: 26.0, serving_size: '1인분 (250g)', serving_size_g: 250 },
+  { id: 'kr-158', name: '라멘', aliases: ['일본라면', '쇼유라멘', '미소라멘'], calories: 550, protein: 20.0, carbs: 72.0, fat: 18.0, serving_size: '1그릇 (500g)', serving_size_g: 500 },
+  { id: 'kr-159', name: '소바', aliases: ['메밀국수', '냉소바', '자루소바'], calories: 380, protein: 14.0, carbs: 72.0, fat: 4.0, serving_size: '1그릇 (400g)', serving_size_g: 400 },
+  { id: 'kr-160', name: '타코야키', aliases: ['타코야끼', '문어빵'], calories: 300, protein: 10.0, carbs: 32.0, fat: 14.0, serving_size: '6개 (150g)', serving_size_g: 150 },
+  { id: 'kr-161', name: '나베', aliases: ['전골', '샤부샤부', '일본전골'], calories: 280, protein: 22.0, carbs: 16.0, fat: 10.0, serving_size: '1인분 (400g)', serving_size_g: 400 },
+  { id: 'kr-162', name: '텐동', aliases: ['튀김덮밥', '새우튀김덮밥'], calories: 680, protein: 22.0, carbs: 90.0, fat: 24.0, serving_size: '1그릇 (450g)', serving_size_g: 450 },
+
+  // ──────────────── 양식류 ────────────────
+  { id: 'kr-163', name: '스파게티', aliases: ['파스타', '토마토파스타', '스파게리'], calories: 550, protein: 18.0, carbs: 80.0, fat: 16.0, serving_size: '1인분 (350g)', serving_size_g: 350 },
+  { id: 'kr-164', name: '크림파스타', aliases: ['까르보나라', '크림스파게티'], calories: 700, protein: 20.0, carbs: 78.0, fat: 32.0, serving_size: '1인분 (350g)', serving_size_g: 350 },
+  { id: 'kr-165', name: '리조또', aliases: ['크림리조또', '버섯리조또'], calories: 580, protein: 16.0, carbs: 78.0, fat: 20.0, serving_size: '1인분 (350g)', serving_size_g: 350 },
+  { id: 'kr-166', name: '샐러드', aliases: ['시저샐러드', '그린샐러드', '채소샐러드'], calories: 150, protein: 5.0, carbs: 15.0, fat: 8.0, serving_size: '1그릇 (200g)', serving_size_g: 200 },
+  { id: 'kr-167', name: '스테이크', aliases: ['립아이', '안심스테이크', '등심스테이크'], calories: 450, protein: 38.0, carbs: 2.0, fat: 32.0, serving_size: '1인분 (200g)', serving_size_g: 200 },
+  { id: 'kr-168', name: '오믈렛', aliases: ['오믈레트', '치즈오믈렛'], calories: 220, protein: 14.0, carbs: 4.0, fat: 17.0, serving_size: '1인분 (120g)', serving_size_g: 120 },
+  { id: 'kr-169', name: '치킨샐러드', aliases: ['닭가슴살샐러드', '그릴드치킨샐러드'], calories: 280, protein: 25.0, carbs: 12.0, fat: 14.0, serving_size: '1그릇 (250g)', serving_size_g: 250 },
+  { id: 'kr-170', name: '수프', aliases: ['크림수프', '호박수프', '토마토수프'], calories: 180, protein: 5.0, carbs: 20.0, fat: 9.0, serving_size: '1그릇 (250ml)', serving_size_g: 250 },
+
+  // ──────────────── 디저트/간식 추가 ────────────────
+  { id: 'kr-171', name: '치즈케이크', aliases: ['뉴욕치즈케이크', '케이크'], calories: 380, protein: 7.0, carbs: 38.0, fat: 22.0, serving_size: '1조각 (120g)', serving_size_g: 120 },
+  { id: 'kr-172', name: '초콜릿케이크', aliases: ['초코케이크', '초콜릿'], calories: 420, protein: 6.0, carbs: 58.0, fat: 18.0, serving_size: '1조각 (120g)', serving_size_g: 120 },
+  { id: 'kr-173', name: '마카롱', aliases: ['마카롱쿠키'], calories: 180, protein: 3.0, carbs: 28.0, fat: 6.0, serving_size: '2개 (50g)', serving_size_g: 50 },
+  { id: 'kr-174', name: '팥빙수', aliases: ['빙수', '망고빙수', '딸기빙수'], calories: 450, protein: 8.0, carbs: 95.0, fat: 3.0, serving_size: '1그릇 (400g)', serving_size_g: 400 },
+  { id: 'kr-175', name: '찹쌀떡', aliases: ['모찌', '대복'], calories: 200, protein: 3.0, carbs: 46.0, fat: 1.0, serving_size: '2개 (100g)', serving_size_g: 100 },
+  { id: 'kr-176', name: '와플', aliases: ['벨기에와플', '와플케이크'], calories: 300, protein: 6.0, carbs: 42.0, fat: 12.0, serving_size: '1개 (120g)', serving_size_g: 120 },
+  { id: 'kr-177', name: '팬케이크', aliases: ['핫케이크', '팬케익'], calories: 280, protein: 7.0, carbs: 38.0, fat: 10.0, serving_size: '2장 (120g)', serving_size_g: 120 },
+  { id: 'kr-178', name: '쿠키', aliases: ['초코칩쿠키', '버터쿠키'], calories: 180, protein: 2.5, carbs: 24.0, fat: 8.0, serving_size: '3개 (50g)', serving_size_g: 50 },
+
+  // ──────────────── 건강식/다이어트식 ────────────────
+  { id: 'kr-179', name: '귀리오트밀', aliases: ['오트밀', '귀리죽', '오트밀죽'], calories: 300, protein: 10.0, carbs: 54.0, fat: 5.0, serving_size: '1그릇 (250g)', serving_size_g: 250 },
+  { id: 'kr-180', name: '아보카도', aliases: ['아보카도토스트'], calories: 240, protein: 3.0, carbs: 12.0, fat: 22.0, serving_size: '1개 (150g)', serving_size_g: 150 },
+  { id: 'kr-181', name: '그래놀라', aliases: ['그래놀라바', '뮤즐리'], calories: 380, protein: 8.0, carbs: 62.0, fat: 12.0, serving_size: '1그릇 (100g)', serving_size_g: 100 },
+  { id: 'kr-182', name: '단백질셰이크', aliases: ['프로틴셰이크', '프로틴', '단백질쉐이크'], calories: 150, protein: 25.0, carbs: 8.0, fat: 3.0, serving_size: '1잔 (250ml)', serving_size_g: 250 },
+  { id: 'kr-183', name: '두부샐러드', aliases: ['두부야채샐러드'], calories: 130, protein: 9.0, carbs: 8.0, fat: 7.0, serving_size: '1그릇 (200g)', serving_size_g: 200 },
+
+  // ──────────────── 즉석/편의식 ────────────────
+  { id: 'kr-184', name: '즉석밥', aliases: ['햇반', '컵밥'], calories: 310, protein: 5.0, carbs: 68.0, fat: 0.5, serving_size: '1개 (210g)', serving_size_g: 210 },
+  { id: 'kr-185', name: '만두', aliases: ['군만두', '물만두', '냉동만두', '찐만두'], calories: 380, protein: 14.0, carbs: 50.0, fat: 12.0, serving_size: '10개 (200g)', serving_size_g: 200 },
+  { id: 'kr-186', name: '스팸', aliases: ['햄', '통조림햄'], calories: 300, protein: 12.0, carbs: 3.0, fat: 26.0, serving_size: '1/3캔 (100g)', serving_size_g: 100 },
+  { id: 'kr-187', name: '참치캔', aliases: ['참치통조림', '참치'], calories: 150, protein: 26.0, carbs: 0.0, fat: 5.0, serving_size: '1캔 (100g)', serving_size_g: 100 },
+  { id: 'kr-188', name: '도시락', aliases: ['편의점도시락', '도시락밥'], calories: 650, protein: 20.0, carbs: 90.0, fat: 20.0, serving_size: '1개 (350g)', serving_size_g: 350 },
+
+  // ──────────────── 추가 인기 메뉴 ────────────────
+  { id: 'kr-189', name: '두부김치', aliases: ['두부와김치'], calories: 280, protein: 16.0, carbs: 14.0, fat: 16.0, serving_size: '1인분 (250g)', serving_size_g: 250 },
+  { id: 'kr-190', name: '김치볶음', aliases: ['묵은지볶음', '김치볶기'], calories: 120, protein: 4.0, carbs: 12.0, fat: 7.0, serving_size: '1접시 (120g)', serving_size_g: 120 },
+  { id: 'kr-191', name: '된장국', aliases: ['된장미소국'], calories: 60, protein: 4.0, carbs: 6.0, fat: 2.0, serving_size: '1그릇 (200g)', serving_size_g: 200 },
+  { id: 'kr-192', name: '소시지볶음', aliases: ['소시지', '비엔나소시지'], calories: 250, protein: 10.0, carbs: 8.0, fat: 20.0, serving_size: '1인분 (100g)', serving_size_g: 100 },
+  { id: 'kr-193', name: '닭볶음', aliases: ['닭갈비볶음', '닭고기볶음'], calories: 380, protein: 32.0, carbs: 22.0, fat: 16.0, serving_size: '1인분 (250g)', serving_size_g: 250 },
+  { id: 'kr-194', name: '카레라이스', aliases: ['카레', '인도카레', '일본카레'], calories: 620, protein: 16.0, carbs: 95.0, fat: 16.0, serving_size: '1인분 (450g)', serving_size_g: 450 },
+  { id: 'kr-195', name: '덮밥소스', aliases: ['덮밥'], calories: 200, protein: 10.0, carbs: 20.0, fat: 8.0, serving_size: '1인분 (150g)', serving_size_g: 150 },
+  { id: 'kr-196', name: '나물밥', aliases: ['곤드레밥', '취나물밥'], calories: 400, protein: 8.0, carbs: 80.0, fat: 5.0, serving_size: '1그릇 (350g)', serving_size_g: 350 },
+  { id: 'kr-197', name: '닭한마리', aliases: ['닭볶음탕전골', '한마리닭'], calories: 700, protein: 65.0, carbs: 30.0, fat: 28.0, serving_size: '1인분 (400g)', serving_size_g: 400 },
+  { id: 'kr-198', name: '뚝배기불고기', aliases: ['뚝불', '돌솥불고기'], calories: 480, protein: 32.0, carbs: 28.0, fat: 22.0, serving_size: '1인분 (300g)', serving_size_g: 300 },
+  { id: 'kr-199', name: '수육', aliases: ['삶은고기', '보쌈수육'], calories: 320, protein: 28.0, carbs: 0.0, fat: 22.0, serving_size: '1인분 (150g)', serving_size_g: 150 },
+  { id: 'kr-200', name: '어탕국수', aliases: ['어탕', '민물고기국수'], calories: 430, protein: 20.0, carbs: 65.0, fat: 8.0, serving_size: '1그릇 (450g)', serving_size_g: 450 },
 ]
 
 /**
