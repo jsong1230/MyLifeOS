@@ -25,6 +25,7 @@ import { NicknameForm } from '@/components/settings/nickname-form'
 import { CurrencySelect } from '@/components/common/currency-select'
 import { createClient } from '@/lib/supabase/client'
 import { useAuthStore } from '@/store/auth.store'
+import { usePinStore } from '@/store/pin.store'
 import { useSettings, useUpdateSettings } from '@/hooks/use-settings'
 import type { LocaleCode } from '@/types/settings'
 import type { CurrencyCode } from '@/lib/currency'
@@ -48,6 +49,7 @@ export default function SettingsPage() {
   const locale = useLocale()
   const router = useRouter()
   const reset = useAuthStore((s) => s.reset)
+  const resetPin = usePinStore((s) => s.resetPinVerification)
   const manualHref = locale === 'en' ? '/manual.en.html' : '/manual.html'
   const manualLabel = t('userGuideLink')
   const [view, setView] = useState<SettingsView>('main')
@@ -102,6 +104,7 @@ export default function SettingsPage() {
     const supabase = createClient()
     await supabase.auth.signOut()
     reset()
+    resetPin()
     router.push('/login')
   }
 
@@ -112,6 +115,7 @@ export default function SettingsPage() {
       const supabase = createClient()
       await supabase.auth.signOut()
       reset()
+      resetPin()
       router.push('/login')
     } else {
       setSuccessMessage(t('deleteAccountFailed'))

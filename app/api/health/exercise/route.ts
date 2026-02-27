@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from 'next/server'
 import { apiError } from '@/lib/api-errors'
 import { createClient } from '@/lib/supabase/server'
+import { getToday, formatDateToString } from '@/lib/date-utils'
 import type { ExerciseLog, CreateExerciseInput } from '@/types/health'
 
 const VALID_INTENSITIES = ['light', 'moderate', 'intense'] as const
@@ -18,15 +19,14 @@ export async function GET(request: NextRequest) {
 
   let query = supabase
     .from('exercise_logs')
-    .select('*')
+    .select('id, user_id, exercise_type, duration_min, intensity, calories_burned, date, note, created_at, updated_at')
     .eq('user_id', userId)
     .order('date', { ascending: false })
 
   if (weekStart) {
-    const startDate = new Date(weekStart + 'T00:00:00')
     const endDate = new Date(weekStart + 'T00:00:00')
     endDate.setDate(endDate.getDate() + 6)
-    const endStr = endDate.toISOString().split('T')[0]
+    const endStr = formatDateToString(endDate)
     query = query.gte('date', weekStart).lte('date', endStr)
   } else {
     query = query.limit(30)
@@ -73,10 +73,10 @@ export async function POST(request: NextRequest) {
       duration_min: body.duration_min,
       intensity: body.intensity,
       calories_burned: body.calories_burned ?? null,
-      date: body.date ?? new Date().toISOString().split('T')[0],
+      date: body.date ?? getToday(),
       note: body.note ?? null,
     })
-    .select('*')
+    .select('id, user_id, exercise_type, duration_min, intensity, calories_burned, date, note, created_at, updated_at')
     .single()
 
   if (error) {

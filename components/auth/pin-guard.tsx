@@ -1,10 +1,10 @@
 'use client'
 
-import { useCallback, useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { useTranslations } from 'next-intl'
 import { usePinStore } from '@/store/pin.store'
 import { usePinLock } from '@/hooks/use-pin-lock'
-import { deriveKey } from '@/lib/crypto/encryption'
+import { usePinVerification } from '@/hooks/use-pin-verification'
 import { PinPad } from '@/components/auth/pin-pad'
 import { PinSetup } from '@/components/auth/pin-setup'
 import { PinLockScreen } from '@/components/auth/pin-lock-screen'
@@ -56,52 +56,16 @@ export function PinGuard({ children }: PinGuardProps) {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  const [isVerifying, setIsVerifying] = useState(false)
-
-  // PIN 검증 처리
-  const handlePinVerify = useCallback(
-    async (pin: string) => {
-      setIsVerifying(true)
-      try {
-        const res = await fetch('/api/users/pin/verify', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ pin }),
-        })
-        const json = await res.json()
-
-        if (res.status === 423) {
-          // 잠금 상태
-          setLockedUntil(json.lockedUntil)
-          return
-        }
-
-        if (res.ok && json.data?.verified) {
-          // 검증 성공: localStorage에서 salt 조회 (없으면 생성 후 저장)
-          // salt는 localStorage에 영속 저장 — PIN 없이는 복호화 불가하므로 안전
-          let storedSalt = localStorage.getItem('pin_enc_salt')
-          if (!storedSalt) {
-            storedSalt = crypto.randomUUID()
-            localStorage.setItem('pin_enc_salt', storedSalt)
-          }
-          const key = deriveKey(pin, storedSalt)
-          setFailedAttempts(0)
-          setLockedUntil(null)
-          setPinVerified(true, key)
-          return
-        }
-
-        // 검증 실패
-        const attempts: number = json.data?.failedAttempts ?? failedAttempts + 1
-        setFailedAttempts(attempts)
-      } catch {
-        // 네트워크 오류 무시
-      } finally {
-        setIsVerifying(false)
-      }
+  // PIN 검증 훅
+  const { verify: handlePinVerify, isVerifying } = usePinVerification({
+    onSuccess: (key) => {
+      setFailedAttempts(0)
+      setLockedUntil(null)
+      setPinVerified(true, key)
     },
-    [failedAttempts, setFailedAttempts, setLockedUntil, setPinVerified],
-  )
+    onLocked: (until) => setLockedUntil(until),
+    onFailure: (attempts) => setFailedAttempts(attempts),
+  })
 
   // 에러 메시지 생성
   function getPinError(): string {

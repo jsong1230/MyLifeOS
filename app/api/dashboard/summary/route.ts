@@ -1,21 +1,7 @@
 import { NextResponse, type NextRequest } from 'next/server'
 import { apiError } from '@/lib/api-errors'
 import { createClient } from '@/lib/supabase/server'
-
-function getToday(): string {
-  const d = new Date()
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
-}
-
-function getMonthRange(): { start: string; end: string } {
-  const d = new Date()
-  const y = d.getFullYear()
-  const m = d.getMonth() + 1
-  const start = `${y}-${String(m).padStart(2, '0')}-01`
-  const lastDay = new Date(y, m, 0).getDate()
-  const end = `${y}-${String(m).padStart(2, '0')}-${String(lastDay).padStart(2, '0')}`
-  return { start, end }
-}
+import { getToday, getCurrentMonthRange } from '@/lib/date-utils'
 
 // GET /api/dashboard/summary — 대시보드 4개 카드 집계 데이터 (단일 요청)
 export async function GET(request: NextRequest) {
@@ -26,7 +12,7 @@ export async function GET(request: NextRequest) {
   const supabase = await createClient()
 
   const today = getToday()
-  const { start: monthStart, end: monthEnd } = getMonthRange()
+  const { start: monthStart, end: monthEnd } = getCurrentMonthRange()
 
   // 5개 DB 쿼리 병렬 실행
   const [todosRes, transactionsRes, mealsRes, sleepRes, diaryRes] = await Promise.all([

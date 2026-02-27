@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import { Search, Loader2 } from 'lucide-react'
@@ -170,6 +170,7 @@ export function DiarySearch() {
   const tCommon = useTranslations('common')
 
   const [keyword, setKeyword] = useState('')
+  const [debouncedKeyword, setDebouncedKeyword] = useState('')
   const [selectedEmotions, setSelectedEmotions] = useState<EmotionType[]>([])
 
   const { data: rawDiaries, isLoading, error } = useDiarySearch(12)
@@ -179,15 +180,36 @@ export function DiarySearch() {
     ? sessionStorage.getItem('enc_key')
     : null
 
-  // 복호화 후 검색/필터링
-  const searchResults = useMemo<SearchResultItem[]>(() => {
-    // enc_key 없으면 빈 배열 반환 (에러 UI는 별도 처리)
+  // 검색어 debounce 300ms
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedKeyword(keyword), 300)
+    return () => clearTimeout(timer)
+  }, [keyword])
+
+  // 복호화 결과 캐싱 - rawDiaries·encKey 변경 시만 재실행
+  const decryptedDiaries = useMemo(() => {
     if (!rawDiaries || !encKey) return []
+    return rawDiaries.map((diary) => {
+      try {
+        const content = decrypt(diary.content_encrypted, encKey)
+        return { ...diary, decryptedContent: content }
+      } catch {
+        return { ...diary, decryptedContent: null }
+      }
+    })
+  }, [rawDiaries, encKey])
 
-    const trimmedKeyword = keyword.trim()
+  // 검색/필터링 - 이미 복호화된 캐시 사용
+  const searchResults = useMemo<SearchResultItem[]>(() => {
+    if (!encKey) return []
 
-    return rawDiaries
+    const trimmedKeyword = debouncedKeyword.trim()
+
+    return decryptedDiaries
       .filter((diary) => {
+        // 복호화 실패 항목 제외
+        if (diary.decryptedContent === null) return false
+
         // 1. 감정 태그 필터 (선택된 감정이 있을 경우만 필터)
         if (selectedEmotions.length > 0) {
           const hasMatchingEmotion = selectedEmotions.some((e) =>
@@ -198,36 +220,20 @@ export function DiarySearch() {
 
         // 2. 키워드 필터 (키워드가 있을 경우만 필터)
         if (trimmedKeyword) {
-          let decryptedContent: string
-          try {
-            decryptedContent = decrypt(diary.content_encrypted, encKey)
-          } catch {
-            // 복호화 실패 항목은 제외
-            return false
-          }
-          return decryptedContent.toLowerCase().includes(trimmedKeyword.toLowerCase())
+          return diary.decryptedContent.toLowerCase().includes(trimmedKeyword.toLowerCase())
         }
 
         return true
       })
-      .map((diary) => {
-        let content: string
-        try {
-          content = decrypt(diary.content_encrypted, encKey)
-        } catch {
-          content = ''
-        }
-
-        return {
-          id: diary.id,
-          date: diary.date,
-          content,
-          emotion_tags: diary.emotion_tags,
-          excerpt: '',
-          segments: buildExcerptSegments(content, trimmedKeyword),
-        }
-      })
-  }, [rawDiaries, encKey, keyword, selectedEmotions])
+      .map((diary) => ({
+        id: diary.id,
+        date: diary.date,
+        content: diary.decryptedContent!,
+        emotion_tags: diary.emotion_tags,
+        excerpt: '',
+        segments: buildExcerptSegments(diary.decryptedContent!, trimmedKeyword),
+      }))
+  }, [decryptedDiaries, encKey, debouncedKeyword, selectedEmotions])
 
   // 감정 태그 토글
   function toggleEmotion(emotion: EmotionType) {
@@ -246,11 +252,12 @@ export function DiarySearch() {
   // 필터 초기화
   function resetFilters() {
     setKeyword('')
+    setDebouncedKeyword('')
     setSelectedEmotions([])
   }
 
   const hasFilters = keyword.trim() || selectedEmotions.length > 0
-  const showResults = hasFilters && !isLoading
+  const showResults = (debouncedKeyword.trim() || selectedEmotions.length > 0) && !isLoading
 
   return (
     <div className="flex flex-col gap-4">

@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl'
 import { PinPad } from '@/components/auth/pin-pad'
 import { usePinStore } from '@/store/pin.store'
 import { deriveKey } from '@/lib/crypto/encryption'
+import { PIN_ENC_SALT } from '@/lib/constants/pin-storage-keys'
 import type { PinSetupProps, PinStep } from '@/types/pin'
 
 /**
@@ -50,9 +51,9 @@ export function PinSetup({ onComplete }: PinSetupProps) {
       }
 
       // PBKDF2 키 파생: 클라이언트에서 생성한 고유 salt 사용
-      // (API 응답에서 salt를 받지 않아 서버 측 bcrypt salt 노출 방지)
+      // localStorage에 영속 저장 — 이후 검증 시 일관된 키 파생 보장
       const salt = crypto.randomUUID()
-      sessionStorage.setItem('pin_enc_salt', salt)
+      localStorage.setItem(PIN_ENC_SALT, salt)
       const key = deriveKey(firstPin, salt)
 
       setIsPinSet(true)

@@ -763,7 +763,12 @@
       "noFoodResults": "검색 결과가 없습니다. 직접 입력하세요.",
       "portion": "분량",
       "oneServing": "1인분",
-      "autoFilled": "자동 입력됨"
+      "autoFilled": "자동 입력됨",
+      "halfServing": "½인분",
+      "nServings": "{n}인분",
+      "customServingPlaceholder": "직접 입력",
+      "servingUnit": "인분 (또는 개)",
+      "servingInfo": "1인분 = {serving} / {calories} kcal"
     },
     "sleep": {
       "title": "수면",

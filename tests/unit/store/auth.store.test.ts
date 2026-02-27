@@ -28,16 +28,6 @@ describe('useAuthStore', () => {
     expect(typeof state.isLoading).toBe('boolean')
   })
 
-  it('초기 상태에 isPinVerified가 false이다', () => {
-    const state = useAuthStore.getState()
-    expect(state.isPinVerified).toBe(false)
-  })
-
-  it('초기 상태에 encryptionKey가 null이다', () => {
-    const state = useAuthStore.getState()
-    expect(state.encryptionKey).toBeNull()
-  })
-
   // U-24: setUser 동작
   it('setUser로 user를 설정할 수 있다', () => {
     const mockUser = { id: 'test-id', email: 'test@example.com' } as any
@@ -93,19 +83,4 @@ describe('useAuthStore', () => {
     expect(useAuthStore.getState().user).toBeNull()
   })
 
-  it('reset() 호출 시 isPinVerified가 false로 초기화된다', () => {
-    act(() => {
-      useAuthStore.getState().setPinVerified(true, 'key123')
-      useAuthStore.getState().reset()
-    })
-    expect(useAuthStore.getState().isPinVerified).toBe(false)
-  })
-
-  it('reset() 호출 시 encryptionKey가 null로 초기화된다', () => {
-    act(() => {
-      useAuthStore.getState().setPinVerified(true, 'key123')
-      useAuthStore.getState().reset()
-    })
-    expect(useAuthStore.getState().encryptionKey).toBeNull()
-  })
 })

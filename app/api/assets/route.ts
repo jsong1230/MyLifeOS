@@ -62,7 +62,7 @@ export async function GET(request: NextRequest) {
 
   const { data, error } = await supabase
     .from('assets')
-    .select('*')
+    .select('id, user_id, asset_type, amount, note, month, currency, created_at, updated_at')
     .eq('user_id', userId)
     .eq('month', month)
     .order('asset_type', { ascending: true })
@@ -111,7 +111,7 @@ export async function POST(request: NextRequest) {
       month: body.month,
       currency: body.currency ?? 'KRW',
     })
-    .select('*')
+    .select('id, user_id, asset_type, amount, note, month, currency, created_at, updated_at')
     .single()
 
   if (error) {

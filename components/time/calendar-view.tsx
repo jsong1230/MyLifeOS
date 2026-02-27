@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback } from 'react'
+import { useCallback, useMemo } from 'react'
 import { ChevronLeft, ChevronRight, Plus, Calendar } from 'lucide-react'
 import { useTranslations, useLocale } from 'next-intl'
 import { Button } from '@/components/ui/button'
@@ -56,10 +56,22 @@ export function CalendarView({ todos, routineDates, timeBlockDates, onAddTodo, o
     { value: 'day', label: t('dayView') },
   ]
 
-  // 날짜별 할일 맵 생성 (O(n) 전처리)
+  // 날짜별 할일 맵 생성 - O(n) 전처리로 O(1) 조회 가능
+  const todosByDateMap = useMemo(() => {
+    const map = new Map<string, Todo[]>()
+    for (const todo of todos) {
+      if (todo.due_date) {
+        const arr = map.get(todo.due_date) ?? []
+        arr.push(todo)
+        map.set(todo.due_date, arr)
+      }
+    }
+    return map
+  }, [todos])
+
   const todosByDate = useCallback(
-    (date: string) => todos.filter((todo) => todo.due_date === date),
-    [todos]
+    (date: string) => todosByDateMap.get(date) ?? [],
+    [todosByDateMap]
   )
 
   // 날짜 선택 핸들러

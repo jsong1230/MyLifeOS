@@ -14,18 +14,7 @@ export interface CalendarDay {
   isSelected: boolean
 }
 
-// Date 객체를 YYYY-MM-DD 문자열로 포맷
-function formatDate(date: Date): string {
-  const year = date.getFullYear()
-  const month = String(date.getMonth() + 1).padStart(2, '0')
-  const day = String(date.getDate()).padStart(2, '0')
-  return `${year}-${month}-${day}`
-}
-
-// 오늘 날짜 문자열 반환
-function getTodayStr(): string {
-  return formatDate(new Date())
-}
+import { formatDateToString, getToday } from '@/lib/date-utils'
 
 // 월간 캘린더 날짜 그리드 생성 (42칸 고정 = 6주)
 export function generateMonthDays(
@@ -33,7 +22,7 @@ export function generateMonthDays(
   month: number,
   selectedDate: string
 ): CalendarDay[] {
-  const todayStr = getTodayStr()
+  const todayStr = getToday()
   const firstDay = new Date(year, month - 1, 1)
   const lastDay = new Date(year, month, 0)
   const startDow = firstDay.getDay() // 0=일, 1=월, ..., 6=토
@@ -43,7 +32,7 @@ export function generateMonthDays(
   // 이전 달 날짜 채우기 (월 시작 요일 이전)
   for (let i = startDow - 1; i >= 0; i--) {
     const d = new Date(year, month - 1, -i)
-    const dateStr = formatDate(d)
+    const dateStr = formatDateToString(d)
     days.push({
       date: dateStr,
       isCurrentMonth: false,
@@ -55,7 +44,7 @@ export function generateMonthDays(
   // 이번 달 날짜
   for (let d = 1; d <= lastDay.getDate(); d++) {
     const date = new Date(year, month - 1, d)
-    const dateStr = formatDate(date)
+    const dateStr = formatDateToString(date)
     days.push({
       date: dateStr,
       isCurrentMonth: true,
@@ -68,7 +57,7 @@ export function generateMonthDays(
   let nextMonthDay = 1
   while (days.length < 42) {
     const date = new Date(year, month, nextMonthDay)
-    const dateStr = formatDate(date)
+    const dateStr = formatDateToString(date)
     days.push({
       date: dateStr,
       isCurrentMonth: false,
@@ -87,7 +76,7 @@ export function generateWeekDays(
   currentYear: number,
   currentMonth: number
 ): CalendarDay[] {
-  const todayStr = getTodayStr()
+  const todayStr = getToday()
 
   // 선택된 날짜의 Date 객체 생성
   const baseDate = selectedDate
@@ -103,7 +92,7 @@ export function generateWeekDays(
   for (let i = 0; i < 7; i++) {
     const d = new Date(sunday)
     d.setDate(sunday.getDate() + i)
-    const dateStr = formatDate(d)
+    const dateStr = formatDateToString(d)
     days.push({
       date: dateStr,
       isCurrentMonth: d.getMonth() + 1 === currentMonth,
@@ -118,7 +107,7 @@ export function generateWeekDays(
 // 캘린더 상태 관리 훅
 export function useCalendar() {
   const today = new Date()
-  const todayStr = formatDate(today)
+  const todayStr = formatDateToString(today)
 
   const [selectedDate, setSelectedDate] = useState<string>(todayStr)
   const [currentMonth, setCurrentMonth] = useState<{ year: number; month: number }>({
@@ -147,7 +136,7 @@ export function useCalendar() {
   const goToToday = useCallback(() => {
     const now = new Date()
     setCurrentMonth({ year: now.getFullYear(), month: now.getMonth() + 1 })
-    setSelectedDate(formatDate(now))
+    setSelectedDate(formatDateToString(now))
   }, [])
 
   // 날짜 선택 시 해당 달도 맞게 이동

@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from 'next/server'
 import { apiError } from '@/lib/api-errors'
 import { createClient } from '@/lib/supabase/server'
+import { getToday, getMonthRange } from '@/lib/date-utils'
 import type { CreateTransactionInput, Transaction } from '@/types/transaction'
 
 // GET /api/transactions — 거래 목록 조회
@@ -30,11 +31,9 @@ export async function GET(request: NextRequest) {
 
   // 월 필터: YYYY-MM 형식으로 해당 월의 거래만 조회
   if (month) {
-    const startDate = `${month}-01`
     const [year, monthNum] = month.split('-').map(Number)
-    const lastDay = new Date(year, monthNum, 0).getDate()
-    const endDate = `${month}-${String(lastDay).padStart(2, '0')}`
-    query = query.gte('date', startDate).lte('date', endDate)
+    const { start, end } = getMonthRange(year, monthNum)
+    query = query.gte('date', start).lte('date', end)
   }
 
   // 수입/지출 타입 필터
@@ -96,7 +95,7 @@ export async function POST(request: NextRequest) {
     type: body.type,
     category_id: body.category_id ?? null,
     memo: body.memo ?? null,
-    date: body.date ?? new Date().toISOString().split('T')[0],
+    date: body.date ?? getToday(),
     is_favorite: body.is_favorite ?? false,
     currency: body.currency ?? 'KRW',
   }

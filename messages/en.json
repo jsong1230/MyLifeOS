@@ -763,7 +763,12 @@
       "noFoodResults": "No results found. Enter manually.",
       "portion": "Portion",
       "oneServing": "1 serving",
-      "autoFilled": "Auto-filled"
+      "autoFilled": "Auto-filled",
+      "halfServing": "½ serving",
+      "nServings": "{n} servings",
+      "customServingPlaceholder": "Enter amount",
+      "servingUnit": "serving(s)",
+      "servingInfo": "1 serving = {serving} / {calories} kcal"
     },
     "sleep": {
       "title": "Sleep",

@@ -4,6 +4,7 @@ import { useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { useAuthStore } from '@/store/auth.store'
+import { usePinStore } from '@/store/pin.store'
 
 // 비활동 감지 대상 이벤트 목록
 const ACTIVITY_EVENTS = ['mousemove', 'keydown', 'touchstart', 'click', 'scroll'] as const
@@ -24,6 +25,7 @@ export function useInactivityTimeout(timeoutMs: number = 30 * 60 * 1000): void {
     async function handleTimeout() {
       await supabase.auth.signOut()
       useAuthStore.getState().reset()
+      usePinStore.getState().resetPinVerification()
       router.push('/login?reason=inactivity')
     }
 

@@ -84,9 +84,10 @@ export async function GET(request: NextRequest) {
   const logs = (data ?? []) as DrinkLog[]
 
   // 주간 집계 계산
-  // count: 기록 건수, total_ml: 총 음주량 합계
+  // count: 총 잔 수 합산 (drink_count 기준, WHO 14잔 기준 적용)
+  // total_ml: 총 음주량 합계
   const summary = {
-    count: logs.length,
+    count: logs.reduce((acc, log) => acc + (log.drink_count ?? 1), 0),
     total_ml: logs.reduce((acc, log) => acc + Number(log.amount_ml), 0),
   }
 

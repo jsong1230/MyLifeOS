@@ -85,7 +85,7 @@ export async function GET(request: NextRequest) {
 
     let targetDate: Date
     if (dateParam) {
-      targetDate = new Date(dateParam)
+      targetDate = new Date(dateParam + 'T00:00:00')
       if (isNaN(targetDate.getTime())) {
         return apiError('VALIDATION_ERROR')
       }

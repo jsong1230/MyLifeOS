@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from 'next/server'
 import { apiError } from '@/lib/api-errors'
 import { createClient } from '@/lib/supabase/server'
+import { getToday } from '@/lib/date-utils'
 import type { CreateMealInput, MealLog } from '@/types/health'
 
 // 식사 유형 정렬 순서 정의
@@ -29,7 +30,7 @@ export async function GET(request: NextRequest) {
     targetDate = rawDate
   } else {
     // 기본값: 오늘 날짜
-    targetDate = new Date().toISOString().split('T')[0]
+    targetDate = getToday()
   }
 
   const { data, error } = await supabase
@@ -100,7 +101,7 @@ export async function POST(request: NextRequest) {
     protein: body.protein ?? null,
     carbs: body.carbs ?? null,
     fat: body.fat ?? null,
-    date: body.date ?? new Date().toISOString().split('T')[0],
+    date: body.date ?? getToday(),
   }
 
   const { data, error } = await supabase

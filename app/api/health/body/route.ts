@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from 'next/server'
 import { apiError } from '@/lib/api-errors'
 import { createClient } from '@/lib/supabase/server'
+import { getToday } from '@/lib/date-utils'
 import type { BodyLog, CreateBodyLogInput } from '@/types/health'
 
 // GET /api/health/body?limit=30  → 최근 N개 체중 기록
@@ -18,7 +19,7 @@ export async function GET(request: NextRequest) {
 
   let query = supabase
     .from('body_logs')
-    .select('*')
+    .select('id, user_id, weight, body_fat, muscle_mass, date, note, created_at, updated_at')
     .eq('user_id', userId)
     .order('date', { ascending: false })
 
@@ -62,10 +63,10 @@ export async function POST(request: NextRequest) {
       weight: body.weight ?? null,
       body_fat: body.body_fat ?? null,
       muscle_mass: body.muscle_mass ?? null,
-      date: body.date ?? new Date().toISOString().split('T')[0],
+      date: body.date ?? getToday(),
       note: body.note ?? null,
     })
-    .select('*')
+    .select('id, user_id, weight, body_fat, muscle_mass, date, note, created_at, updated_at')
     .single()
 
   if (error) {

@@ -203,7 +203,7 @@ export function MealForm({ meal, onSubmit, onCancel, isLoading = false }: MealFo
           <div className="flex items-center justify-between">
             <Label className="text-xs font-semibold">{t('portion')}</Label>
             <span className="text-xs text-muted-foreground">
-              1인분 = {baseNutrition.serving_size} / {baseNutrition.calories} kcal
+              {t('servingInfo', { serving: baseNutrition.serving_size, calories: baseNutrition.calories })}
             </span>
           </div>
 
@@ -221,7 +221,7 @@ export function MealForm({ meal, onSubmit, onCancel, isLoading = false }: MealFo
                     : 'bg-background hover:bg-accent'
                 )}
               >
-                {m === 1 ? '1인분' : m === 0.5 ? '½인분' : `${m}인분`}
+                {m === 1 ? t('oneServing') : m === 0.5 ? t('halfServing') : t('nServings', { n: m })}
               </button>
             ))}
           </div>
@@ -234,11 +234,11 @@ export function MealForm({ meal, onSubmit, onCancel, isLoading = false }: MealFo
               step="0.5"
               value={customMultiplier}
               onChange={(e) => handleCustomMultiplierChange(e.target.value)}
-              placeholder="직접 입력"
+              placeholder={t('customServingPlaceholder')}
               className="h-8 text-sm w-24"
               disabled={isLoading}
             />
-            <span className="text-xs text-muted-foreground">인분 (또는 개)</span>
+            <span className="text-xs text-muted-foreground">{t('servingUnit')}</span>
             {customMultiplier !== '' && !isNaN(parseFloat(customMultiplier)) && parseFloat(customMultiplier) > 0 && (
               <span className="text-xs font-medium text-primary ml-auto">
                 → {Math.round(baseNutrition.calories * parseFloat(customMultiplier))} kcal

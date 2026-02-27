@@ -10,7 +10,7 @@ export async function POST() {
   const { data: { user }, error: authError } = await supabase.auth.getUser()
   if (authError || !user) return apiError('AUTH_REQUIRED')
 
-  // 2. Admin 클라이언트로 계정 즉시 삭제 (service_role key 필요)
+  // 2. Admin 클라이언트 초기화 (service_role key 필요)
   const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
   if (!serviceRoleKey || !supabaseUrl) {
@@ -21,8 +21,45 @@ export async function POST() {
     auth: { autoRefreshToken: false, persistSession: false },
   })
 
+  // 3. routine_logs 먼저 삭제 (routines FK 의존)
+  const { error: routineLogsError } = await adminClient
+    .from('routine_logs')
+    .delete()
+    .eq('user_id', user.id)
+  if (routineLogsError) return apiError('SERVER_ERROR')
+
+  // 4. 나머지 연관 테이블 데이터 병렬 삭제
+  const userTables = [
+    'routines',
+    'time_blocks',
+    'todos',
+    'recurring_expenses',
+    'transactions',
+    'categories',
+    'assets',
+    'budgets',
+    'body_logs',
+    'exercise_logs',
+    'drink_logs',
+    'health_logs',
+    'meal_logs',
+    'diet_goals',
+    'diaries',
+    'relations',
+    'user_settings',
+  ] as const
+
+  const deleteResults = await Promise.all(
+    userTables.map((table) => adminClient.from(table).delete().eq('user_id', user.id))
+  )
+  if (deleteResults.some((r) => r.error)) return apiError('SERVER_ERROR')
+
+  // 5. Auth 계정 삭제
   const { error: deleteError } = await adminClient.auth.admin.deleteUser(user.id)
   if (deleteError) return apiError('SERVER_ERROR')
+
+  // 6. 세션 종료
+  await supabase.auth.signOut()
 
   return NextResponse.json({ success: true, data: { message: 'Account deleted' } })
 }
