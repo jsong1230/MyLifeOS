@@ -1,10 +1,16 @@
 import webpush from 'web-push'
 
-webpush.setVapidDetails(
-  process.env.VAPID_SUBJECT ?? 'mailto:mylifeos@example.com',
-  process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY ?? '',
-  process.env.VAPID_PRIVATE_KEY ?? ''
-)
+function initWebPush() {
+  const subject = process.env.VAPID_SUBJECT
+  const publicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY
+  const privateKey = process.env.VAPID_PRIVATE_KEY
+
+  if (!subject || !publicKey || !privateKey) {
+    throw new Error('VAPID environment variables are not set')
+  }
+
+  webpush.setVapidDetails(subject, publicKey, privateKey)
+}
 
 export interface PushSubscriptionData {
   endpoint: string
@@ -24,6 +30,7 @@ export async function sendPushNotification(
   payload: PushPayload
 ): Promise<boolean> {
   try {
+    initWebPush()
     await webpush.sendNotification(
       {
         endpoint: subscription.endpoint,
