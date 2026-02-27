@@ -79,6 +79,7 @@
     "health": "Health",
     "private": "Journal",
     "reports": "Reports",
+    "goals": "Goals",
     "settings": "Settings",
     "sideMenu": "Side menu",
     "mainMenu": "Main menu",
@@ -1145,6 +1146,22 @@
     "defaultCurrency": "Default currency",
     "mixedNote": "Items with different currencies are not summed together"
   },
+  "notifications": {
+    "title": "Push Notifications",
+    "description": "Set up notifications so you never miss important schedules and goals",
+    "enable": "Enable Notifications",
+    "disable": "Disable Notifications",
+    "permissionDenied": "Notification permission was denied by the browser. Please allow it in your browser settings.",
+    "notSupported": "This browser does not support push notifications.",
+    "routineReminders": "Routine Reminders",
+    "routineRemindersDesc": "Get notified about today's routines",
+    "recurringReminders": "Recurring Expense Alerts",
+    "recurringRemindersDesc": "Get notified about unrecorded recurring expenses",
+    "goalReminders": "Goal Reminders",
+    "goalRemindersDesc": "Get notified when goal deadlines are approaching",
+    "reminderTime": "Reminder Time",
+    "saved": "Settings saved"
+  },
   "exchangeRates": {
     "baseCurrency": "Base Currency",
     "convertedTotal": "Converted Total",
@@ -1155,5 +1172,47 @@
     "staleRate": "Exchange rate may be outdated",
     "showConverted": "Show converted total",
     "hideConverted": "Hide converted total"
+  },
+  "goals": {
+    "title": "Goals",
+    "newGoal": "New Goal",
+    "editGoal": "Edit Goal",
+    "deleteGoal": "Delete Goal",
+    "deleteGoalConfirm": "Are you sure you want to delete this goal? All related milestones will also be deleted.",
+    "goalTitle": "Goal Title",
+    "goalTitlePlaceholder": "Enter a goal you want to achieve",
+    "goalDescription": "Description",
+    "goalDescriptionPlaceholder": "Describe your goal in detail",
+    "targetDate": "Target Date",
+    "category": "Category",
+    "categories": {
+      "general": "General",
+      "health": "Health",
+      "financial": "Financial",
+      "education": "Education",
+      "career": "Career",
+      "personal": "Personal"
+    },
+    "progress": "Progress",
+    "status": "Status",
+    "statuses": {
+      "active": "Active",
+      "completed": "Completed",
+      "paused": "Paused",
+      "cancelled": "Cancelled"
+    },
+    "milestones": "Milestones",
+    "addMilestone": "Add Milestone",
+    "milestonePlaceholder": "Enter a milestone",
+    "noGoals": "No goals yet",
+    "noGoalsDescription": "Add a new goal and start working towards your dreams",
+    "tabs": {
+      "active": "Active",
+      "completed": "Completed",
+      "all": "All"
+    },
+    "daysLeft": "{days} days left",
+    "overdue": "Overdue",
+    "milestonesCount": "{completed}/{total} done"
   }
 }

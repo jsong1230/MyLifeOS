@@ -79,6 +79,7 @@
     "health": "건강 관리",
     "private": "사적 기록",
     "reports": "리포트",
+    "goals": "목표",
     "settings": "설정",
     "sideMenu": "사이드 메뉴",
     "mainMenu": "메인 메뉴",
@@ -1145,6 +1146,22 @@
     "defaultCurrency": "기본 통화",
     "mixedNote": "통화가 다른 항목은 합산되지 않습니다"
   },
+  "notifications": {
+    "title": "푸시 알림",
+    "description": "중요한 일정과 목표를 놓치지 않도록 알림을 설정하세요",
+    "enable": "알림 활성화",
+    "disable": "알림 비활성화",
+    "permissionDenied": "브라우저에서 알림 권한이 거부되었습니다. 브라우저 설정에서 권한을 허용해주세요.",
+    "notSupported": "이 브라우저는 푸시 알림을 지원하지 않습니다.",
+    "routineReminders": "루틴 리마인더",
+    "routineRemindersDesc": "오늘의 루틴을 알려드립니다",
+    "recurringReminders": "정기지출 알림",
+    "recurringRemindersDesc": "기록되지 않은 정기지출이 있을 때 알려드립니다",
+    "goalReminders": "목표 알림",
+    "goalRemindersDesc": "목표 마감일이 다가오면 알려드립니다",
+    "reminderTime": "알림 시간",
+    "saved": "설정이 저장되었습니다"
+  },
   "exchangeRates": {
     "baseCurrency": "기준 통화",
     "convertedTotal": "환산 합계",
@@ -1155,5 +1172,47 @@
     "staleRate": "환율 정보가 오래되었을 수 있습니다",
     "showConverted": "환산 합계 보기",
     "hideConverted": "환산 합계 숨기기"
+  },
+  "goals": {
+    "title": "목표 관리",
+    "newGoal": "새 목표",
+    "editGoal": "목표 수정",
+    "deleteGoal": "목표 삭제",
+    "deleteGoalConfirm": "이 목표를 삭제하시겠습니까? 관련 마일스톤도 모두 삭제됩니다.",
+    "goalTitle": "목표 제목",
+    "goalTitlePlaceholder": "달성하고 싶은 목표를 입력하세요",
+    "goalDescription": "설명",
+    "goalDescriptionPlaceholder": "목표에 대해 자세히 설명해주세요",
+    "targetDate": "목표 달성일",
+    "category": "카테고리",
+    "categories": {
+      "general": "일반",
+      "health": "건강",
+      "financial": "재정",
+      "education": "교육",
+      "career": "커리어",
+      "personal": "자기계발"
+    },
+    "progress": "진척도",
+    "status": "상태",
+    "statuses": {
+      "active": "진행중",
+      "completed": "완료",
+      "paused": "일시정지",
+      "cancelled": "취소"
+    },
+    "milestones": "마일스톤",
+    "addMilestone": "마일스톤 추가",
+    "milestonePlaceholder": "마일스톤을 입력하세요",
+    "noGoals": "아직 목표가 없습니다",
+    "noGoalsDescription": "새 목표를 추가하고 꿈을 향해 나아가세요",
+    "tabs": {
+      "active": "진행중",
+      "completed": "완료",
+      "all": "전체"
+    },
+    "daysLeft": "{days}일 남음",
+    "overdue": "기한 초과",
+    "milestonesCount": "{completed}/{total} 완료"
   }
 }

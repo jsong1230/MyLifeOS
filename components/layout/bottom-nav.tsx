@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useTranslations } from 'next-intl'
-import { Home, Clock, Wallet, Heart, BookOpen, BarChart2 } from 'lucide-react'
+import { Home, Clock, Wallet, Heart, BookOpen, BarChart2, Target } from 'lucide-react'
 
 const NAV_ITEMS = [
   { key: 'home' as const, icon: Home, href: '/' },
@@ -11,6 +11,7 @@ const NAV_ITEMS = [
   { key: 'money' as const, icon: Wallet, href: '/money' },
   { key: 'health' as const, icon: Heart, href: '/health' },
   { key: 'private' as const, icon: BookOpen, href: '/private' },
+  { key: 'goals' as const, icon: Target, href: '/goals' },
   { key: 'reports' as const, icon: BarChart2, href: '/reports' },
 ]
 

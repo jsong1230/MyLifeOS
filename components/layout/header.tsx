@@ -20,6 +20,7 @@ export function Header() {
     '/money': t('nav.money'),
     '/health': t('nav.health'),
     '/private': t('nav.private'),
+    '/goals': t('nav.goals'),
     '/settings': t('nav.settings'),
   }
 
