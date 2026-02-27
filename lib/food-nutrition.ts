@@ -73,37 +73,8 @@ async function searchFoodsUsda(query: string): Promise<FoodNutrition[]> {
   }
 }
 
-/**
- * 음식 검색 — 한글이면 내장 한식 DB 우선, 없으면 USDA fallback
- * 영문이면 USDA 우선, 결과 없으면 내장 DB도 검색
- */
-export async function searchFoods(query: string): Promise<FoodNutrition[]> {
-  if (isKorean(query)) {
-    // 한글 쿼리 → 내장 한식 DB 먼저
-    const korResults = searchKoreanFoods(query).map((item): FoodNutrition => ({
-      id: item.id,
-      name: item.name,
-      calories: item.calories,
-      protein: item.protein,
-      carbs: item.carbs,
-      fat: item.fat,
-      serving_size: item.serving_size,
-      serving_size_g: item.serving_size_g,
-      source: 'kr_internal',
-    }))
-
-    if (korResults.length > 0) return korResults
-
-    // 한식 DB에 없으면 USDA fallback
-    return searchFoodsUsda(query)
-  }
-
-  // 영문 쿼리 → USDA 먼저
-  const usdaResults = await searchFoodsUsda(query)
-  if (usdaResults.length > 0) return usdaResults
-
-  // USDA에 없으면 내장 DB에서도 검색 (영어 별명)
-  return searchKoreanFoods(query).map((item): FoodNutrition => ({
+function toFoodNutrition(item: import('@/lib/korean-foods-db').KoreanFoodEntry): FoodNutrition {
+  return {
     id: item.id,
     name: item.name,
     calories: item.calories,
@@ -113,5 +84,31 @@ export async function searchFoods(query: string): Promise<FoodNutrition[]> {
     serving_size: item.serving_size,
     serving_size_g: item.serving_size_g,
     source: 'kr_internal',
-  }))
+  }
+}
+
+/**
+ * 음식 검색 — 내장 DB + USDA 항상 병행 검색, 내장 DB 결과 우선 표시
+ * - 한글 쿼리: 내장 DB 결과 먼저, 이어서 USDA 결과 (최대 10개)
+ * - 영문 쿼리: 내장 DB(영어 별명 매칭) + USDA 병행, 내장 결과 먼저
+ */
+export async function searchFoods(query: string): Promise<FoodNutrition[]> {
+  const localResults = searchKoreanFoods(query).map(toFoodNutrition)
+
+  if (isKorean(query)) {
+    // 한글 쿼리 → 내장 DB 결과로 충분하면 바로 반환
+    if (localResults.length >= 5) return localResults
+    // 부족하면 USDA도 병행
+    const usdaResults = await searchFoodsUsda(query)
+    return [...localResults, ...usdaResults].slice(0, 10)
+  }
+
+  // 영문 쿼리 → 내장 DB(영어 alias 포함) + USDA 항상 병행
+  const usdaResults = await searchFoodsUsda(query)
+  const localIds = new Set(localResults.map((r) => r.id))
+  const merged = [
+    ...localResults,
+    ...usdaResults.filter((r) => !localIds.has(r.id)),
+  ]
+  return merged.slice(0, 10)
 }
