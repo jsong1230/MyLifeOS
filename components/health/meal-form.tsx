@@ -64,8 +64,11 @@ export function MealForm({ meal, onSubmit, onCancel, isLoading = false }: MealFo
     protein: number
     carbs: number
     fat: number
+    serving_size: string
+    serving_size_g: number
   } | null>(null)
   const [multiplier, setMultiplier] = useState(1)
+  const [customMultiplier, setCustomMultiplier] = useState('')
 
   function parseOptionalNumber(value: string): number | undefined {
     if (value.trim() === '') return undefined
@@ -125,14 +128,17 @@ export function MealForm({ meal, onSubmit, onCancel, isLoading = false }: MealFo
       protein: food.protein,
       carbs: food.carbs,
       fat: food.fat,
+      serving_size: food.serving_size,
+      serving_size_g: food.serving_size_g,
     }
     setBaseNutrition(base)
+    setCustomMultiplier('')
     applyMultiplier(1, base)
   }
 
   function applyMultiplier(
     m: number,
-    base?: { calories: number; protein: number; carbs: number; fat: number }
+    base?: { calories: number; protein: number; carbs: number; fat: number; serving_size: string; serving_size_g: number }
   ) {
     const src = base ?? baseNutrition
     if (!src) return
@@ -141,6 +147,14 @@ export function MealForm({ meal, onSubmit, onCancel, isLoading = false }: MealFo
     setProtein(String(Math.round(src.protein * m * 10) / 10))
     setCarbs(String(Math.round(src.carbs * m * 10) / 10))
     setFat(String(Math.round(src.fat * m * 10) / 10))
+  }
+
+  function handleCustomMultiplierChange(val: string) {
+    setCustomMultiplier(val)
+    const m = parseFloat(val)
+    if (!isNaN(m) && m > 0) {
+      applyMultiplier(m)
+    }
   }
 
   return (
@@ -184,24 +198,52 @@ export function MealForm({ meal, onSubmit, onCancel, isLoading = false }: MealFo
 
       {/* 분량 선택 (음식 DB에서 선택한 경우만 표시) */}
       {baseNutrition && (
-        <div className="space-y-1.5">
-          <Label>{t('portion')}</Label>
-          <div className="flex flex-wrap gap-2">
-            {[0.5, 1, 1.5, 2].map((m) => (
+        <div className="space-y-2 rounded-lg border bg-muted/30 p-3">
+          {/* 1인분 기준 정보 */}
+          <div className="flex items-center justify-between">
+            <Label className="text-xs font-semibold">{t('portion')}</Label>
+            <span className="text-xs text-muted-foreground">
+              1인분 = {baseNutrition.serving_size} / {baseNutrition.calories} kcal
+            </span>
+          </div>
+
+          {/* 빠른 선택 버튼 */}
+          <div className="flex flex-wrap gap-1.5">
+            {[0.5, 1, 2, 3].map((m) => (
               <button
                 key={m}
                 type="button"
-                onClick={() => applyMultiplier(m)}
+                onClick={() => { setCustomMultiplier(''); applyMultiplier(m) }}
                 className={cn(
-                  'px-3 py-1 rounded-full text-xs border transition-colors',
-                  multiplier === m
-                    ? 'bg-primary text-primary-foreground'
+                  'px-3 py-1.5 rounded-md text-xs border font-medium transition-colors',
+                  multiplier === m && customMultiplier === ''
+                    ? 'bg-primary text-primary-foreground border-primary'
                     : 'bg-background hover:bg-accent'
                 )}
               >
-                {m === 1 ? t('oneServing') : `×${m}`}
+                {m === 1 ? '1인분' : m === 0.5 ? '½인분' : `${m}인분`}
               </button>
             ))}
+          </div>
+
+          {/* 직접 입력 */}
+          <div className="flex items-center gap-2">
+            <Input
+              type="number"
+              min="0.1"
+              step="0.5"
+              value={customMultiplier}
+              onChange={(e) => handleCustomMultiplierChange(e.target.value)}
+              placeholder="직접 입력"
+              className="h-8 text-sm w-24"
+              disabled={isLoading}
+            />
+            <span className="text-xs text-muted-foreground">인분 (또는 개)</span>
+            {customMultiplier !== '' && !isNaN(parseFloat(customMultiplier)) && parseFloat(customMultiplier) > 0 && (
+              <span className="text-xs font-medium text-primary ml-auto">
+                → {Math.round(baseNutrition.calories * parseFloat(customMultiplier))} kcal
+              </span>
+            )}
           </div>
           <p className="text-xs text-muted-foreground">{t('autoFilled')}</p>
         </div>
