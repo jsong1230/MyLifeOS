@@ -96,12 +96,29 @@
   - "1인분 = Xg / Y kcal" 기준 표시, 빠른 선택(½·1·2·3인분), 직접 입력 + 실시간 칼로리 미리보기
 - ✅ 완료: 닉네임 새로고침 초기화 버그 수정 (2026-02-27)
   - providers.tsx에 AuthInitializer 추가: 앱 로드 시 getUser()로 store 복구 + onAuthStateChange 동기화
+- ✅ 완료: 코드베이스 심층 리뷰 + 개선 백로그 25개 발굴 (2026-02-27)
+  - docs/plans/improvement-backlog.md 작성
+- ✅ 완료: 개선 1차 — 즉시/단기 10개 항목 agent team 병렬 처리 (2026-02-27, commit cc349a1)
+  - 음주 drink_count 합산 수정, meal-form 번역 키, date-utils 통합, dashboard queryKey
+  - diary-search 복호화 캐싱+debounce, calendar Map 최적화, report 병렬화
+  - PIN salt 스토리지 단일화 + usePinVerification 훅, auth/pin store 일원화
+  - export 쿼리 추출, select 명시화, PinPad 통일, yearly 정기지출 지원
+  - encryption.ts 단위 테스트 17개 추가 (146개 전체 PASS)
+- ✅ 완료: 개선 2차 — 중기/장기 7개 항목 agent team 병렬 처리 (2026-02-27, commit 753c635)
+  - 전체 51개 API Route getUser() JWT 재검증 추가
+  - todos/reorder + recurring/batch-record bulk upsert 전환 (트랜잭션 보장)
+  - 예산 vs 지출 통화 혼합 비교 버그 수정 (동일 통화만 집계)
+  - FoodSearchCombobox ARIA 접근성 + 키보드 네비게이션 구현
+  - 한식 DB 345개 Supabase foods 테이블 이전 (로컬 배열 → ilike 쿼리)
+  - 초기 스키마 마이그레이션 000_initial_schema.sql (19테이블, 32인덱스, RLS)
+  - types/database.types.ts 수동 작성 + gen:types 스크립트 추가
+- ⏸️ 보류: H-02 Web Crypto API 암호화 마이그레이션 (기존 데이터 재암호화 필요 — 별도 논의 후 진행)
 - ⏭️ 다음: 신규 기능 개발 (AI 인사이트 / 푸시 알림 / 투자 트래킹 / 장기 목표 관리)
 
 ## 중요 결정사항
 - `middleware.ts` (루트) 사용 — Next.js가 자동 인식하는 파일명 (proxy.ts는 내부 명명 의도였음)
 - `categories` 독립 테이블 분리 (F-09 커스텀 카테고리 지원)
-- 클라이언트 전용 AES-256 암호화: PIN → PBKDF2(100,000회) → 키 파생, sessionStorage 보관
+- 클라이언트 전용 AES-256 암호화: PIN → PBKDF2(100,000회) → 키 파생, localStorage 보관 (salt/key 상수: lib/constants/pin-storage-keys.ts)
 - 폼 검증은 네이티브 함수 사용 (zod/react-hook-form은 복잡한 폼 기능 시 도입)
 - 리포트 수입/지출: 환율 변환 없이 통화별 분리 표시 (KRW/CAD/USD 각각 행)
 - 인증 store 초기화: providers.tsx AuthInitializer에서 onAuthStateChange로 세션 동기화
@@ -116,6 +133,7 @@
 - [x] 009_user_settings_currency.sql 실행 (user_settings 테이블 + currency 컬럼)
 - [x] 012_deletion_request.sql — users.deletion_requested_at 컬럼 (CLI push 완료)
 - [x] 013_recurring_last_recorded.sql — recurring_expenses.last_recorded_date 컬럼 (CLI push 완료)
+- [ ] 20260227000015_foods_table.sql — foods 테이블 (CLI push 필요, seeds/foods.sql 시딩 필요)
 
 ## 프로젝트 관리
 - 방식: file
