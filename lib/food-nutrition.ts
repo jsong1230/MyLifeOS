@@ -1,5 +1,6 @@
 import type { FoodNutrition } from '@/types/food'
 import { searchKoreanFoods, getEnglishAlias, localizeServingSize } from '@/lib/korean-foods-db'
+import { FOOD_EN_NAMES } from '@/lib/food-en-names'
 
 const USDA_API_BASE = 'https://api.nal.usda.gov/fdc/v1'
 
@@ -77,7 +78,7 @@ function toFoodNutrition(
   item: import('@/lib/korean-foods-db').KoreanFoodEntry,
   locale = 'ko',
 ): FoodNutrition {
-  const englishName = getEnglishAlias(item)
+  const englishName = getEnglishAlias(item, FOOD_EN_NAMES)
   const name = locale === 'en' && englishName ? englishName : item.name
   return {
     id: item.id,

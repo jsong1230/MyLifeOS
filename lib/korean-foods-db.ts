@@ -17,9 +17,13 @@ export interface KoreanFoodEntry {
   serving_size_g: number // 1인분 그램
 }
 
-/** aliases 중 영문(라틴 문자) 항목을 찾아 Title Case로 반환 */
-export function getEnglishAlias(item: KoreanFoodEntry): string | null {
+/** 영문명 반환: name_en → FOOD_EN_NAMES 맵 → aliases 중 라틴 문자 항목 순으로 검색 */
+export function getEnglishAlias(
+  item: KoreanFoodEntry,
+  enNamesMap: Record<string, string>,
+): string | null {
   if (item.name_en) return item.name_en
+  if (enNamesMap[item.id]) return enNamesMap[item.id]
   const englishAlias = item.aliases?.find((a) =>
     /^[a-zA-Z0-9\s&'\/\-\(\)\.]+$/.test(a.trim())
   )
