@@ -57,6 +57,7 @@ export function useUpdateSettings() {
       setSettings({
         locale: data.locale,
         defaultCurrency: data.default_currency,
+        nickname: data.nickname ?? null,
       })
       // locale 변경 시 페이지 새로고침으로 next-intl 쿠키 반영
       router.refresh()
