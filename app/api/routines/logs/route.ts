@@ -9,11 +9,10 @@ import { createClient } from '@/lib/supabase/server'
  */
 export async function GET(request: NextRequest) {
   try {
-    const userId = request.headers.get('x-user-id')
-    if (!userId) {
-      return apiError('AUTH_REQUIRED')
-    }
     const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return apiError('AUTH_REQUIRED')
+    const userId = user.id
 
     const { searchParams } = new URL(request.url)
     const dateParam = searchParams.get('date')
@@ -58,11 +57,10 @@ export async function GET(request: NextRequest) {
  */
 export async function POST(request: NextRequest) {
   try {
-    const userId = request.headers.get('x-user-id')
-    if (!userId) {
-      return apiError('AUTH_REQUIRED')
-    }
     const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return apiError('AUTH_REQUIRED')
+    const userId = user.id
 
     const body = (await request.json()) as {
       routineId: string

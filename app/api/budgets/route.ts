@@ -32,11 +32,10 @@ function getMonthRange(yearMonth: string): { start: string; end: string } | null
  */
 export async function GET(request: NextRequest) {
   try {
-    const userId = request.headers.get('x-user-id')
-    if (!userId) {
-      return apiError('AUTH_REQUIRED')
-    }
     const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return apiError('AUTH_REQUIRED')
+    const userId = user.id
 
     // month 파라미터 처리 (기본값: 현재 월)
     const { searchParams } = new URL(request.url)
@@ -78,12 +77,12 @@ export async function GET(request: NextRequest) {
     // 미분류(null) 예산이 있는지 확인
     const hasUncategorizedBudget = budgets.some((b) => b.category_id === null)
 
-    // 카테고리별 지출 합계 조회 + 미분류 지출 별도 조회
+    // 카테고리별 지출 합계 조회 + 미분류 지출 별도 조회 (currency 포함 — 통화 일치 필터용)
     const [spentResult, uncategorizedResult] = await Promise.all([
       categoryIds.length > 0
         ? supabase
             .from('transactions')
-            .select('category_id, amount')
+            .select('category_id, amount, currency')
             .eq('user_id', userId)
             .eq('type', 'expense')
             .gte('date', monthRange.start)
@@ -93,7 +92,7 @@ export async function GET(request: NextRequest) {
       hasUncategorizedBudget
         ? supabase
             .from('transactions')
-            .select('amount')
+            .select('amount, currency')
             .eq('user_id', userId)
             .eq('type', 'expense')
             .gte('date', monthRange.start)
@@ -106,26 +105,33 @@ export async function GET(request: NextRequest) {
       return apiError('SERVER_ERROR')
     }
 
-    const spentData = spentResult.data
-    const uncategorizedSpent = (uncategorizedResult.data ?? []).reduce(
-      (sum, tx) => sum + Number(tx.amount),
-      0
-    )
-
-    // 카테고리 ID → 지출 합계 매핑
-    const spentMap = new Map<string, number>()
-    for (const tx of spentData ?? []) {
+    // 카테고리 ID → 통화 → 지출 합계 (2-level 매핑으로 통화 불일치 방지)
+    const spentMap = new Map<string, Map<string, number>>()
+    for (const tx of spentResult.data ?? []) {
       if (tx.category_id) {
-        const prev = spentMap.get(tx.category_id) ?? 0
-        spentMap.set(tx.category_id, prev + Number(tx.amount))
+        const currencyKey = (tx.currency ?? 'KRW') as string
+        if (!spentMap.has(tx.category_id)) spentMap.set(tx.category_id, new Map())
+        const currMap = spentMap.get(tx.category_id)!
+        currMap.set(currencyKey, (currMap.get(currencyKey) ?? 0) + Number(tx.amount))
       }
     }
 
-    // BudgetStatus 계산
+    // 미분류 지출: 통화 → 합계
+    const uncategorizedByCurrency = new Map<string, number>()
+    for (const tx of uncategorizedResult.data ?? []) {
+      const currencyKey = (tx.currency ?? 'KRW') as string
+      uncategorizedByCurrency.set(
+        currencyKey,
+        (uncategorizedByCurrency.get(currencyKey) ?? 0) + Number(tx.amount)
+      )
+    }
+
+    // BudgetStatus 계산 (예산 통화와 동일한 지출만 집계)
     const result: BudgetStatus[] = budgets.map((budget) => {
+      const budgetCurrency = (budget.currency ?? 'KRW') as string
       const spent = budget.category_id
-        ? (spentMap.get(budget.category_id) ?? 0)
-        : uncategorizedSpent
+        ? (spentMap.get(budget.category_id)?.get(budgetCurrency) ?? 0)
+        : (uncategorizedByCurrency.get(budgetCurrency) ?? 0)
       const amount = Number(budget.amount)
       const remaining = amount - spent
       const percentage = amount > 0 ? Math.round((spent / amount) * 100) : 0
@@ -161,11 +167,10 @@ export async function GET(request: NextRequest) {
  */
 export async function POST(request: NextRequest) {
   try {
-    const userId = request.headers.get('x-user-id')
-    if (!userId) {
-      return apiError('AUTH_REQUIRED')
-    }
     const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return apiError('AUTH_REQUIRED')
+    const userId = user.id
 
     let body: CreateBudgetInput
     try {

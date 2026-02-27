@@ -11,11 +11,10 @@ function round1(n: number): number {
 
 // GET /api/reports/monthly?year=YYYY&month=MM
 export async function GET(request: NextRequest) {
-  const userId = request.headers.get('x-user-id')
-  if (!userId) {
-    return apiError('AUTH_REQUIRED')
-  }
   const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return apiError('AUTH_REQUIRED')
+  const userId = user.id
 
   const { searchParams } = new URL(request.url)
   const yearParam = searchParams.get('year')

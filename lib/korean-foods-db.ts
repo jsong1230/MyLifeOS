@@ -1,4 +1,8 @@
 /**
+ * @deprecated Supabase foods 테이블로 이전됨 (015_foods_table.sql + seeds/foods.sql)
+ * 검색 로직은 lib/food-nutrition.ts → searchFoodsLocal()로 대체됨.
+ * localizeServingSize()와 getEnglishAlias()는 아직 사용 중이므로 삭제하지 말 것.
+ *
  * 한식 내장 영양성분 데이터베이스
  * 출처: 식품의약품안전처 식품영양성분 DB / 농촌진흥청 국가표준식품성분표
  * 1인분 기준 영양정보 (칼로리 kcal, 단백질/탄수화물/지방 g)

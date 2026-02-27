@@ -7,11 +7,10 @@ import type { BodyLog, CreateBodyLogInput } from '@/types/health'
 // GET /api/health/body?limit=30  → 최근 N개 체중 기록
 // GET /api/health/body?date=YYYY-MM-DD → 특정 날짜 기록
 export async function GET(request: NextRequest) {
-  const userId = request.headers.get('x-user-id')
-  if (!userId) {
-    return apiError('AUTH_REQUIRED')
-  }
   const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return apiError('AUTH_REQUIRED')
+  const userId = user.id
 
   const { searchParams } = new URL(request.url)
   const date = searchParams.get('date')
@@ -39,11 +38,10 @@ export async function GET(request: NextRequest) {
 
 // POST /api/health/body → 체중 기록 추가
 export async function POST(request: NextRequest) {
-  const userId = request.headers.get('x-user-id')
-  if (!userId) {
-    return apiError('AUTH_REQUIRED')
-  }
   const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return apiError('AUTH_REQUIRED')
+  const userId = user.id
 
   let body: CreateBodyLogInput
   try {

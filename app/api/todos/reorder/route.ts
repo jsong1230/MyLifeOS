@@ -9,11 +9,10 @@ interface ReorderRequestBody {
 
 // POST /api/todos/reorder — 할일 순서 일괄 변경
 export async function POST(request: NextRequest) {
-  const userId = request.headers.get('x-user-id')
-  if (!userId) {
-    return apiError('AUTH_REQUIRED')
-  }
   const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return apiError('AUTH_REQUIRED')
+  const userId = user.id
 
   let body: ReorderRequestBody
   try {
@@ -45,19 +44,20 @@ export async function POST(request: NextRequest) {
     return apiError('NOT_FOUND')
   }
 
-  // 각 항목의 sort_order를 개별 업데이트 (Supabase는 bulk update를 직접 지원하지 않음)
-  const updatePromises = body.items.map((item) =>
-    supabase
-      .from('todos')
-      .update({ sort_order: item.sort_order, updated_at: new Date().toISOString() })
-      .eq('id', item.id)
-      .eq('user_id', userId)
-  )
+  // upsert 단일 호출로 sort_order 일괄 변경 (트랜잭션 보장)
+  const updatedAt = new Date().toISOString()
+  const upsertItems = body.items.map((item) => ({
+    id: item.id,
+    user_id: userId,
+    sort_order: item.sort_order,
+    updated_at: updatedAt,
+  }))
 
-  const results = await Promise.all(updatePromises)
+  const { error } = await supabase
+    .from('todos')
+    .upsert(upsertItems, { onConflict: 'id', ignoreDuplicates: false })
 
-  const hasError = results.some((result) => result.error)
-  if (hasError) {
+  if (error) {
     return apiError('SERVER_ERROR')
   }
 

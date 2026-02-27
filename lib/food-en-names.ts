@@ -1,4 +1,6 @@
 /**
+ * @deprecated Supabase foods 테이블의 name_en 컬럼으로 이전됨 (015_foods_table.sql + seeds/foods.sql)
+ *
  * 내장 한식 DB 영문명 맵
  * - ID → 영문 음식명
  * - getEnglishAlias()에서 name_en보다 먼저 참조

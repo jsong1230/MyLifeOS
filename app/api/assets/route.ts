@@ -10,11 +10,10 @@ const VALID_ASSET_TYPES = ['cash', 'deposit', 'investment', 'other'] as const
 // GET /api/assets?month=YYYY-MM               → 특정 월 자산 목록
 // GET /api/assets?trend=6                     → 최근 N개월 월별 합계
 export async function GET(request: NextRequest) {
-  const userId = request.headers.get('x-user-id')
-  if (!userId) {
-    return apiError('AUTH_REQUIRED')
-  }
   const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return apiError('AUTH_REQUIRED')
+  const userId = user.id
 
   const { searchParams } = new URL(request.url)
   const month = searchParams.get('month')
@@ -76,11 +75,10 @@ export async function GET(request: NextRequest) {
 
 // POST /api/assets → 자산 항목 추가
 export async function POST(request: NextRequest) {
-  const userId = request.headers.get('x-user-id')
-  if (!userId) {
-    return apiError('AUTH_REQUIRED')
-  }
   const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return apiError('AUTH_REQUIRED')
+  const userId = user.id
 
   let body: CreateAssetInput
   try {

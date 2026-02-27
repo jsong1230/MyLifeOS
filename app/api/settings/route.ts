@@ -6,11 +6,10 @@ import type { UpdateSettingsInput } from '@/types/settings'
 
 // GET /api/settings — 사용자 설정 조회
 export async function GET(request: NextRequest) {
-  const userId = request.headers.get('x-user-id')
-  if (!userId) {
-    return apiError('AUTH_REQUIRED')
-  }
   const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return apiError('AUTH_REQUIRED')
+  const userId = user.id
 
   const { data, error } = await supabase
     .from('user_settings')
@@ -29,11 +28,10 @@ export async function GET(request: NextRequest) {
 
 // PATCH /api/settings — 사용자 설정 업데이트
 export async function PATCH(request: NextRequest) {
-  const userId = request.headers.get('x-user-id')
-  if (!userId) {
-    return apiError('AUTH_REQUIRED')
-  }
   const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return apiError('AUTH_REQUIRED')
+  const userId = user.id
 
   let body: UpdateSettingsInput
   try {

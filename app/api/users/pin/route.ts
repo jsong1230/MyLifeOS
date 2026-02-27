@@ -12,10 +12,10 @@ const PIN_REGEX = /^\d{4,6}$/
  */
 export async function GET(request: NextRequest) {
   try {
-    const userId = request.headers.get('x-user-id')
-    if (!userId) {
-      return apiError('AUTH_REQUIRED')
-    }
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return apiError('AUTH_REQUIRED')
+    const userId = user.id
 
     const adminClient = createAdminClient()
     const { data, error } = await adminClient

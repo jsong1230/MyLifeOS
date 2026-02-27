@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from 'next/server'
 import { apiError } from '@/lib/api-errors'
 import bcrypt from 'bcryptjs'
 import { createAdminClient } from '@/lib/supabase/admin'
+import { createClient } from '@/lib/supabase/server'
 
 const MAX_ATTEMPTS = 5
 const LOCK_DURATION_MS = 10 * 60 * 1000 // 10분
@@ -14,10 +15,10 @@ const LOCK_DURATION_MS = 10 * 60 * 1000 // 10분
  */
 export async function POST(request: NextRequest) {
   try {
-    const userId = request.headers.get('x-user-id')
-    if (!userId) {
-      return apiError('AUTH_REQUIRED')
-    }
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return apiError('AUTH_REQUIRED')
+    const userId = user.id
 
     const body = await request.json()
     const { pin, localEncSalt } = body as { pin: string; localEncSalt?: string | null }

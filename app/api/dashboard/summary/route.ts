@@ -5,11 +5,10 @@ import { getToday, getCurrentMonthRange } from '@/lib/date-utils'
 
 // GET /api/dashboard/summary — 대시보드 4개 카드 집계 데이터 (단일 요청)
 export async function GET(request: NextRequest) {
-  const userId = request.headers.get('x-user-id')
-  if (!userId) {
-    return apiError('AUTH_REQUIRED')
-  }
   const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return apiError('AUTH_REQUIRED')
+  const userId = user.id
 
   const today = getToday()
   const { start: monthStart, end: monthEnd } = getCurrentMonthRange()

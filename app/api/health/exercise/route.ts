@@ -8,11 +8,10 @@ const VALID_INTENSITIES = ['light', 'moderate', 'intense'] as const
 
 // GET /api/health/exercise?week_start=YYYY-MM-DD → 주간 운동 기록
 export async function GET(request: NextRequest) {
-  const userId = request.headers.get('x-user-id')
-  if (!userId) {
-    return apiError('AUTH_REQUIRED')
-  }
   const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return apiError('AUTH_REQUIRED')
+  const userId = user.id
 
   const { searchParams } = new URL(request.url)
   const weekStart = searchParams.get('week_start')
@@ -42,11 +41,10 @@ export async function GET(request: NextRequest) {
 
 // POST /api/health/exercise → 운동 기록 추가
 export async function POST(request: NextRequest) {
-  const userId = request.headers.get('x-user-id')
-  if (!userId) {
-    return apiError('AUTH_REQUIRED')
-  }
   const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return apiError('AUTH_REQUIRED')
+  const userId = user.id
 
   let body: CreateExerciseInput
   try {

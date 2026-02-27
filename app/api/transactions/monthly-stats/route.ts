@@ -7,11 +7,10 @@ import { convertCurrency, type CurrencyCode } from '@/lib/currency'
 // GET /api/transactions/monthly-stats?months=6
 // 최근 N개월 월별 수입/지출 합계 반환 (F-22 월별 지출 추이)
 export async function GET(request: NextRequest) {
-  const userId = request.headers.get('x-user-id')
-  if (!userId) {
-    return apiError('AUTH_REQUIRED')
-  }
   const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return apiError('AUTH_REQUIRED')
+  const userId = user.id
 
   const { searchParams } = new URL(request.url)
   const months = Math.min(Math.max(parseInt(searchParams.get('months') ?? '6') || 6, 1), 24)

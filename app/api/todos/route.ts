@@ -6,11 +6,10 @@ import type { CreateTodoInput, Todo } from '@/types/todo'
 // GET /api/todos — 할일 목록 조회
 // 쿼리 파라미터: date (YYYY-MM-DD) 또는 month (YYYY-MM) 지원, 없으면 전체
 export async function GET(request: NextRequest) {
-  const userId = request.headers.get('x-user-id')
-  if (!userId) {
-    return apiError('AUTH_REQUIRED')
-  }
   const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return apiError('AUTH_REQUIRED')
+  const userId = user.id
 
   const { searchParams } = new URL(request.url)
   const date = searchParams.get('date')
@@ -49,11 +48,10 @@ export async function GET(request: NextRequest) {
 
 // POST /api/todos — 할일 생성
 export async function POST(request: NextRequest) {
-  const userId = request.headers.get('x-user-id')
-  if (!userId) {
-    return apiError('AUTH_REQUIRED')
-  }
   const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return apiError('AUTH_REQUIRED')
+  const userId = user.id
 
   let body: CreateTodoInput
   try {

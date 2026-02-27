@@ -5,11 +5,10 @@ import type { CreateRecurringInput, RecurringExpense } from '@/types/recurring'
 
 // GET /api/recurring — 정기 지출 목록 조회 (활성 항목 우선 정렬)
 export async function GET(request: NextRequest) {
-  const userId = request.headers.get('x-user-id')
-  if (!userId) {
-    return apiError('AUTH_REQUIRED')
-  }
   const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return apiError('AUTH_REQUIRED')
+  const userId = user.id
 
   const { data, error } = await supabase
     .from('recurring_expenses')
@@ -27,11 +26,10 @@ export async function GET(request: NextRequest) {
 
 // POST /api/recurring — 정기 지출 등록
 export async function POST(request: NextRequest) {
-  const userId = request.headers.get('x-user-id')
-  if (!userId) {
-    return apiError('AUTH_REQUIRED')
-  }
   const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return apiError('AUTH_REQUIRED')
+  const userId = user.id
 
   let body: CreateRecurringInput
   try {

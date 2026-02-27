@@ -41,15 +41,15 @@ export async function POST(request: Request) {
   const { error: txError } = await supabase.from('transactions').insert(transactionInserts)
   if (txError) return apiError('SERVER_ERROR')
 
-  // last_recorded_date 업데이트
-  const updatePromises = body.items.map((item) =>
-    supabase
-      .from('recurring_expenses')
-      .update({ last_recorded_date: today })
-      .eq('id', item.id)
-      .eq('user_id', user.id)
-  )
-  await Promise.all(updatePromises)
+  // last_recorded_date 단일 upsert로 일괄 업데이트 (트랜잭션 보장)
+  const recurringUpdates = body.items.map((item) => ({
+    id: item.id,
+    user_id: user.id,
+    last_recorded_date: today,
+  }))
+  await supabase
+    .from('recurring_expenses')
+    .upsert(recurringUpdates, { onConflict: 'id', ignoreDuplicates: false })
 
   return NextResponse.json({ success: true, data: { recorded: body.items.length } })
 }

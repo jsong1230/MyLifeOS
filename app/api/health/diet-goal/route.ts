@@ -5,11 +5,10 @@ import type { DietGoal, UpsertDietGoalInput } from '@/types/diet-goal'
 
 // GET /api/health/diet-goal — 내 식단 목표 조회 (없으면 null 반환)
 export async function GET(request: NextRequest) {
-  const userId = request.headers.get('x-user-id')
-  if (!userId) {
-    return apiError('AUTH_REQUIRED')
-  }
   const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return apiError('AUTH_REQUIRED')
+  const userId = user.id
 
   const { data, error } = await supabase
     .from('diet_goals')
@@ -26,11 +25,10 @@ export async function GET(request: NextRequest) {
 
 // POST /api/health/diet-goal — 식단 목표 upsert (user_id 기준)
 export async function POST(request: NextRequest) {
-  const userId = request.headers.get('x-user-id')
-  if (!userId) {
-    return apiError('AUTH_REQUIRED')
-  }
   const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return apiError('AUTH_REQUIRED')
+  const userId = user.id
 
   let body: UpsertDietGoalInput
   try {

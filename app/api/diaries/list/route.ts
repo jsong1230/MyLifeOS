@@ -12,11 +12,10 @@ interface DiaryListItem {
 
 // GET /api/diaries/list?year=YYYY&month=MM — 월별 일기 목록 (감정 캘린더용)
 export async function GET(request: NextRequest) {
-  const userId = request.headers.get('x-user-id')
-  if (!userId) {
-    return apiError('AUTH_REQUIRED')
-  }
   const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return apiError('AUTH_REQUIRED')
+  const userId = user.id
 
   const { searchParams } = new URL(request.url)
   const year = searchParams.get('year')

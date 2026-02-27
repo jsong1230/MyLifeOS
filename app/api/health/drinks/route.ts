@@ -28,11 +28,10 @@ function getWeekEnd(weekStart: string): string {
 //   (파라미터 없으면 이번 주 조회)
 // 응답: { success, data: DrinkLog[], summary: { count, total_ml } }
 export async function GET(request: NextRequest) {
-  const userId = request.headers.get('x-user-id')
-  if (!userId) {
-    return apiError('AUTH_REQUIRED')
-  }
   const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return apiError('AUTH_REQUIRED')
+  const userId = user.id
 
   const { searchParams } = new URL(request.url)
   const weekParam = searchParams.get('week')
@@ -101,11 +100,10 @@ export async function GET(request: NextRequest) {
 
 // POST /api/health/drinks — 음주 기록 생성
 export async function POST(request: NextRequest) {
-  const userId = request.headers.get('x-user-id')
-  if (!userId) {
-    return apiError('AUTH_REQUIRED')
-  }
   const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return apiError('AUTH_REQUIRED')
+  const userId = user.id
 
   let body: CreateDrinkInput
   try {

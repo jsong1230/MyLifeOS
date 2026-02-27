@@ -10,11 +10,10 @@ const MEAL_TYPE_ORDER = { breakfast: 0, lunch: 1, dinner: 2, snack: 3 } as const
 // GET /api/health/meals — 날짜별 식사 목록 조회
 // 쿼리 파라미터: date (YYYY-MM-DD, 기본값: 오늘)
 export async function GET(request: NextRequest) {
-  const userId = request.headers.get('x-user-id')
-  if (!userId) {
-    return apiError('AUTH_REQUIRED')
-  }
   const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return apiError('AUTH_REQUIRED')
+  const userId = user.id
 
   const { searchParams } = new URL(request.url)
   const rawDate = searchParams.get('date')
@@ -56,11 +55,10 @@ export async function GET(request: NextRequest) {
 
 // POST /api/health/meals — 식사 기록 생성
 export async function POST(request: NextRequest) {
-  const userId = request.headers.get('x-user-id')
-  if (!userId) {
-    return apiError('AUTH_REQUIRED')
-  }
   const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return apiError('AUTH_REQUIRED')
+  const userId = user.id
 
   let body: CreateMealInput
   try {

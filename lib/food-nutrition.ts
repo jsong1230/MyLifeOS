@@ -1,6 +1,6 @@
 import type { FoodNutrition } from '@/types/food'
-import { searchKoreanFoods, getEnglishAlias, localizeServingSize } from '@/lib/korean-foods-db'
-import { FOOD_EN_NAMES } from '@/lib/food-en-names'
+import { createClient } from '@/lib/supabase/server'
+import { localizeServingSize } from '@/lib/korean-foods-db'
 
 const USDA_API_BASE = 'https://api.nal.usda.gov/fdc/v1'
 
@@ -74,43 +74,73 @@ async function searchFoodsUsda(query: string): Promise<FoodNutrition[]> {
   }
 }
 
-function toFoodNutrition(
-  item: import('@/lib/korean-foods-db').KoreanFoodEntry,
-  locale = 'ko',
-): FoodNutrition {
-  const englishName = getEnglishAlias(item, FOOD_EN_NAMES)
-  const name = locale === 'en' && englishName ? englishName : item.name
+/** Supabase foods 테이블 row → FoodNutrition 변환 */
+interface FoodRow {
+  id: string
+  name: string
+  name_en: string | null
+  aliases: string[] | null
+  calories: number
+  protein: number
+  carbs: number
+  fat: number
+  serving_size: string
+  serving_size_g: number
+  source: string
+}
+
+function toFoodNutrition(row: FoodRow, locale = 'ko'): FoodNutrition {
+  const name = locale === 'en' && row.name_en ? row.name_en : row.name
   return {
-    id: item.id,
+    id: row.id,
     name,
-    calories: item.calories,
-    protein: item.protein,
-    carbs: item.carbs,
-    fat: item.fat,
-    serving_size: localizeServingSize(item.serving_size, locale),
-    serving_size_g: item.serving_size_g,
-    source: 'kr_internal',
+    calories: Number(row.calories),
+    protein: Number(row.protein),
+    carbs: Number(row.carbs),
+    fat: Number(row.fat),
+    serving_size: localizeServingSize(row.serving_size, locale),
+    serving_size_g: Number(row.serving_size_g),
+    source: row.source as FoodNutrition['source'],
+  }
+}
+
+/** Supabase foods 테이블에서 ilike 검색 (최대 10개) */
+async function searchFoodsLocal(query: string, locale: string): Promise<FoodNutrition[]> {
+  try {
+    const supabase = await createClient()
+    const q = `%${query}%`
+
+    const { data, error } = await supabase
+      .from('foods')
+      .select('*')
+      .or(`name.ilike.${q},name_en.ilike.${q},aliases::text.ilike.${q}`)
+      .limit(10)
+
+    if (error || !data) return []
+    return data.map((row: FoodRow) => toFoodNutrition(row, locale))
+  } catch {
+    return []
   }
 }
 
 /**
- * 음식 검색 — 내장 DB + USDA 항상 병행 검색, 내장 DB 결과 우선 표시
- * - 한글 쿼리: 내장 DB 결과 먼저, 이어서 USDA 결과 (최대 10개)
- * - 영문 쿼리: 내장 DB(영어 별명 매칭) + USDA 병행, 내장 결과 먼저
+ * 음식 검색 — Supabase foods 테이블 + USDA 항상 병행 검색, 내장 DB 결과 우선 표시
+ * - 한글 쿼리: Supabase 결과 먼저, 이어서 USDA 결과 (최대 10개)
+ * - 영문 쿼리: Supabase(영어 별명 매칭) + USDA 병행, Supabase 결과 먼저
  * - locale: 검색 결과 음식명/단위를 해당 언어로 표시
  */
 export async function searchFoods(query: string, locale = 'ko'): Promise<FoodNutrition[]> {
-  const localResults = searchKoreanFoods(query).map((item) => toFoodNutrition(item, locale))
+  const localResults = await searchFoodsLocal(query, locale)
 
   if (isKorean(query)) {
-    // 한글 쿼리 → 내장 DB 결과로 충분하면 바로 반환
+    // 한글 쿼리 → Supabase 결과로 충분하면 바로 반환
     if (localResults.length >= 5) return localResults
     // 부족하면 USDA도 병행
     const usdaResults = await searchFoodsUsda(query)
     return [...localResults, ...usdaResults].slice(0, 10)
   }
 
-  // 영문 쿼리 → 내장 DB(영어 alias 포함) + USDA 항상 병행
+  // 영문 쿼리 → Supabase + USDA 항상 병행
   const usdaResults = await searchFoodsUsda(query)
   const localIds = new Set(localResults.map((r) => r.id))
   const merged = [

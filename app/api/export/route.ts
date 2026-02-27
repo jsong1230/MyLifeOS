@@ -8,6 +8,10 @@ import type { Transaction } from '@/types/transaction'
 import type { MealLog, DrinkLog, SleepLog } from '@/types/health'
 import type { DiaryEntry } from '@/types/diary'
 import type { Relation } from '@/types/relation'
+import type { Database } from '@/types/database.types'
+
+// export 쿼리에서 반환되는 transactions DB 행 타입 (카테고리 조인 없음)
+type TransactionExportRow = Database['public']['Tables']['transactions']['Row']
 
 // 지원하는 모듈 유형
 type ExportModule =
@@ -118,11 +122,10 @@ function queryRelations(supabase: SupabaseClient, userId: string) {
  * 암호화된 데이터(diaries.content_encrypted, relations.memo_encrypted)는 그대로 반환
  */
 export async function GET(request: NextRequest) {
-  const userId = request.headers.get('x-user-id')
-  if (!userId) {
-    return apiError('AUTH_REQUIRED')
-  }
   const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return apiError('AUTH_REQUIRED')
+  const userId = user.id
 
   const { searchParams } = new URL(request.url)
   const moduleParam = searchParams.get('module')
@@ -185,7 +188,7 @@ export async function GET(request: NextRequest) {
       const exportData: ExportAllData = {
         todos: (todosResult.data ?? []) as Todo[],
         routines: (routinesResult.data ?? []) as Routine[],
-        transactions: (transactionsResult.data ?? []) as unknown as Transaction[],
+        transactions: (transactionsResult.data ?? []) as TransactionExportRow[] as Transaction[],
         meal_logs: (mealLogsResult.data ?? []) as MealLog[],
         drink_logs: (drinkLogsResult.data ?? []) as DrinkLog[],
         health_logs: (healthLogsResult.data ?? []) as SleepLog[],

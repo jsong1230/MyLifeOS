@@ -35,11 +35,10 @@ function getWeekStart(refDate?: string): string {
 //   week=YYYY-MM-DD  (주 시작일, 기본값: 이번 주 월요일)
 //   date=YYYY-MM-DD  (특정 날짜 단일 조회)
 export async function GET(request: NextRequest) {
-  const userId = request.headers.get('x-user-id')
-  if (!userId) {
-    return apiError('AUTH_REQUIRED')
-  }
   const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return apiError('AUTH_REQUIRED')
+  const userId = user.id
 
   const { searchParams } = new URL(request.url)
   const rawWeek = searchParams.get('week')
@@ -125,11 +124,10 @@ export async function GET(request: NextRequest) {
 
 // POST /api/health/sleep — 수면 기록 생성
 export async function POST(request: NextRequest) {
-  const userId = request.headers.get('x-user-id')
-  if (!userId) {
-    return apiError('AUTH_REQUIRED')
-  }
   const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return apiError('AUTH_REQUIRED')
+  const userId = user.id
 
   let body: CreateSleepInput
   try {

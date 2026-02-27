@@ -3,15 +3,26 @@ import { apiError } from '@/lib/api-errors'
 import { createClient } from '@/lib/supabase/server'
 import { getToday, getMonthRange } from '@/lib/date-utils'
 import type { CreateTransactionInput, Transaction } from '@/types/transaction'
+import type { Database } from '@/types/database.types'
+
+// categories 조인을 포함한 SELECT 결과를 모델링하는 DB 행 타입
+// 참고: Supabase 비제네릭 클라이언트는 FK 조인을 배열로 추론하지만 many-to-one 관계이므로
+// 런타임에서는 단일 객체. Transaction 타입으로의 최종 캐스트에 unknown 중간 단계 필요.
+// Supabase 제네릭 클라이언트(createServerClient<Database>()) 사용 시 unknown 제거 가능.
+type TransactionDbRow = Database['public']['Tables']['transactions']['Row'] & {
+  category: Pick<
+    Database['public']['Tables']['categories']['Row'],
+    'id' | 'name' | 'name_key' | 'icon' | 'color' | 'type'
+  > | null
+}
 
 // GET /api/transactions — 거래 목록 조회
 // 쿼리 파라미터: month (YYYY-MM), type (income/expense), category_id, is_favorite (true)
 export async function GET(request: NextRequest) {
-  const userId = request.headers.get('x-user-id')
-  if (!userId) {
-    return apiError('AUTH_REQUIRED')
-  }
   const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return apiError('AUTH_REQUIRED')
+  const userId = user.id
 
   const { searchParams } = new URL(request.url)
   const month = searchParams.get('month')
@@ -57,16 +68,15 @@ export async function GET(request: NextRequest) {
     return apiError('SERVER_ERROR')
   }
 
-  return NextResponse.json({ success: true, data: data as unknown as Transaction[] })
+  return NextResponse.json({ success: true, data: (data ?? []) as unknown as Transaction[] })
 }
 
 // POST /api/transactions — 거래 생성
 export async function POST(request: NextRequest) {
-  const userId = request.headers.get('x-user-id')
-  if (!userId) {
-    return apiError('AUTH_REQUIRED')
-  }
   const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return apiError('AUTH_REQUIRED')
+  const userId = user.id
 
   let body: CreateTransactionInput
   try {

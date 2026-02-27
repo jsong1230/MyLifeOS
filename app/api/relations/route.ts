@@ -15,11 +15,10 @@ interface CreateRelationBody {
 
 // GET /api/relations — 내 인간관계 목록 전체 조회
 export async function GET(request: NextRequest) {
-  const userId = request.headers.get('x-user-id')
-  if (!userId) {
-    return apiError('AUTH_REQUIRED')
-  }
   const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return apiError('AUTH_REQUIRED')
+  const userId = user.id
 
   const { data, error } = await supabase
     .from('relations')
@@ -36,11 +35,10 @@ export async function GET(request: NextRequest) {
 
 // POST /api/relations — 인간관계 등록
 export async function POST(request: NextRequest) {
-  const userId = request.headers.get('x-user-id')
-  if (!userId) {
-    return apiError('AUTH_REQUIRED')
-  }
   const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return apiError('AUTH_REQUIRED')
+  const userId = user.id
 
   let body: CreateRelationBody
   try {
