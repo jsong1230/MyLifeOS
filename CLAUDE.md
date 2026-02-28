@@ -169,7 +169,7 @@
 - [x] 009_user_settings_currency.sql 실행 (user_settings 테이블 + currency 컬럼)
 - [x] 012_deletion_request.sql — users.deletion_requested_at 컬럼 (CLI push 완료)
 - [x] 013_recurring_last_recorded.sql — recurring_expenses.last_recorded_date 컬럼 (CLI push 완료)
-- [ ] 20260227000015_foods_table.sql — foods 테이블 (CLI push 필요, seeds/foods.sql 시딩 필요)
+- [x] 20260227000015_foods_table.sql — foods 테이블 + 시딩 완료 (CLI push 2026-02-28)
 
 ## 프로젝트 관리
 - 방식: file
