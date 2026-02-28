@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, type FormEvent } from 'react'
+import { useState, useEffect, type FormEvent } from 'react'
 import { useTranslations } from 'next-intl'
 import {
   Dialog,
@@ -41,8 +41,14 @@ export function TodoFormDialog({
 
   const { mutateAsync: createTodo, isPending } = useCreateTodo()
 
-  // defaultDate 변경 시 날짜 필드 동기화
-  // (open 상태 변경 시에도 defaultDate 반영)
+  // 다이얼로그가 열릴 때 defaultDate를 dueDate에 동기화
+  useEffect(() => {
+    if (open) {
+      resetForm(defaultDate)
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, defaultDate])
+
   function resetForm(newDefaultDate?: string) {
     setTitle('')
     setDescription('')
