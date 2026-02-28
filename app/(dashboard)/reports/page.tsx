@@ -3,6 +3,7 @@
 import { useState, useCallback } from 'react'
 import { ChevronLeft, ChevronRight, Sparkles, RefreshCw } from 'lucide-react'
 import { useLocale, useTranslations } from 'next-intl'
+import { formatDateToString } from '@/lib/date-utils'
 import { useWeeklyReport, useMonthlyReport } from '@/hooks/use-reports'
 import { useAiInsights, useGenerateInsights } from '@/hooks/use-ai-insights'
 import { WeeklyReportView } from '@/components/reports/weekly-report'
@@ -22,14 +23,14 @@ function getCurrentWeekStart(): string {
   const diff = day === 0 ? -6 : 1 - day
   const monday = new Date(today)
   monday.setDate(today.getDate() + diff)
-  return monday.toISOString().split('T')[0]
+  return formatDateToString(monday)
 }
 
 // YYYY-MM-DD 날짜에 N일을 더한 날짜 반환
 function addDays(dateStr: string, days: number): string {
   const date = new Date(dateStr)
   date.setDate(date.getDate() + days)
-  return date.toISOString().split('T')[0]
+  return formatDateToString(date)
 }
 
 // YYYY-MM-DD 형식의 주 시작일을 로케일 기반 주 범위 문자열로 변환

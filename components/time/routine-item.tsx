@@ -5,6 +5,7 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
+import { getToday } from '@/lib/date-utils'
 import { Pencil, Trash2, PauseCircle, PlayCircle } from 'lucide-react'
 import type { Routine, RoutineWithLog } from '@/types/routine'
 
@@ -36,7 +37,7 @@ export function RoutineItem({
   const t = useTranslations('time.routines')
   const tCommon = useTranslations('common')
   const isCompleted = routine.log?.completed ?? false
-  const today = new Date().toISOString().split('T')[0]
+  const today = getToday()
 
   function handleCheckboxChange(checked: boolean | 'indeterminate') {
     if (checked === 'indeterminate') return

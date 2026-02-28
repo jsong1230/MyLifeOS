@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from 'next/server'
 import { apiError } from '@/lib/api-errors'
 import { createClient } from '@/lib/supabase/server'
+import { getToday, formatDateToString } from '@/lib/date-utils'
 import type { CreateSleepInput, SleepLog } from '@/types/health'
 
 // HH:MM → 분 변환
@@ -27,7 +28,7 @@ function getWeekStart(refDate?: string): string {
   const day = base.getDay() // 0=일, 1=월, ...
   const diff = day === 0 ? -6 : 1 - day // 월요일로 조정
   base.setDate(base.getDate() + diff)
-  return base.toISOString().split('T')[0]
+  return formatDateToString(base)
 }
 
 // GET /api/health/sleep — 주간 수면 목록 + 집계 조회
@@ -36,8 +37,8 @@ function getWeekStart(refDate?: string): string {
 //   date=YYYY-MM-DD  (특정 날짜 단일 조회)
 export async function GET(request: NextRequest) {
   const supabase = await createClient()
-  const { data: { session } } = await supabase.auth.getSession()
-  const userId = session?.user?.id
+  const { data: { user } } = await supabase.auth.getUser()
+  const userId = user?.id
   if (!userId) return apiError('AUTH_REQUIRED')
 
   const { searchParams } = new URL(request.url)
@@ -76,7 +77,7 @@ export async function GET(request: NextRequest) {
   const weekStartDate = new Date(weekStart)
   const weekEndDate = new Date(weekStartDate)
   weekEndDate.setDate(weekEndDate.getDate() + 6)
-  const weekEnd = weekEndDate.toISOString().split('T')[0]
+  const weekEnd = formatDateToString(weekEndDate)
 
   const { data, error } = await supabase
     .from('health_logs')
@@ -170,7 +171,7 @@ export async function POST(request: NextRequest) {
     time_start: body.time_start,
     time_end: body.time_end,
     note: body.note ?? null,
-    date: body.date ?? new Date().toISOString().split('T')[0],
+    date: body.date ?? getToday(),
   }
 
   const { data, error } = await supabase

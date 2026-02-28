@@ -3,6 +3,7 @@
 import { useTranslations } from 'next-intl'
 import { EMOTION_ICONS, type EmotionType } from '@/types/diary'
 import { formatCurrency, type CurrencyCode } from '@/lib/currency'
+import { formatDateToString } from '@/lib/date-utils'
 import type { WeeklyReport } from '@/types/report'
 
 interface WeeklyReportProps {
@@ -69,7 +70,7 @@ export function WeeklyReportView({ report }: WeeklyReportProps) {
   // 주간 종료일 계산 (주 시작 + 6일)
   const weekEndDate = new Date(report.week_start)
   weekEndDate.setUTCDate(weekEndDate.getUTCDate() + 6)
-  const weekEnd = weekEndDate.toISOString().split('T')[0]
+  const weekEnd = formatDateToString(weekEndDate)
 
   return (
     <div className="space-y-5">

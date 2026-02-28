@@ -6,6 +6,7 @@ import { useTranslations, useLocale } from 'next-intl'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
+import { getToday } from '@/lib/date-utils'
 import {
   useCalendar,
   type CalendarView,
@@ -16,7 +17,7 @@ import type { Todo } from '@/types/todo'
 // 할일 상태에 따른 배지 색상
 function getTodoBadgeVariant(todo: Todo): string {
   if (todo.status === 'completed') return 'bg-green-100 text-green-700'
-  if (todo.due_date && todo.due_date < new Date().toISOString().split('T')[0]) {
+  if (todo.due_date && todo.due_date < getToday()) {
     return 'bg-red-100 text-red-700'
   }
   return 'bg-blue-100 text-blue-700'
@@ -437,7 +438,7 @@ function DayTodoItem({ todo }: { todo: Todo }) {
     todo.status !== 'completed' &&
     todo.due_date !== null &&
     todo.due_date !== undefined &&
-    todo.due_date < new Date().toISOString().split('T')[0]
+    todo.due_date < getToday()
 
   return (
     <div

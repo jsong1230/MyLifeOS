@@ -18,6 +18,8 @@ import { cn } from '@/lib/utils'
 import { parseAmountInput, formatAmount, CURRENCY_CODES, type CurrencyCode } from '@/lib/currency'
 import { useCategories } from '@/hooks/use-categories'
 import { useTransactions } from '@/hooks/use-transactions'
+import { useSettingsStore } from '@/store/settings.store'
+import { getToday } from '@/lib/date-utils'
 import type { Transaction, CreateTransactionInput, TransactionType } from '@/types/transaction'
 
 interface TransactionFormProps {
@@ -34,11 +36,6 @@ interface TransactionFormProps {
   isLoading?: boolean
 }
 
-// 오늘 날짜를 YYYY-MM-DD 형식으로 반환
-function getTodayString(): string {
-  return new Date().toISOString().split('T')[0]
-}
-
 export function TransactionForm({
   transaction,
   defaultValues,
@@ -48,16 +45,17 @@ export function TransactionForm({
 }: TransactionFormProps) {
   const t = useTranslations('money.transactions')
   const tc = useTranslations('common')
+  const defaultCurrency = useSettingsStore((s) => s.defaultCurrency)
   const [type, setType] = useState<TransactionType>(transaction?.type ?? defaultValues?.type ?? 'expense')
-  const [currency, setCurrency] = useState<CurrencyCode>(transaction?.currency ?? defaultValues?.currency ?? 'KRW')
+  const [currency, setCurrency] = useState<CurrencyCode>(transaction?.currency ?? defaultValues?.currency ?? defaultCurrency)
   const [amountDisplay, setAmountDisplay] = useState<string>(
     transaction
-      ? formatAmount(transaction.amount, transaction.currency ?? 'KRW')
+      ? formatAmount(transaction.amount, transaction.currency ?? defaultCurrency)
       : defaultValues?.amount
-        ? formatAmount(defaultValues.amount, defaultValues.currency ?? 'KRW')
+        ? formatAmount(defaultValues.amount, defaultValues.currency ?? defaultCurrency)
         : ''
   )
-  const [date, setDate] = useState<string>(transaction?.date ?? getTodayString())
+  const [date, setDate] = useState<string>(transaction?.date ?? getToday())
   const [categoryId, setCategoryId] = useState<string>(transaction?.category_id ?? defaultValues?.category_id ?? '')
   const [memo, setMemo] = useState<string>(transaction?.memo ?? defaultValues?.memo ?? '')
   const [isFavorite, setIsFavorite] = useState<boolean>(transaction?.is_favorite ?? false)
@@ -114,7 +112,7 @@ export function TransactionForm({
   // 즐겨찾기 항목 선택 시 자동 입력
   function handleFavoriteSelect(favTransaction: Transaction) {
     setType(favTransaction.type)
-    const favCurrency = favTransaction.currency ?? 'KRW'
+    const favCurrency = favTransaction.currency ?? defaultCurrency
     setCurrency(favCurrency)
     setAmountDisplay(formatAmount(favTransaction.amount, favCurrency))
     setCategoryId(favTransaction.category_id ?? '')
@@ -167,7 +165,7 @@ export function TransactionForm({
               >
                 {fav.category?.icon && <span>{fav.category.icon}</span>}
                 <span>{fav.category?.name ?? fav.memo ?? tc('none')}</span>
-                <span className="font-semibold">{formatAmount(fav.amount, fav.currency ?? 'KRW')}</span>
+                <span className="font-semibold">{formatAmount(fav.amount, fav.currency ?? defaultCurrency)}</span>
               </button>
             ))}
           </div>

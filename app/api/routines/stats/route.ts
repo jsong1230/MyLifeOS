@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from 'next/server'
 import { apiError } from '@/lib/api-errors'
 import { createClient } from '@/lib/supabase/server'
+import { formatDateToString } from '@/lib/date-utils'
 
 export interface RoutineStatItem {
   routine_id: string
@@ -26,8 +27,8 @@ export interface RoutineStatsResponse {
  */
 export async function GET(request: NextRequest) {
   const supabase = await createClient()
-  const { data: { session } } = await supabase.auth.getSession()
-  const userId = session?.user?.id
+  const { data: { user } } = await supabase.auth.getUser()
+  const userId = user?.id
   if (!userId) return apiError('AUTH_REQUIRED')
 
   const { searchParams } = new URL(request.url)
@@ -44,7 +45,7 @@ export async function GET(request: NextRequest) {
     const sunday = new Date(monday)
     sunday.setDate(monday.getDate() + 6)
     startDate = week
-    endDate = sunday.toISOString().split('T')[0]
+    endDate = formatDateToString(sunday)
     totalDays = 7
   } else if (month) {
     // 월간: 1일 ~ 말일

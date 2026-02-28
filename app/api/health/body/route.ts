@@ -8,8 +8,8 @@ import type { BodyLog, CreateBodyLogInput } from '@/types/health'
 // GET /api/health/body?date=YYYY-MM-DD → 특정 날짜 기록
 export async function GET(request: NextRequest) {
   const supabase = await createClient()
-  const { data: { session } } = await supabase.auth.getSession()
-  const userId = session?.user?.id
+  const { data: { user } } = await supabase.auth.getUser()
+  const userId = user?.id
   if (!userId) return apiError('AUTH_REQUIRED')
 
   const { searchParams } = new URL(request.url)

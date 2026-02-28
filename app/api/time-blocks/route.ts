@@ -1,13 +1,14 @@
 import { NextResponse, type NextRequest } from 'next/server'
 import { apiError } from '@/lib/api-errors'
 import { createClient } from '@/lib/supabase/server'
+import { getToday } from '@/lib/date-utils'
 import type { CreateTimeBlockInput, TimeBlock } from '@/types/time-block'
 
 // GET /api/time-blocks?date=YYYY-MM-DD — 특정 날짜의 시간 블록 목록 조회
 export async function GET(request: NextRequest) {
   const supabase = await createClient()
-  const { data: { session } } = await supabase.auth.getSession()
-  const userId = session?.user?.id
+  const { data: { user } } = await supabase.auth.getUser()
+  const userId = user?.id
   if (!userId) return apiError('AUTH_REQUIRED')
 
   const { searchParams } = new URL(request.url)
@@ -79,7 +80,7 @@ export async function POST(request: NextRequest) {
   }
 
   // 오늘 날짜 기본값
-  const today = new Date().toISOString().split('T')[0]
+  const today = getToday()
 
   const insertData = {
     user_id: userId,

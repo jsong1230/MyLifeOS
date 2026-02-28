@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from 'next/server'
 import { apiError } from '@/lib/api-errors'
 import { createClient } from '@/lib/supabase/server'
+import { formatDateToString } from '@/lib/date-utils'
 import type { EmotionType } from '@/types/diary'
 
 // 검색용 일기 응답 타입 (content_encrypted 포함)
@@ -14,8 +15,8 @@ export interface DiarySearchItem {
 // GET /api/diaries/search?months=N — 최근 N개월 일기 전체 조회 (검색용)
 export async function GET(request: NextRequest) {
   const supabase = await createClient()
-  const { data: { session } } = await supabase.auth.getSession()
-  const userId = session?.user?.id
+  const { data: { user } } = await supabase.auth.getUser()
+  const userId = user?.id
   if (!userId) return apiError('AUTH_REQUIRED')
 
   const { searchParams } = new URL(request.url)
@@ -31,10 +32,10 @@ export async function GET(request: NextRequest) {
   const now = new Date()
   const startDate = new Date(now)
   startDate.setMonth(startDate.getMonth() - months)
-  const startDateStr = startDate.toISOString().split('T')[0]
+  const startDateStr = formatDateToString(startDate)
 
   // 오늘 날짜
-  const todayStr = now.toISOString().split('T')[0]
+  const todayStr = formatDateToString(now)
 
   // content_encrypted 포함하여 전체 조회, 날짜 내림차순 정렬
   const { data, error } = await supabase

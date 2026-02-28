@@ -8,8 +8,8 @@ const VALID_ASSET_TYPES = ['stock', 'etf', 'crypto', 'other'] as const
 // GET /api/investments → 종목 목록 조회
 export async function GET(_request: NextRequest) {
   const supabase = await createClient()
-  const { data: { session } } = await supabase.auth.getSession()
-  const userId = session?.user?.id
+  const { data: { user } } = await supabase.auth.getUser()
+  const userId = user?.id
   if (!userId) return apiError('AUTH_REQUIRED')
 
   const { data, error } = await supabase

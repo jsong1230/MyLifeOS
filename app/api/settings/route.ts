@@ -7,8 +7,8 @@ import type { UpdateSettingsInput } from '@/types/settings'
 // GET /api/settings — 사용자 설정 조회
 export async function GET(request: NextRequest) {
   const supabase = await createClient()
-  const { data: { session } } = await supabase.auth.getSession()
-  const userId = session?.user?.id
+  const { data: { user } } = await supabase.auth.getUser()
+  const userId = user?.id
   if (!userId) return apiError('AUTH_REQUIRED')
 
   const { data, error } = await supabase

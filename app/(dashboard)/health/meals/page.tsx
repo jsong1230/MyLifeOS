@@ -25,13 +25,14 @@ import { MealForm } from '@/components/health/meal-form'
 import { DietGoalProgress } from '@/components/health/diet-goal-progress'
 import { useMeals, useCreateMeal, useUpdateMeal, useDeleteMeal } from '@/hooks/use-meals'
 import { useDietGoal } from '@/hooks/use-diet-goal'
+import { getToday, formatDateToString } from '@/lib/date-utils'
 import type { MealLog, CreateMealInput } from '@/types/health'
 
 // 날짜를 하루 단위로 이동하는 헬퍼
 function addDays(dateStr: string, days: number): string {
   const date = new Date(dateStr)
   date.setDate(date.getDate() + days)
-  return date.toISOString().split('T')[0]
+  return formatDateToString(date)
 }
 
 // 날짜를 로케일에 맞게 표시하는 헬퍼
@@ -47,7 +48,7 @@ function formatDisplayDate(dateStr: string, locale: string): string {
 
 // 오늘 날짜 여부 확인
 function isToday(dateStr: string): boolean {
-  return dateStr === new Date().toISOString().split('T')[0]
+  return dateStr === getToday()
 }
 
 // 식사 기록 페이지
@@ -57,7 +58,7 @@ export default function MealsPage() {
   const t = useTranslations('health.meals')
   const tc = useTranslations('common')
   const [selectedDate, setSelectedDate] = useState<string>(
-    new Date().toISOString().split('T')[0]
+    getToday()
   )
 
   // 다이얼로그 상태

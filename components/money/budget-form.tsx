@@ -81,6 +81,7 @@ export function BudgetForm({
       category_id: categoryId || undefined,
       amount: parseFloat(amount),
       year_month: month,
+      currency,
     }
 
     onSubmit(data)
@@ -94,7 +95,7 @@ export function BudgetForm({
         <Select
           value={categoryId}
           onValueChange={setCategoryId}
-          disabled={isLoading || isCategoriesLoading}
+          disabled={isLoading || isCategoriesLoading || !!budget}
         >
           <SelectTrigger id="budget-category">
             <SelectValue placeholder={tc('optional')} />

@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { cn } from '@/lib/utils'
+import { getToday } from '@/lib/date-utils'
 import type { DrinkLog, DrinkType, CreateDrinkInput } from '@/types/health'
 
 // 주종별 기본 도수(%) 자동 입력값
@@ -79,7 +80,7 @@ export function DrinkForm({ drink, onSubmit, onCancel, isLoading = false }: Drin
   const [drinkCount, setDrinkCount] = useState(
     drink?.drink_count != null ? String(drink.drink_count) : ''
   )
-  const [date, setDate] = useState(drink?.date ?? new Date().toISOString().split('T')[0])
+  const [date, setDate] = useState(drink?.date ?? getToday())
   const [note, setNote] = useState(drink?.note ?? '')
   const [errors, setErrors] = useState<Record<string, string>>({})
 

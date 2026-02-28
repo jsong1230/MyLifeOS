@@ -11,8 +11,8 @@ const VALID_ASSET_TYPES = ['cash', 'deposit', 'investment', 'other'] as const
 // GET /api/assets?trend=6                     → 최근 N개월 월별 합계
 export async function GET(request: NextRequest) {
   const supabase = await createClient()
-  const { data: { session } } = await supabase.auth.getSession()
-  const userId = session?.user?.id
+  const { data: { user } } = await supabase.auth.getUser()
+  const userId = user?.id
   if (!userId) return apiError('AUTH_REQUIRED')
 
   const { searchParams } = new URL(request.url)

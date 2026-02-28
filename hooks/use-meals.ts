@@ -1,11 +1,12 @@
 'use client'
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { getToday } from '@/lib/date-utils'
 import type { MealLog, CreateMealInput, UpdateMealInput } from '@/types/health'
 
 // 날짜별 식사 목록 조회 훅 (쿼리 키: ['meals', date])
 export function useMeals(date?: string) {
-  const queryDate = date ?? new Date().toISOString().split('T')[0]
+  const queryDate = date ?? getToday()
 
   return useQuery<MealLog[]>({
     queryKey: ['meals', queryDate],

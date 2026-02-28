@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from 'next/server'
 import { apiError } from '@/lib/api-errors'
 import { createClient } from '@/lib/supabase/server'
+import { getToday, formatDateToString } from '@/lib/date-utils'
 import type { CreateDrinkInput, DrinkLog } from '@/types/health'
 
 // 날짜(YYYY-MM-DD)로부터 해당 주 월요일 날짜 반환
@@ -11,14 +12,14 @@ function getWeekStart(dateStr: string): string {
   const diff = day === 0 ? -6 : 1 - day
   const monday = new Date(date)
   monday.setUTCDate(date.getUTCDate() + diff)
-  return monday.toISOString().split('T')[0]
+  return formatDateToString(monday)
 }
 
 // 주 시작일(월요일)로부터 주 종료일(일요일) 반환
 function getWeekEnd(weekStart: string): string {
   const date = new Date(weekStart)
   date.setUTCDate(date.getUTCDate() + 6)
-  return date.toISOString().split('T')[0]
+  return formatDateToString(date)
 }
 
 // GET /api/health/drinks — 음주 기록 목록 조회
@@ -29,8 +30,8 @@ function getWeekEnd(weekStart: string): string {
 // 응답: { success, data: DrinkLog[], summary: { count, total_ml } }
 export async function GET(request: NextRequest) {
   const supabase = await createClient()
-  const { data: { session } } = await supabase.auth.getSession()
-  const userId = session?.user?.id
+  const { data: { user } } = await supabase.auth.getUser()
+  const userId = user?.id
   if (!userId) return apiError('AUTH_REQUIRED')
 
   const { searchParams } = new URL(request.url)
@@ -60,7 +61,7 @@ export async function GET(request: NextRequest) {
     endDate = getWeekEnd(startDate)
   } else {
     // 기본값: 이번 주
-    const today = new Date().toISOString().split('T')[0]
+    const today = getToday()
     startDate = getWeekStart(today)
     endDate = getWeekEnd(startDate)
   }
@@ -153,7 +154,7 @@ export async function POST(request: NextRequest) {
     alcohol_pct: body.alcohol_pct ?? null,
     amount_ml: body.amount_ml,
     drink_count: body.drink_count ?? null,
-    date: body.date ?? new Date().toISOString().split('T')[0],
+    date: body.date ?? getToday(),
     note: body.note ?? null,
   }
 

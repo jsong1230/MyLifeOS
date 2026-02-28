@@ -6,8 +6,8 @@ import type { DietGoal, UpsertDietGoalInput } from '@/types/diet-goal'
 // GET /api/health/diet-goal — 내 식단 목표 조회 (없으면 null 반환)
 export async function GET(request: NextRequest) {
   const supabase = await createClient()
-  const { data: { session } } = await supabase.auth.getSession()
-  const userId = session?.user?.id
+  const { data: { user } } = await supabase.auth.getUser()
+  const userId = user?.id
   if (!userId) return apiError('AUTH_REQUIRED')
 
   const { data, error } = await supabase

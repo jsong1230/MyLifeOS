@@ -24,6 +24,7 @@ import {
 import { DiaryForm } from '@/components/private/diary-form'
 import { DiaryView } from '@/components/private/diary-view'
 import { useDiary, useCreateDiary, useUpdateDiary, useDeleteDiary } from '@/hooks/use-diaries'
+import { getToday, formatDateToString } from '@/lib/date-utils'
 import type { EmotionType } from '@/types/diary'
 
 // 날짜를 locale 기반으로 포맷 (YYYY-MM-DD → 로케일 날짜 문자열)
@@ -41,12 +42,12 @@ function formatDate(dateStr: string, locale: string): string {
 function shiftDate(dateStr: string, days: number): string {
   const d = new Date(dateStr + 'T00:00:00')
   d.setDate(d.getDate() + days)
-  return d.toISOString().split('T')[0]
+  return formatDateToString(d)
 }
 
 // 오늘 날짜 (YYYY-MM-DD)
 function getTodayStr(): string {
-  return new Date().toISOString().split('T')[0]
+  return getToday()
 }
 
 // 일기 페이지 — 날짜 탐색 + 일기 표시/작성

@@ -14,6 +14,7 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { Button } from '@/components/ui/button'
 import { Plus, Check, Calendar, Clock, RotateCw } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { getToday } from '@/lib/date-utils'
 import type { Todo } from '@/types/todo'
 import type { Routine, RoutineWithLog } from '@/types/routine'
 import type { TimeBlock } from '@/types/time-block'
@@ -278,7 +279,7 @@ function EmptyDateState({ onAddTodo }: { onAddTodo: () => void }) {
 // 패널 내 할일 아이템 컴포넌트
 function PanelTodoItem({ todo }: { todo: Todo }) {
   const tp = useTranslations('time.todos.priorities')
-  const today = new Date().toISOString().split('T')[0]
+  const today = getToday()
   const isOverdue =
     todo.status !== 'completed' &&
     todo.due_date !== null &&

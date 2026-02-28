@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { cn } from '@/lib/utils'
+import { getToday } from '@/lib/date-utils'
 import type { RelationshipType, RelationDecrypted, CreateRelationInput } from '@/types/relation'
 
 // 관계 유형 선택 버튼 스타일 정의
@@ -149,7 +150,7 @@ export function RelationForm({ relation, onSubmit, onCancel, isLoading = false }
           value={lastMetAt}
           onChange={(e) => setLastMetAt(e.target.value)}
           disabled={isLoading}
-          max={new Date().toISOString().split('T')[0]}
+          max={getToday()}
         />
         {errors.lastMetAt && (
           <p className="text-xs text-destructive">{errors.lastMetAt}</p>

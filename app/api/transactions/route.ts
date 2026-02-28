@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from 'next/server'
 import { apiError } from '@/lib/api-errors'
 import { createClient } from '@/lib/supabase/server'
 import { getToday, getMonthRange } from '@/lib/date-utils'
+import { getUserDefaultCurrency } from '@/lib/user-defaults'
 import type { CreateTransactionInput, Transaction } from '@/types/transaction'
 import type { Database } from '@/types/database.types'
 
@@ -20,8 +21,8 @@ type TransactionDbRow = Database['public']['Tables']['transactions']['Row'] & {
 // 쿼리 파라미터: month (YYYY-MM), type (income/expense), category_id, is_favorite (true)
 export async function GET(request: NextRequest) {
   const supabase = await createClient()
-  const { data: { session } } = await supabase.auth.getSession()
-  const userId = session?.user?.id
+  const { data: { user } } = await supabase.auth.getUser()
+  const userId = user?.id
   if (!userId) return apiError('AUTH_REQUIRED')
 
   const { searchParams } = new URL(request.url)
@@ -107,7 +108,7 @@ export async function POST(request: NextRequest) {
     memo: body.memo ?? null,
     date: body.date ?? getToday(),
     is_favorite: body.is_favorite ?? false,
-    currency: body.currency ?? 'KRW',
+    currency: body.currency ?? await getUserDefaultCurrency(supabase, userId),
   }
 
   const { data, error } = await supabase

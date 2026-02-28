@@ -51,17 +51,22 @@ export async function PATCH(
       return apiError('NOT_FOUND')
     }
 
-    // 금액 업데이트
+    // 금액 + 통화 업데이트
+    const updateData: Record<string, unknown> = {
+      amount: body.amount,
+      updated_at: new Date().toISOString(),
+    }
+    if (body.currency) {
+      updateData.currency = body.currency
+    }
+
     const { data: updated, error: updateError } = await supabase
       .from('budgets')
-      .update({
-        amount: body.amount,
-        updated_at: new Date().toISOString(),
-      })
+      .update(updateData)
       .eq('id', id)
       .eq('user_id', userId)
       .select(
-        'id, user_id, category_id, amount, year_month, created_at, updated_at, category:categories(id, name, name_key, icon, color, type, is_system, sort_order, created_at)'
+        'id, user_id, category_id, amount, year_month, currency, created_at, updated_at, category:categories(id, name, name_key, icon, color, type, is_system, sort_order, created_at)'
       )
       .maybeSingle()
 

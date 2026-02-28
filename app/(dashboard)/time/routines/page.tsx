@@ -29,6 +29,7 @@ import {
   useToggleRoutine,
 } from '@/hooks/use-routines'
 import { Plus } from 'lucide-react'
+import { getToday } from '@/lib/date-utils'
 import type { Routine, CreateRoutineInput, UpdateRoutineInput } from '@/types/routine'
 
 /**
@@ -47,7 +48,7 @@ function formatTodayLabel(locale: string): string {
  * 오늘 날짜 YYYY-MM-DD 반환
  */
 function getTodayString(): string {
-  return new Date().toISOString().split('T')[0]
+  return getToday()
 }
 
 /**

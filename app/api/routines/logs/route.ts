@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from 'next/server'
 import { apiError } from '@/lib/api-errors'
 import { createClient } from '@/lib/supabase/server'
+import { formatDateToString } from '@/lib/date-utils'
 
 /**
  * GET /api/routines/logs
@@ -10,8 +11,8 @@ import { createClient } from '@/lib/supabase/server'
 export async function GET(request: NextRequest) {
   try {
     const supabase = await createClient()
-    const { data: { session } } = await supabase.auth.getSession()
-    const userId = session?.user?.id
+    const { data: { user } } = await supabase.auth.getUser()
+    const userId = user?.id
     if (!userId) return apiError('AUTH_REQUIRED')
 
     const { searchParams } = new URL(request.url)
@@ -133,7 +134,7 @@ export async function POST(request: NextRequest) {
       const currentDate = new Date(date)
       const yesterdayDate = new Date(currentDate)
       yesterdayDate.setDate(currentDate.getDate() - 1)
-      const yesterdayString = yesterdayDate.toISOString().split('T')[0]
+      const yesterdayString = formatDateToString(yesterdayDate)
 
       // 어제 완료 여부 확인
       const { data: yesterdayLog } = await supabase

@@ -139,6 +139,16 @@
   - 바텀 네비 + 사이드바: AI인사이트·목표·투자 항목 제거 → 6개 (홈/시간/머니/건강/프라이빗/분석)
   - /goals, /insights → redirect('/reports'), /money/investments → redirect('/reports')
   - 사용자 가이드 ko/en 분석 섹션 신규 추가 (08 분석: 5개 기능 설명)
+- ✅ 완료: 사용자 피드백 기반 6가지 버그 수정 (2026-02-28)
+  - Bug 1: 캘린더 오늘 할일 미표시 — todos API getSession→getUser + getToday() 교체
+  - Bug 2: 통화 기본값 KRW 하드코딩 — useSettingsStore + getUserDefaultCurrency 헬퍼 적용
+  - Bug 3: 예산 수정 시 중복 — editingBudget이면 useUpdateBudget(PATCH) 사용
+  - Bug 4: 정기지출 일괄처리 중복 — GET select에 last_recorded_date 추가 (핵심 수정)
+  - Bug 5: 식사 검색 불가 — PostgREST aliases::text 캐스팅 제거
+  - Bug 6: 타임존 — 전체 toISOString().split('T')[0] → getToday()/formatDateToString() 교체
+  - 전체 getSession()→getUser() 마이그레이션 완료 (35개 API route, 0건 잔존)
+  - 통화 폴백 KRW 하드코딩 → getUserDefaultCurrency() 적용 (budgets/transactions/recurring POST)
+  - lib/user-defaults.ts 신규 생성 (사용자 기본 통화 조회 헬퍼)
 - ⏭️ 다음: 추가 기능 개발 (사용자 요청 기반)
 
 ## 중요 결정사항

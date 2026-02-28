@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { apiError } from '@/lib/api-errors'
+import { getToday } from '@/lib/date-utils'
 
 interface BatchRecordItem {
   id: string
@@ -15,16 +16,16 @@ export async function POST(request: Request) {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return apiError('AUTH_REQUIRED')
 
-  let body: { items: BatchRecordItem[] }
+  let body: { items: BatchRecordItem[]; localDate?: string }
   try {
-    body = await request.json() as { items: BatchRecordItem[] }
+    body = await request.json() as { items: BatchRecordItem[]; localDate?: string }
   } catch {
     return apiError('VALIDATION_ERROR')
   }
 
   if (!body.items?.length) return apiError('VALIDATION_ERROR')
 
-  const today = new Date().toISOString().split('T')[0]
+  const today = body.localDate ?? getToday()
 
   // 각 정기지출을 거래내역으로 생성
   const transactionInserts = body.items.map((item) => ({
@@ -47,9 +48,10 @@ export async function POST(request: Request) {
     user_id: user.id,
     last_recorded_date: today,
   }))
-  await supabase
+  const { error: upsertError } = await supabase
     .from('recurring_expenses')
     .upsert(recurringUpdates, { onConflict: 'id', ignoreDuplicates: false })
+  if (upsertError) return apiError('SERVER_ERROR')
 
   return NextResponse.json({ success: true, data: { recorded: body.items.length } })
 }

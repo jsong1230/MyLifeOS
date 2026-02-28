@@ -29,11 +29,12 @@ import {
   useDeleteTimeBlock,
 } from '@/hooks/use-time-blocks'
 import { useTodos } from '@/hooks/use-todos'
+import { getToday, formatDateToString } from '@/lib/date-utils'
 import type { TimeBlock, CreateTimeBlockInput, UpdateTimeBlockInput } from '@/types/time-block'
 
 // 오늘 날짜를 YYYY-MM-DD 형식으로 반환
 function getTodayString(): string {
-  return new Date().toISOString().split('T')[0]
+  return getToday()
 }
 
 // 날짜 문자열을 로케일에 맞게 변환
@@ -51,7 +52,7 @@ function formatDateLocale(dateStr: string, locale: string): string {
 function addDays(dateStr: string, days: number): string {
   const date = new Date(dateStr + 'T00:00:00')
   date.setDate(date.getDate() + days)
-  return date.toISOString().split('T')[0]
+  return formatDateToString(date)
 }
 
 // 타임블록 페이지

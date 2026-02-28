@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from 'next/server'
 import { apiError } from '@/lib/api-errors'
 import { createClient } from '@/lib/supabase/server'
+import { getUserDefaultCurrency } from '@/lib/user-defaults'
 import type { CreateBudgetInput, BudgetStatus } from '@/types/budget'
 
 /**
@@ -33,8 +34,8 @@ function getMonthRange(yearMonth: string): { start: string; end: string } | null
 export async function GET(request: NextRequest) {
   try {
     const supabase = await createClient()
-    const { data: { session } } = await supabase.auth.getSession()
-    const userId = session?.user?.id
+    const { data: { user } } = await supabase.auth.getUser()
+    const userId = user?.id
     if (!userId) return apiError('AUTH_REQUIRED')
 
     // month 파라미터 처리 (기본값: 현재 월)
@@ -206,7 +207,7 @@ export async function POST(request: NextRequest) {
           category_id: body.category_id ?? null,
           amount: body.amount,
           year_month: body.year_month,
-          currency: body.currency ?? 'KRW',
+          currency: body.currency ?? await getUserDefaultCurrency(supabase, userId),
           updated_at: new Date().toISOString(),
         },
         {

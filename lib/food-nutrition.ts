@@ -113,7 +113,7 @@ async function searchFoodsLocal(query: string, locale: string): Promise<FoodNutr
     const { data, error } = await supabase
       .from('foods')
       .select('*')
-      .or(`name.ilike.${q},name_en.ilike.${q},aliases::text.ilike.${q}`)
+      .or(`name.ilike.${q},name_en.ilike.${q}`)
       .limit(10)
 
     if (error || !data) return []

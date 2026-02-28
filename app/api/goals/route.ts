@@ -9,8 +9,8 @@ const VALID_CATEGORIES = ['general', 'health', 'financial', 'education', 'career
 // GET /api/goals?status=active → 목표 목록 (마일스톤 포함)
 export async function GET(request: NextRequest) {
   const supabase = await createClient()
-  const { data: { session } } = await supabase.auth.getSession()
-  const userId = session?.user?.id
+  const { data: { user } } = await supabase.auth.getUser()
+  const userId = user?.id
   if (!userId) return apiError('AUTH_REQUIRED')
 
   const { searchParams } = new URL(request.url)

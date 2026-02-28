@@ -1,6 +1,7 @@
 import Anthropic from '@anthropic-ai/sdk'
 import { createClient } from '@/lib/supabase/server'
 import { apiError } from '@/lib/api-errors'
+import { formatDateToString } from '@/lib/date-utils'
 import { NextResponse, type NextRequest } from 'next/server'
 
 export interface AiInsight {
@@ -20,13 +21,13 @@ export interface AiInsightsResponse {
 // GET /api/ai/insights — 저장된 최신 인사이트 조회
 export async function GET() {
   const supabase = await createClient()
-  const { data: { session } } = await supabase.auth.getSession()
-  if (!session) return apiError('AUTH_REQUIRED')
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return apiError('AUTH_REQUIRED')
 
   const { data, error } = await supabase
     .from('ai_insights')
     .select('insights, summary, locale, generated_at')
-    .eq('user_id', session.user.id)
+    .eq('user_id', user.id)
     .maybeSingle()
 
   if (error) return apiError('SERVER_ERROR')
@@ -59,7 +60,7 @@ export async function POST(request: NextRequest) {
   const now = new Date()
   const thirtyDaysAgo = new Date(now)
   thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
-  const fromDate = thirtyDaysAgo.toISOString().split('T')[0]
+  const fromDate = formatDateToString(thirtyDaysAgo)
 
   // 데이터 병렬 조회
   const [

@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { cn } from '@/lib/utils'
+import { getToday } from '@/lib/date-utils'
 import { FoodSearchCombobox } from '@/components/health/food-search-combobox'
 import type { MealLog, MealType, CreateMealInput } from '@/types/health'
 import type { FoodNutrition } from '@/types/food'
@@ -55,7 +56,7 @@ export function MealForm({ meal, onSubmit, onCancel, isLoading = false }: MealFo
   const [protein, setProtein] = useState(meal?.protein != null ? String(meal.protein) : '')
   const [carbs, setCarbs] = useState(meal?.carbs != null ? String(meal.carbs) : '')
   const [fat, setFat] = useState(meal?.fat != null ? String(meal.fat) : '')
-  const [date, setDate] = useState(meal?.date ?? new Date().toISOString().split('T')[0])
+  const [date, setDate] = useState(meal?.date ?? getToday())
   const [errors, setErrors] = useState<Record<string, string>>({})
 
   // 음식 DB 자동 계산 상태

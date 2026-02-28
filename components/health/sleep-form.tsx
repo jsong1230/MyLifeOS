@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { cn } from '@/lib/utils'
+import { getToday } from '@/lib/date-utils'
 import type { SleepLog, CreateSleepInput } from '@/types/health'
 
 // HH:MM → 분 변환
@@ -45,7 +46,7 @@ export function SleepForm({ sleep, onSubmit, onCancel, isLoading = false }: Slee
   const [timeStart, setTimeStart] = useState(sleep?.time_start ?? '23:00')
   const [timeEnd, setTimeEnd] = useState(sleep?.time_end ?? '07:00')
   const [quality, setQuality] = useState<number | ''>(sleep?.value2 ?? '')
-  const [date, setDate] = useState(sleep?.date ?? new Date().toISOString().split('T')[0])
+  const [date, setDate] = useState(sleep?.date ?? getToday())
   const [note, setNote] = useState(sleep?.note ?? '')
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [sleepPreview, setSleepPreview] = useState<string | null>(null)

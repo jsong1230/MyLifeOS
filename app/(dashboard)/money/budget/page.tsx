@@ -15,7 +15,7 @@ import {
 } from '@/components/ui/alert-dialog'
 import { BudgetList } from '@/components/money/budget-list'
 import { BudgetForm } from '@/components/money/budget-form'
-import { useBudgets, useUpsertBudget, useDeleteBudget } from '@/hooks/use-budgets'
+import { useBudgets, useUpsertBudget, useUpdateBudget, useDeleteBudget } from '@/hooks/use-budgets'
 import type { Budget, CreateBudgetInput } from '@/types/budget'
 
 /**
@@ -47,6 +47,7 @@ export default function BudgetPage() {
   // 데이터 훅
   const { data: budgets = [], isLoading } = useBudgets(month)
   const upsertMutation = useUpsertBudget()
+  const updateMutation = useUpdateBudget()
   const deleteMutation = useDeleteBudget()
 
   // 예산 추가 버튼 클릭
@@ -69,12 +70,26 @@ export default function BudgetPage() {
 
   // 예산 저장 (생성 or 수정)
   function handleFormSubmit(data: CreateBudgetInput) {
-    upsertMutation.mutate(data, {
-      onSuccess: () => {
-        setIsFormOpen(false)
-        setEditingBudget(undefined)
-      },
-    })
+    if (editingBudget) {
+      // 수정 시: PATCH /api/budgets/[id] 사용
+      updateMutation.mutate(
+        { id: editingBudget.id, input: { amount: data.amount, currency: data.currency } },
+        {
+          onSuccess: () => {
+            setIsFormOpen(false)
+            setEditingBudget(undefined)
+          },
+        }
+      )
+    } else {
+      // 추가 시: upsert 유지
+      upsertMutation.mutate(data, {
+        onSuccess: () => {
+          setIsFormOpen(false)
+          setEditingBudget(undefined)
+        },
+      })
+    }
   }
 
   // 예산 삭제 요청
@@ -128,7 +143,7 @@ export default function BudgetPage() {
             month={month}
             onSubmit={handleFormSubmit}
             onCancel={handleFormCancel}
-            isLoading={upsertMutation.isPending}
+            isLoading={upsertMutation.isPending || updateMutation.isPending}
           />
         </DialogContent>
       </Dialog>

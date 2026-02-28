@@ -8,8 +8,8 @@ import { convertCurrency, type CurrencyCode } from '@/lib/currency'
 // 최근 N개월 월별 수입/지출 합계 반환 (F-22 월별 지출 추이)
 export async function GET(request: NextRequest) {
   const supabase = await createClient()
-  const { data: { session } } = await supabase.auth.getSession()
-  const userId = session?.user?.id
+  const { data: { user } } = await supabase.auth.getUser()
+  const userId = user?.id
   if (!userId) return apiError('AUTH_REQUIRED')
 
   const { searchParams } = new URL(request.url)

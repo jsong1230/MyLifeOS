@@ -9,8 +9,8 @@ const VALID_TYPES: CategoryType[] = ['income', 'expense', 'both']
 // 쿼리 파라미터: type=expense|income|both (미지정 시 전체)
 export async function GET(request: NextRequest) {
   const supabase = await createClient()
-  const { data: { session } } = await supabase.auth.getSession()
-  const userId = session?.user?.id
+  const { data: { user } } = await supabase.auth.getUser()
+  const userId = user?.id
   if (!userId) return apiError('AUTH_REQUIRED')
 
   const { searchParams } = new URL(request.url)

@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from 'next/server'
 import { apiError } from '@/lib/api-errors'
 import { createClient } from '@/lib/supabase/server'
+import { formatDateToString } from '@/lib/date-utils'
 import type { CreateRoutineInput, RoutineWithLog } from '@/types/routine'
 
 /**
@@ -55,8 +56,8 @@ function isRoutineScheduledToday(
 export async function GET(request: NextRequest) {
   try {
     const supabase = await createClient()
-    const { data: { session } } = await supabase.auth.getSession()
-    const userId = session?.user?.id
+    const { data: { user } } = await supabase.auth.getUser()
+    const userId = user?.id
     if (!userId) return apiError('AUTH_REQUIRED')
 
     // date 파라미터 처리 (기본값: 오늘)
@@ -93,7 +94,7 @@ export async function GET(request: NextRequest) {
     }
 
     // YYYY-MM-DD 형식으로 변환
-    const dateString = targetDate.toISOString().split('T')[0]
+    const dateString = formatDateToString(targetDate)
 
     // 루틴 목록 조회 (N+1 방지: routine_logs 조인)
     const { data: routines, error: routinesError } = await supabase

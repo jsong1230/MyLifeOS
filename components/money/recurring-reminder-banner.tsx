@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl'
 import { useQueryClient } from '@tanstack/react-query'
 import { Button } from '@/components/ui/button'
 import { useRecurringUnrecorded } from '@/hooks/use-recurring-auto-record'
+import { getToday } from '@/lib/date-utils'
 import type { RecurringExpense } from '@/types/recurring'
 
 interface RecurringReminderBannerProps {
@@ -23,10 +24,11 @@ export function RecurringReminderBanner({ expenses }: RecurringReminderBannerPro
   async function handleBatchRecord() {
     setIsRecording(true)
     try {
-      await fetch('/api/recurring/batch-record', {
+      const res = await fetch('/api/recurring/batch-record', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          localDate: getToday(),
           items: unrecorded.map((e) => ({
             id: e.id,
             amount: e.amount,
@@ -36,6 +38,8 @@ export function RecurringReminderBanner({ expenses }: RecurringReminderBannerPro
           })),
         }),
       })
+      const json = await res.json()
+      if (!res.ok || !json.success) return  // Don't dismiss on failure
       await qc.invalidateQueries({ queryKey: ['transactions'] })
       await qc.invalidateQueries({ queryKey: ['recurring'] })
       setDismissed(true)

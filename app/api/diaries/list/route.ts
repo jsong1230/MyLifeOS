@@ -13,8 +13,8 @@ interface DiaryListItem {
 // GET /api/diaries/list?year=YYYY&month=MM — 월별 일기 목록 (감정 캘린더용)
 export async function GET(request: NextRequest) {
   const supabase = await createClient()
-  const { data: { session } } = await supabase.auth.getSession()
-  const userId = session?.user?.id
+  const { data: { user } } = await supabase.auth.getUser()
+  const userId = user?.id
   if (!userId) return apiError('AUTH_REQUIRED')
 
   const { searchParams } = new URL(request.url)

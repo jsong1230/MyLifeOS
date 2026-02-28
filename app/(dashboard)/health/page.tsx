@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { useTranslations, useLocale } from 'next-intl'
 import { cn } from '@/lib/utils'
+import { getToday, formatDateToString } from '@/lib/date-utils'
 import { useMeals } from '@/hooks/use-meals'
 import { useDrinks } from '@/hooks/use-drinks'
 import { useSleep } from '@/hooks/use-sleep'
@@ -13,7 +14,7 @@ import { SleepWeeklyCard } from '@/components/health/sleep-weekly-card'
 
 // 오늘 날짜를 YYYY-MM-DD 형식으로 반환
 function getTodayString(): string {
-  return new Date().toISOString().split('T')[0]
+  return getToday()
 }
 
 // 주 시작일(월요일) 계산 — 일요일(0)인 경우 -6일, 나머지는 1 - 요일값
@@ -22,7 +23,7 @@ function getWeekStart(date: Date = new Date()): string {
   const day = d.getDay() // 0=일
   const diff = day === 0 ? -6 : 1 - day // 월요일 기준
   d.setDate(d.getDate() + diff)
-  return d.toISOString().split('T')[0]
+  return formatDateToString(d)
 }
 
 // 주간 레이블 포맷 (locale 기반)

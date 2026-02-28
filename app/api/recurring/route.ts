@@ -1,18 +1,19 @@
 import { NextResponse, type NextRequest } from 'next/server'
 import { apiError } from '@/lib/api-errors'
 import { createClient } from '@/lib/supabase/server'
+import { getUserDefaultCurrency } from '@/lib/user-defaults'
 import type { CreateRecurringInput, RecurringExpense } from '@/types/recurring'
 
 // GET /api/recurring — 정기 지출 목록 조회 (활성 항목 우선 정렬)
 export async function GET(request: NextRequest) {
   const supabase = await createClient()
-  const { data: { session } } = await supabase.auth.getSession()
-  const userId = session?.user?.id
+  const { data: { user } } = await supabase.auth.getUser()
+  const userId = user?.id
   if (!userId) return apiError('AUTH_REQUIRED')
 
   const { data, error } = await supabase
     .from('recurring_expenses')
-    .select('id, user_id, name, amount, billing_day, cycle, category_id, is_active, currency, created_at, updated_at')
+    .select('id, user_id, name, amount, billing_day, cycle, category_id, is_active, currency, last_recorded_date, created_at, updated_at')
     .eq('user_id', userId)
     .order('is_active', { ascending: false })
     .order('billing_day', { ascending: true })
@@ -75,7 +76,7 @@ export async function POST(request: NextRequest) {
     cycle: body.cycle,
     category_id: body.category_id ?? null,
     is_active: true,
-    currency: body.currency ?? 'KRW',
+    currency: body.currency ?? await getUserDefaultCurrency(supabase, userId),
   }
 
   const { data, error } = await supabase

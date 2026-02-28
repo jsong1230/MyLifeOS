@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from 'next/server'
 import { apiError } from '@/lib/api-errors'
 import { createClient } from '@/lib/supabase/server'
+import { getToday, formatDateToString } from '@/lib/date-utils'
 import type { WeeklyReport } from '@/types/report'
 
 // YYYY-MM-DD 날짜 형식 정규식
@@ -13,14 +14,14 @@ function getWeekStart(dateStr: string): string {
   const diff = day === 0 ? -6 : 1 - day
   const monday = new Date(date)
   monday.setUTCDate(date.getUTCDate() + diff)
-  return monday.toISOString().split('T')[0]
+  return formatDateToString(monday)
 }
 
 // 주 시작일(월요일)에서 6일 후 주 종료일(일요일) 반환
 function getWeekEnd(weekStart: string): string {
   const date = new Date(weekStart)
   date.setUTCDate(date.getUTCDate() + 6)
-  return date.toISOString().split('T')[0]
+  return formatDateToString(date)
 }
 
 // 소수점 첫째 자리 반올림 유틸
@@ -32,8 +33,8 @@ function round1(n: number): number {
 // week 파라미터: 주 시작 월요일 날짜. 생략 시 이번 주 월요일.
 export async function GET(request: NextRequest) {
   const supabase = await createClient()
-  const { data: { session } } = await supabase.auth.getSession()
-  const userId = session?.user?.id
+  const { data: { user } } = await supabase.auth.getUser()
+  const userId = user?.id
   if (!userId) return apiError('AUTH_REQUIRED')
 
   const { searchParams } = new URL(request.url)
@@ -45,7 +46,7 @@ export async function GET(request: NextRequest) {
   }
 
   // 주 시작일 결정 — 전달된 week 파라미터를 기준으로 월요일 계산
-  const today = new Date().toISOString().split('T')[0]
+  const today = getToday()
   const weekStart = getWeekStart(weekParam ?? today)
   const weekEnd = getWeekEnd(weekStart)
 
