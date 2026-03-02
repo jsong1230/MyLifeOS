@@ -22,7 +22,8 @@ export async function POST() {
   })
 
   // 3. 자식 테이블 먼저 삭제 (FK 의존 순서)
-  const childTables = ['routine_logs', 'goal_milestones', 'investment_transactions'] as const
+  // goal_milestones는 user_id 없음 → goals ON DELETE CASCADE로 자동 삭제
+  const childTables = ['routine_logs', 'investment_transactions'] as const
   const childResults = await Promise.all(
     childTables.map((table) => adminClient.from(table).delete().eq('user_id', user.id))
   )

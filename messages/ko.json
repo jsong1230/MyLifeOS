@@ -1165,6 +1165,7 @@
     "deleteAccountConfirm": "정말로 탈퇴하시겠습니까?",
     "deleteAccountRequested": "탈퇴 요청이 접수되었습니다.",
     "deleteAccountFailed": "탈퇴 처리 중 오류가 발생했습니다. 다시 시도해주세요.",
+    "deleting": "처리 중...",
     "userGuideTitle": "사용자 가이드",
     "userGuideDescription": "앱 사용 방법 및 자주 묻는 질문",
     "userGuideLink": "사용자 가이드 열기 →"

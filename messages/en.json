@@ -1165,6 +1165,7 @@
     "deleteAccountConfirm": "Are you sure you want to permanently delete your account?",
     "deleteAccountRequested": "Your deletion request has been submitted.",
     "deleteAccountFailed": "An error occurred while deleting your account. Please try again.",
+    "deleting": "Processing...",
     "userGuideTitle": "User Guide",
     "userGuideDescription": "App usage guide and FAQ",
     "userGuideLink": "Open User Guide →"

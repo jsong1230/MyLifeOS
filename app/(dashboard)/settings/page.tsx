@@ -56,6 +56,7 @@ export default function SettingsPage() {
   const [view, setView] = useState<SettingsView>('main')
   const [successMessage, setSuccessMessage] = useState('')
   const [pinSet, setPinSet] = useState<boolean | null>(null)
+  const [isDeletingAccount, setIsDeletingAccount] = useState(false)
 
   const { data: settings } = useSettings()
   const { mutate: updateSettings, isPending } = useUpdateSettings()
@@ -110,16 +111,22 @@ export default function SettingsPage() {
   }
 
   async function handleDeleteAccount() {
-    const res = await fetch('/api/users/delete-request', { method: 'POST' })
-    if (res.ok) {
-      // 계정 삭제 완료 → 세션 정리 후 로그인 페이지로 이동
-      const supabase = createClient()
-      await supabase.auth.signOut()
-      reset()
-      resetPin()
-      router.push('/login')
-    } else {
+    setIsDeletingAccount(true)
+    try {
+      const res = await fetch('/api/users/delete-request', { method: 'POST' })
+      if (res.ok) {
+        const supabase = createClient()
+        await supabase.auth.signOut()
+        reset()
+        resetPin()
+        router.push('/login')
+      } else {
+        setSuccessMessage(t('deleteAccountFailed'))
+        setIsDeletingAccount(false)
+      }
+    } catch {
       setSuccessMessage(t('deleteAccountFailed'))
+      setIsDeletingAccount(false)
     }
   }
 
@@ -371,8 +378,8 @@ export default function SettingsPage() {
                 </AlertDialogHeader>
                 <AlertDialogFooter>
                   <AlertDialogCancel>{tCommon('cancel')}</AlertDialogCancel>
-                  <AlertDialogAction onClick={handleDeleteAccount} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-                    {t('deleteAccount')}
+                  <AlertDialogAction onClick={handleDeleteAccount} disabled={isDeletingAccount} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                    {isDeletingAccount ? t('deleting') : t('deleteAccount')}
                   </AlertDialogAction>
                 </AlertDialogFooter>
               </AlertDialogContent>
