@@ -21,12 +21,12 @@ export async function POST() {
     auth: { autoRefreshToken: false, persistSession: false },
   })
 
-  // 3. routine_logs 먼저 삭제 (routines FK 의존)
-  const { error: routineLogsError } = await adminClient
-    .from('routine_logs')
-    .delete()
-    .eq('user_id', user.id)
-  if (routineLogsError) return apiError('SERVER_ERROR')
+  // 3. 자식 테이블 먼저 삭제 (FK 의존 순서)
+  const childTables = ['routine_logs', 'goal_milestones', 'investment_transactions'] as const
+  const childResults = await Promise.all(
+    childTables.map((table) => adminClient.from(table).delete().eq('user_id', user.id))
+  )
+  if (childResults.some((r) => r.error)) return apiError('SERVER_ERROR')
 
   // 4. 나머지 연관 테이블 데이터 병렬 삭제
   const userTables = [
@@ -46,6 +46,11 @@ export async function POST() {
     'diet_goals',
     'diaries',
     'relations',
+    'goals',
+    'investments',
+    'ai_insights',
+    'push_subscriptions',
+    'notification_settings',
     'user_settings',
   ] as const
 
