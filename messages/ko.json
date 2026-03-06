@@ -1323,5 +1323,18 @@
     "break_time": "휴식 시간",
     "minutes": "분",
     "done": "완료!"
+  },
+  "moneyStats": {
+    "title": "지출 분석",
+    "heatmap": "카테고리 히트맵",
+    "patterns": "소비 패턴",
+    "by_weekday": "요일별 평균 지출",
+    "top_categories": "지출 TOP 5",
+    "monthly_comparison": "전월 대비",
+    "months": ["1월","2월","3월","4월","5월","6월","7월","8월","9월","10월","11월","12월"],
+    "weekdays": ["월","화","수","목","금","토","일"],
+    "increase": "증가",
+    "decrease": "감소",
+    "no_data": "데이터가 없습니다"
   }
 }
