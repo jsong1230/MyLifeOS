@@ -175,3 +175,17 @@ export interface UpdateExerciseInput {
   date?: string
   note?: string | null
 }
+
+// ─── 수분 섭취 (water_logs) ────────────────────────────────────
+export interface WaterLog {
+  id: string
+  user_id: string
+  amount_ml: number
+  date: string
+  created_at: string
+}
+
+export interface CreateWaterInput {
+  amount_ml: number
+  date?: string
+}

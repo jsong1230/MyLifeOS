@@ -907,6 +907,17 @@
       "title": "식단 목표 설정",
       "description": "일일 칼로리 및 영양소 목표를 설정합니다",
       "saveError": "목표 저장에 실패했습니다"
+    },
+    "water": {
+      "title": "수분 섭취",
+      "daily_goal": "일일 목표",
+      "total_today": "오늘 섭취",
+      "add": "추가",
+      "quick_add": "빠른 추가",
+      "goal_reached": "목표 달성!",
+      "ml": "ml",
+      "no_records": "오늘 수분 기록이 없습니다",
+      "today_label": "오늘"
     }
   },
   "private": {

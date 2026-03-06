@@ -8,6 +8,7 @@ import { useMeals } from '@/hooks/use-meals'
 import { useDrinks } from '@/hooks/use-drinks'
 import { useSleep } from '@/hooks/use-sleep'
 import { useDietGoal } from '@/hooks/use-diet-goal'
+import { useWater } from '@/hooks/use-water'
 import { CalorieCard } from '@/components/health/calorie-card'
 import { DrinkWeeklyCard } from '@/components/health/drink-weekly-card'
 import { SleepWeeklyCard } from '@/components/health/sleep-weekly-card'
@@ -60,6 +61,50 @@ function CardSkeleton() {
   )
 }
 
+// 오늘 수분 섭취 요약 카드
+function WaterSummaryCard({ totalMl, goalMl }: { totalMl: number; goalMl: number }) {
+  const t = useTranslations('health.water')
+  const progressPct = Math.min(100, Math.round((totalMl / goalMl) * 100))
+  const goalReached = totalMl >= goalMl
+
+  return (
+    <div className="bg-card border rounded-xl p-6 shadow-sm space-y-4">
+      <div className="space-y-1">
+        <p className="text-base font-semibold flex items-center gap-2">
+          <span className="text-lg">💧</span>
+          {t('title')}
+        </p>
+        <p className="text-sm text-muted-foreground">
+          {t('total_today')}
+        </p>
+      </div>
+      <div className="flex items-baseline gap-1">
+        <span className={cn('text-3xl font-bold', goalReached && 'text-blue-500')}>
+          {totalMl.toLocaleString()}
+        </span>
+        <span className="text-sm text-muted-foreground">
+          / {goalMl.toLocaleString()}{t('ml')}
+        </span>
+      </div>
+      <div className="h-2 w-full bg-muted rounded-full overflow-hidden">
+        <div
+          className={cn(
+            'h-full rounded-full transition-all',
+            goalReached ? 'bg-blue-500' : 'bg-blue-400'
+          )}
+          style={{ width: `${progressPct}%` }}
+          role="progressbar"
+          aria-valuenow={totalMl}
+          aria-valuemax={goalMl}
+        />
+      </div>
+      {goalReached && (
+        <p className="text-xs font-medium text-blue-500">{t('goal_reached')}</p>
+      )}
+    </div>
+  )
+}
+
 // 바로가기 링크 컴포넌트
 function DetailLink({ href, label }: { href: string; label: string }) {
   const t = useTranslations()
@@ -84,11 +129,12 @@ export default function HealthPage() {
   const weekStart = getWeekStart()
   const weekLabel = formatWeekLabel(weekStart, locale)
 
-  // 네 가지 쿼리를 병렬 조회
+  // 다섯 가지 쿼리를 병렬 조회
   const mealsQuery = useMeals(today)
   const drinksQuery = useDrinks(weekStart)
   const sleepQuery = useSleep(weekStart)
   const dietGoalQuery = useDietGoal()
+  const waterQuery = useWater(today)
 
   // 음주 기록에서 잔 수 합산 (WHO 기준 경고용)
   const totalDrinkCount =
@@ -173,6 +219,19 @@ export default function HealthPage() {
             />
           )}
           <DetailLink href="/health/sleep" label={t('health.sleep.title')} />
+        </div>
+
+        {/* AC-04: 오늘 수분 섭취 카드 */}
+        <div className="flex flex-col">
+          {waterQuery.isLoading ? (
+            <CardSkeleton />
+          ) : (
+            <WaterSummaryCard
+              totalMl={waterQuery.data?.total_ml ?? 0}
+              goalMl={2000}
+            />
+          )}
+          <DetailLink href="/health/water" label={t('health.water.title')} />
         </div>
       </div>
     </div>
