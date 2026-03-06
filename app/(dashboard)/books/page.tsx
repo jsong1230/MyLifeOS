@@ -13,14 +13,14 @@ import { BookList } from '@/components/books/book-list'
 import { BookForm } from '@/components/books/book-form'
 import { Plus } from 'lucide-react'
 import { useCreateBook } from '@/hooks/use-books'
-import type { CreateBookInput } from '@/types/book'
+import type { CreateBookInput, UpdateBookInput } from '@/types/book'
 
 export default function BooksPage() {
   const t = useTranslations('books')
   const [isFormOpen, setIsFormOpen] = useState(false)
   const createMutation = useCreateBook()
 
-  function handleCreateSubmit(data: CreateBookInput) {
+  function handleCreateSubmit(data: CreateBookInput | UpdateBookInput) {
     createMutation.mutate(data as CreateBookInput, {
       onSuccess: () => setIsFormOpen(false),
     })
