@@ -112,7 +112,11 @@
   - 한식 DB 345개 Supabase foods 테이블 이전 (로컬 배열 → ilike 쿼리)
   - 초기 스키마 마이그레이션 000_initial_schema.sql (19테이블, 32인덱스, RLS)
   - types/database.types.ts 수동 작성 + gen:types 스크립트 추가
-- ⏸️ 보류: H-02 Web Crypto API 암호화 마이그레이션 (기존 데이터 재암호화 필요 — 별도 논의 후 진행)
+- ✅ 완료: H-02 Web Crypto API 암호화 마이그레이션 (2026-03-05)
+  - lib/crypto/encryption.ts 비동기 Web Crypto AES-GCM 전환, v2 포맷 lazy migration
+  - 신규 암호문: `v2:<base64(12-byte IV + ciphertext + auth tag)>`, 레거시 복호화 병행 지원
+  - sessionStorage: enc_key (base64), enc_key_legacy (hex) 분리 보관
+  - 테스트: 151개 전체 PASS
 - ✅ 완료: F-34 장기 목표 관리 (2026-02-27, commit 98691ee)
   - goals + goal_milestones 테이블, CRUD API 6개, React Query 훅 8개
   - GoalCard/GoalForm/GoalProgressBar/MilestoneList 컴포넌트
@@ -149,6 +153,13 @@
   - 전체 getSession()→getUser() 마이그레이션 완료 (35개 API route, 0건 잔존)
   - 통화 폴백 KRW 하드코딩 → getUserDefaultCurrency() 적용 (budgets/transactions/recurring POST)
   - lib/user-defaults.ts 신규 생성 (사용자 기본 통화 조회 헬퍼)
+- ✅ 완료: Phase 7 신규 기능 8개 (F-38~F-45, 2026-03-06)
+  - F-38 수분 섭취 트래킹, F-39 포모도로 타이머, F-40 퀵 메모
+  - F-41 약 복용 기록, F-42 독서 기록, F-43 가계부 통계 강화
+  - F-44 체크인 스트릭 대시보드, F-45 장보기 목록
+  - migration 023~028 원격 push 완료 (2026-03-06)
+  - foods 테이블 345건 시딩 확인 완료
+  - improvement-backlog.md 25개 항목 전체 완료
 - ⏭️ 다음: 추가 기능 개발 (사용자 요청 기반)
 
 ## 중요 결정사항
@@ -170,6 +181,7 @@
 - [x] 012_deletion_request.sql — users.deletion_requested_at 컬럼 (CLI push 완료)
 - [x] 013_recurring_last_recorded.sql — recurring_expenses.last_recorded_date 컬럼 (CLI push 완료)
 - [x] 20260227000015_foods_table.sql — foods 테이블 + 시딩 완료 (CLI push 2026-02-28)
+- [x] migration 023~028 (F-38~F-45) — CLI push 완료 (2026-03-06)
 
 ## 프로젝트 관리
 - 방식: file

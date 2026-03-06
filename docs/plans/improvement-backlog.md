@@ -12,9 +12,10 @@
 |--------|------|------|------|
 | Critical | 1 | 1 | 0 |
 | High | 12 | 12 | 0 |
-| Medium | 8 | 7 | 1 |
+
+| Medium | 8 | 8 | 0 |
 | Low | 3 | 3 | 0 |
-| **합계** | **25** | **23** | **1** (H-02) |
+| **합계** | **25** | **25** | **0** |
 
 ---
 
@@ -32,11 +33,12 @@
 - **완료:** deleteUser 전 17개 테이블 Promise.all 병렬 삭제, signOut() 세션 무효화 추가
 - **커밋:** cc349a1 (2026-02-27)
 
-### ⏸️ H-02. crypto-js PBKDF2 — Web Crypto API 전환 권장
-- **파일:** `lib/crypto/encryption.ts:11`
-- **문제:** 순수 JS 구현으로 메인 스레드 블로킹, 타이밍 공격 취약
-- **보류 사유:** 기존 암호화 데이터(일기, 관계 메모) 전체 재암호화 필요 — 데이터 손실 위험으로 별도 마이그레이션 계획 수립 후 진행
-- **개선:** `window.crypto.subtle.deriveKey()` (PBKDF2) + `window.crypto.subtle.encrypt()` (AES-GCM, random IV)
+### ✅ H-02. crypto-js PBKDF2 — Web Crypto API 전환
+- **완료:** `lib/crypto/encryption.ts` 비동기 Web Crypto AES-GCM 전환 (v2 포맷), lazy migration 방식
+  - 신규 암호문: `v2:<base64(12-byte IV + ciphertext + auth tag)>`
+  - 기존 데이터: 레거시 키로 복호화 → 자동으로 v2로 업마이그레이션
+  - sessionStorage: `enc_key` (base64, Web Crypto), `enc_key_legacy` (hex, crypto-js)
+- **커밋:** H-02 암호화 마이그레이션 (2026-03-05)
 
 ### ✅ H-03. calendar-view.tsx — todosByDate O(42n) 반복 filter
 - **완료:** useMemo + Map<string, Todo[]> 사전 구축으로 O(n+42) 개선
@@ -139,13 +141,4 @@
 
 ## 남은 작업
 
-### ⏸️ H-02: Web Crypto API 암호화 마이그레이션
-기존 crypto-js AES-256 → window.crypto.subtle AES-GCM 전환.
-**사전 조건:** 기존 암호화 데이터 재암호화 마이그레이션 전략 수립 필요.
-진행 시 별도 계획 문서 작성 후 사용자 확인 받고 진행.
-
-### 📋 foods 테이블 Supabase 적용
-```bash
-supabase db push  # 또는 Dashboard SQL Editor에서 실행
-psql $DATABASE_URL < supabase/seeds/foods.sql
-```
+**없음 — 25개 항목 전체 완료** ✅
