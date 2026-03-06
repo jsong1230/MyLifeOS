@@ -1368,6 +1368,21 @@
     "started_at": "시작일",
     "completed_at": "완독일"
   },
+  "streaks": {
+    "title": "스트릭 대시보드",
+    "current_streak": "현재 스트릭",
+    "longest_streak": "최장 기록",
+    "days": "일",
+    "no_streak": "아직 스트릭 없음",
+    "heatmap_title": "활동 히트맵",
+    "heatmap_todos": "할일",
+    "heatmap_routines": "루틴",
+    "achievements": "성취 배지",
+    "badge_7": "7일 연속",
+    "badge_30": "30일 연속",
+    "badge_100": "100일 연속",
+    "empty": "루틴을 등록하면 스트릭이 시작됩니다"
+  },
   "moneyStats": {
     "title": "지출 분석",
     "heatmap": "카테고리 히트맵",

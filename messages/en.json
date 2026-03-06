@@ -1368,6 +1368,21 @@
     "started_at": "Started",
     "completed_at": "Completed"
   },
+  "streaks": {
+    "title": "Streak Dashboard",
+    "current_streak": "Current Streak",
+    "longest_streak": "Longest Streak",
+    "days": "days",
+    "no_streak": "No streak yet",
+    "heatmap_title": "Activity Heatmap",
+    "heatmap_todos": "Todos",
+    "heatmap_routines": "Routines",
+    "achievements": "Achievements",
+    "badge_7": "7-Day Streak",
+    "badge_30": "30-Day Streak",
+    "badge_100": "100-Day Streak",
+    "empty": "Add routines to start your streak"
+  },
   "moneyStats": {
     "title": "Spending Analysis",
     "heatmap": "Category Heatmap",

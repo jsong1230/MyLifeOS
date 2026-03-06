@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import Link from 'next/link'
-import { Plus, Timer } from 'lucide-react'
+import { Plus, Timer, Flame } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import {
@@ -33,6 +33,7 @@ import {
   useReorderTodos,
 } from '@/hooks/use-todos'
 import { usePomodoroCompletedCount } from '@/hooks/use-pomodoro'
+import { useStreaks } from '@/hooks/use-streaks'
 import type { Todo, CreateTodoInput, UpdateTodoInput, ReorderTodoInput } from '@/types/todo'
 
 // 할일 관리 페이지
@@ -41,9 +42,12 @@ export default function TimePage() {
   const t = useTranslations('time.todos')
   const tc = useTranslations('common')
   const tp = useTranslations('pomodoro')
+  const ts = useTranslations('streaks')
 
   // 오늘 완료된 포모도로 세션 수
   const { data: pomodoroCount = 0 } = usePomodoroCompletedCount()
+  // 스트릭 데이터
+  const { data: streaksData } = useStreaks()
 
   // 폼 다이얼로그 상태
   const [isFormOpen, setIsFormOpen] = useState(false)
@@ -156,6 +160,28 @@ export default function TimePage() {
           {tc('add')}
         </Button>
       </div>
+
+      {/* 스트릭 요약 카드 */}
+      <Link href="/time/streaks" className="block mb-3">
+        <Card className="hover:bg-muted/50 transition-colors cursor-pointer">
+          <CardContent className="flex items-center justify-between py-3 px-4">
+            <div className="flex items-center gap-2">
+              <Flame className="size-4 text-orange-500" />
+              <span className="text-sm font-medium">{ts('title')}</span>
+            </div>
+            <div className="flex items-center gap-1 text-sm text-muted-foreground">
+              {(streaksData?.total_current_streak ?? 0) > 0 ? (
+                <>
+                  <span>🔥</span>
+                  <span>{streaksData!.total_current_streak} {ts('days')}</span>
+                </>
+              ) : (
+                <span>{ts('no_streak')}</span>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      </Link>
 
       {/* 포모도로 타이머 카드 */}
       <Link href="/time/pomodoro" className="block mb-4">
