@@ -1323,5 +1323,24 @@
     "break_time": "Break Time",
     "minutes": "min",
     "done": "Done!"
+  },
+  "medications": {
+    "title": "Medication Tracker",
+    "add": "Add Medication",
+    "edit": "Edit",
+    "delete": "Delete",
+    "deactivate": "Deactivate",
+    "name": "Medication Name",
+    "dosage": "Dosage",
+    "frequency": "Frequency",
+    "times": "Dosage Times",
+    "add_time": "Add Time",
+    "frequency_daily": "Daily",
+    "frequency_weekly": "Weekly",
+    "frequency_as_needed": "As Needed",
+    "taken": "Taken",
+    "not_taken": "Not Taken",
+    "today_summary": "Today's Progress",
+    "empty": "No medications added"
   }
 }
