@@ -1069,7 +1069,29 @@
       },
       "relations": {
         "description": "인물 정보 및 메모 관리"
+      },
+      "memos": {
+        "description": "암호화된 퀵 메모 작성·관리"
       }
+    },
+    "memos": {
+      "title": "퀵 메모",
+      "new_memo": "새 메모",
+      "edit": "수정",
+      "delete": "삭제",
+      "pin": "고정",
+      "unpin": "고정 해제",
+      "color": "색상",
+      "placeholder": "메모를 입력하세요...",
+      "empty": "메모가 없습니다",
+      "pin_required": "PIN 인증이 필요합니다",
+      "pinned": "고정됨",
+      "save": "저장",
+      "cancel": "취소",
+      "close": "닫기",
+      "saving": "저장 중...",
+      "deleteConfirm": "이 메모를 삭제하시겠습니까? 복구할 수 없습니다.",
+      "more": "더 보기"
     }
   },
   "reports": {

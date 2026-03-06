@@ -1069,7 +1069,29 @@
       },
       "relations": {
         "description": "Manage person info and notes"
+      },
+      "memos": {
+        "description": "Write and manage encrypted quick memos"
       }
+    },
+    "memos": {
+      "title": "Quick Memos",
+      "new_memo": "New Memo",
+      "edit": "Edit",
+      "delete": "Delete",
+      "pin": "Pin",
+      "unpin": "Unpin",
+      "color": "Color",
+      "placeholder": "Enter your memo...",
+      "empty": "No memos yet",
+      "pin_required": "PIN authentication required",
+      "pinned": "Pinned",
+      "save": "Save",
+      "cancel": "Cancel",
+      "close": "Close",
+      "saving": "Saving...",
+      "deleteConfirm": "Delete this memo? This cannot be undone.",
+      "more": "More"
     }
   },
   "reports": {
