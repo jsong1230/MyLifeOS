@@ -3,8 +3,10 @@
 import { useState, useEffect } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { useTranslations } from 'next-intl'
-import { Plus } from 'lucide-react'
+import Link from 'next/link'
+import { Plus, Timer } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { Card, CardContent } from '@/components/ui/card'
 import {
   Dialog,
   DialogContent,
@@ -30,6 +32,7 @@ import {
   useDeleteTodo,
   useReorderTodos,
 } from '@/hooks/use-todos'
+import { usePomodoroCompletedCount } from '@/hooks/use-pomodoro'
 import type { Todo, CreateTodoInput, UpdateTodoInput, ReorderTodoInput } from '@/types/todo'
 
 // 할일 관리 페이지
@@ -37,6 +40,11 @@ export default function TimePage() {
   const searchParams = useSearchParams()
   const t = useTranslations('time.todos')
   const tc = useTranslations('common')
+  const tp = useTranslations('pomodoro')
+
+  // 오늘 완료된 포모도로 세션 수
+  const { data: pomodoroCount = 0 } = usePomodoroCompletedCount()
+
   // 폼 다이얼로그 상태
   const [isFormOpen, setIsFormOpen] = useState(false)
   // 수정 중인 할일
@@ -148,6 +156,22 @@ export default function TimePage() {
           {tc('add')}
         </Button>
       </div>
+
+      {/* 포모도로 타이머 카드 */}
+      <Link href="/time/pomodoro" className="block mb-4">
+        <Card className="hover:bg-muted/50 transition-colors cursor-pointer">
+          <CardContent className="flex items-center justify-between py-3 px-4">
+            <div className="flex items-center gap-2">
+              <Timer className="size-4 text-primary" />
+              <span className="text-sm font-medium">{tp('title')}</span>
+            </div>
+            <div className="flex items-center gap-1 text-sm text-muted-foreground">
+              <span>🍅</span>
+              <span>{pomodoroCount} {tp('sessions')}</span>
+            </div>
+          </CardContent>
+        </Card>
+      </Link>
 
       {/* 로딩 상태 */}
       {isLoading && (

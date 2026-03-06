@@ -1276,5 +1276,19 @@
       "warning": "Warning",
       "suggestion": "Suggestion"
     }
+  },
+  "pomodoro": {
+    "title": "Pomodoro Timer",
+    "focus": "Focus",
+    "break": "Break",
+    "start": "Start",
+    "pause": "Pause",
+    "reset": "Reset",
+    "completed_today": "Today's Sessions",
+    "sessions": "sessions",
+    "focus_time": "Focus Time",
+    "break_time": "Break Time",
+    "minutes": "min",
+    "done": "Done!"
   }
 }

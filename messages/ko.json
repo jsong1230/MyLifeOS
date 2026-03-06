@@ -1276,5 +1276,19 @@
       "warning": "주의",
       "suggestion": "제안"
     }
+  },
+  "pomodoro": {
+    "title": "포모도로 타이머",
+    "focus": "집중",
+    "break": "휴식",
+    "start": "시작",
+    "pause": "일시정지",
+    "reset": "리셋",
+    "completed_today": "오늘 완료",
+    "sessions": "세션",
+    "focus_time": "집중 시간",
+    "break_time": "휴식 시간",
+    "minutes": "분",
+    "done": "완료!"
   }
 }
