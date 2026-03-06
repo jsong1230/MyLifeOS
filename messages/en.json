@@ -1380,5 +1380,29 @@
     "increase": "increase",
     "decrease": "decrease",
     "no_data": "No data available"
+  },
+  "shopping": {
+    "title": "Shopping List",
+    "new_list": "New List",
+    "list_name": "List Name",
+    "budget": "Budget",
+    "add_item": "Add Item",
+    "item_name": "Item Name",
+    "quantity": "Qty",
+    "unit": "Unit",
+    "estimated_price": "Est. Price",
+    "actual_price": "Actual Price",
+    "category": "Category",
+    "complete": "Complete",
+    "delete": "Delete",
+    "total_estimated": "Estimated Total",
+    "total_actual": "Actual Total",
+    "progress": "Progress",
+    "completed": "Completed",
+    "empty_lists": "No shopping lists yet",
+    "empty_items": "Add items to your list",
+    "budget_over": "Over Budget",
+    "active_lists": "Active Lists",
+    "go_to_shopping": "View Shopping Lists"
   }
 }
