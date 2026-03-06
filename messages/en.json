@@ -907,6 +907,17 @@
       "title": "Set Diet Goal",
       "description": "Set your daily calorie and nutrient goals",
       "saveError": "Failed to save goal"
+    },
+    "water": {
+      "title": "Water Intake",
+      "daily_goal": "Daily Goal",
+      "total_today": "Today's Intake",
+      "add": "Add",
+      "quick_add": "Quick Add",
+      "goal_reached": "Goal Reached!",
+      "ml": "ml",
+      "no_records": "No water intake records today",
+      "today_label": "Today"
     }
   },
   "private": {
