@@ -1395,5 +1395,29 @@
     "increase": "증가",
     "decrease": "감소",
     "no_data": "데이터가 없습니다"
+  },
+  "shopping": {
+    "title": "장보기 목록",
+    "new_list": "새 목록",
+    "list_name": "목록 이름",
+    "budget": "예산",
+    "add_item": "아이템 추가",
+    "item_name": "상품명",
+    "quantity": "수량",
+    "unit": "단위",
+    "estimated_price": "예상 가격",
+    "actual_price": "실제 가격",
+    "category": "카테고리",
+    "complete": "완료",
+    "delete": "삭제",
+    "total_estimated": "예상 합계",
+    "total_actual": "실제 합계",
+    "progress": "진행률",
+    "completed": "완료됨",
+    "empty_lists": "장보기 목록이 없습니다",
+    "empty_items": "아이템을 추가하세요",
+    "budget_over": "예산 초과",
+    "active_lists": "진행 중인 목록",
+    "go_to_shopping": "장보기 목록 보기"
   }
 }
