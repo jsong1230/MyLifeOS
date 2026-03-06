@@ -9,6 +9,7 @@ import { useDrinks } from '@/hooks/use-drinks'
 import { useSleep } from '@/hooks/use-sleep'
 import { useDietGoal } from '@/hooks/use-diet-goal'
 import { useWater } from '@/hooks/use-water'
+import { useMedications } from '@/hooks/use-medications'
 import { CalorieCard } from '@/components/health/calorie-card'
 import { DrinkWeeklyCard } from '@/components/health/drink-weekly-card'
 import { SleepWeeklyCard } from '@/components/health/sleep-weekly-card'
@@ -121,6 +122,51 @@ function DetailLink({ href, label }: { href: string; label: string }) {
   )
 }
 
+// 오늘 복약 현황 요약 카드
+function MedicationSummaryCard({ takenCount, totalCount }: { takenCount: number; totalCount: number }) {
+  const t = useTranslations('medications')
+  const allDone = totalCount > 0 && takenCount === totalCount
+
+  return (
+    <div className="bg-card border rounded-xl p-6 shadow-sm space-y-4">
+      <div className="space-y-1">
+        <p className="text-base font-semibold flex items-center gap-2">
+          <span className="text-lg">💊</span>
+          {t('title')}
+        </p>
+        <p className="text-sm text-muted-foreground">{t('today_summary')}</p>
+      </div>
+      {totalCount === 0 ? (
+        <p className="text-sm text-muted-foreground">{t('empty')}</p>
+      ) : (
+        <>
+          <div className="flex items-baseline gap-1">
+            <span className={cn('text-3xl font-bold', allDone && 'text-green-500')}>
+              {takenCount}
+            </span>
+            <span className="text-sm text-muted-foreground">/ {totalCount}</span>
+          </div>
+          <div className="h-2 w-full bg-muted rounded-full overflow-hidden">
+            <div
+              className={cn(
+                'h-full rounded-full transition-all',
+                allDone ? 'bg-green-500' : 'bg-green-400'
+              )}
+              style={{ width: totalCount > 0 ? `${Math.round((takenCount / totalCount) * 100)}%` : '0%' }}
+              role="progressbar"
+              aria-valuenow={takenCount}
+              aria-valuemax={totalCount}
+            />
+          </div>
+          {allDone && (
+            <p className="text-xs font-medium text-green-500">{t('taken')}</p>
+          )}
+        </>
+      )}
+    </div>
+  )
+}
+
 // 건강 대시보드 페이지
 export default function HealthPage() {
   const t = useTranslations()
@@ -129,12 +175,13 @@ export default function HealthPage() {
   const weekStart = getWeekStart()
   const weekLabel = formatWeekLabel(weekStart, locale)
 
-  // 다섯 가지 쿼리를 병렬 조회
+  // 여섯 가지 쿼리를 병렬 조회
   const mealsQuery = useMeals(today)
   const drinksQuery = useDrinks(weekStart)
   const sleepQuery = useSleep(weekStart)
   const dietGoalQuery = useDietGoal()
   const waterQuery = useWater(today)
+  const medicationsQuery = useMedications()
 
   // 음주 기록에서 잔 수 합산 (WHO 기준 경고용)
   const totalDrinkCount =
@@ -232,6 +279,19 @@ export default function HealthPage() {
             />
           )}
           <DetailLink href="/health/water" label={t('health.water.title')} />
+        </div>
+
+        {/* AC-05: 오늘 복약 현황 카드 */}
+        <div className="flex flex-col">
+          {medicationsQuery.isLoading ? (
+            <CardSkeleton />
+          ) : (
+            <MedicationSummaryCard
+              takenCount={medicationsQuery.data?.filter((m) => m.taken_today).length ?? 0}
+              totalCount={medicationsQuery.data?.length ?? 0}
+            />
+          )}
+          <DetailLink href="/health/medications" label={t('medications.title')} />
         </div>
       </div>
     </div>
