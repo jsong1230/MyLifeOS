@@ -1367,5 +1367,18 @@
     "empty": "No books added yet",
     "started_at": "Started",
     "completed_at": "Completed"
+  },
+  "moneyStats": {
+    "title": "Spending Analysis",
+    "heatmap": "Category Heatmap",
+    "patterns": "Spending Patterns",
+    "by_weekday": "Avg. Spending by Day",
+    "top_categories": "Top 5 Categories",
+    "monthly_comparison": "vs Last Month",
+    "months": ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"],
+    "weekdays": ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"],
+    "increase": "increase",
+    "decrease": "decrease",
+    "no_data": "No data available"
   }
 }

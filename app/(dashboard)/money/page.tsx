@@ -2,8 +2,9 @@
 
 import { useState } from 'react'
 import dynamic from 'next/dynamic'
+import Link from 'next/link'
 import { useLocale, useTranslations } from 'next-intl'
-import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { ChevronLeft, ChevronRight, BarChart2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
@@ -69,6 +70,7 @@ const MonthlyTrendChart = dynamic(
 export default function MoneyPage() {
   const locale = useLocale()
   const t = useTranslations('money.overview')
+  const tStats = useTranslations('moneyStats')
   useSettings() // Zustand defaultCurrency 동기화
   const currency = useSettingsStore((s) => s.defaultCurrency)
   const [currentMonth, setCurrentMonth] = useState<string>(getCurrentMonth)
@@ -107,7 +109,15 @@ export default function MoneyPage() {
     <div className="p-4 md:p-6 space-y-6 max-w-5xl mx-auto">
       {/* 월 선택 헤더 */}
       <div className="flex items-center justify-between">
-        <h1 className="text-xl font-semibold">{t('title')}</h1>
+        <div className="flex items-center gap-3">
+          <h1 className="text-xl font-semibold">{t('title')}</h1>
+          <Button variant="outline" size="sm" asChild>
+            <Link href="/money/stats">
+              <BarChart2 className="h-4 w-4 mr-1" />
+              {tStats('title')}
+            </Link>
+          </Button>
+        </div>
         <div className="flex items-center gap-2">
           <Button
             variant="ghost"
