@@ -3,8 +3,9 @@ import { TimeSummaryCard } from '@/components/dashboard/time-summary-card'
 import { MoneySummaryCard } from '@/components/dashboard/money-summary-card'
 import { HealthSummaryCard } from '@/components/dashboard/health-summary-card'
 import { PrivateSummaryCard } from '@/components/dashboard/private-summary-card'
+import { BookSummaryCard } from '@/components/dashboard/book-summary-card'
 
-// 메인 대시보드 — 4개 모듈 요약 카드
+// 메인 대시보드 — 5개 모듈 요약 카드
 export default function DashboardPage() {
   return (
     <div className="px-4 max-w-2xl mx-auto">
@@ -14,6 +15,7 @@ export default function DashboardPage() {
         <MoneySummaryCard />
         <HealthSummaryCard />
         <PrivateSummaryCard />
+        <BookSummaryCard />
       </div>
     </div>
   )

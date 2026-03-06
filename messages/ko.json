@@ -254,7 +254,9 @@
     "mealTypeLunch": "점심",
     "mealTypeDinner": "저녁",
     "mealTypeSnack": "간식",
-    "mealTypeCount": "{type} {count}끼"
+    "mealTypeCount": "{type} {count}끼",
+    "noBooksYet": "독서 기록이 없어요",
+    "noBooksDesc": "읽고 있는 책을 기록해보세요"
   },
   "money": {
     "title": "금전 관리",
@@ -1323,5 +1325,28 @@
     "break_time": "휴식 시간",
     "minutes": "분",
     "done": "완료!"
+  },
+  "books": {
+    "title": "독서 기록",
+    "add": "책 추가",
+    "edit": "수정",
+    "delete": "삭제",
+    "book_title": "책 제목",
+    "author": "저자",
+    "total_pages": "총 페이지",
+    "current_page": "현재 페이지",
+    "status": "읽기 상태",
+    "status_to_read": "읽을 예정",
+    "status_reading": "읽는 중",
+    "status_completed": "완독",
+    "rating": "별점",
+    "memo": "메모",
+    "progress": "진행률",
+    "stats_total": "전체",
+    "stats_reading": "읽는 중",
+    "stats_completed": "완독",
+    "empty": "등록된 책이 없습니다",
+    "started_at": "시작일",
+    "completed_at": "완독일"
   }
 }

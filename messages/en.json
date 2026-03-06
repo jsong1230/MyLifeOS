@@ -254,7 +254,9 @@
     "mealTypeLunch": "Lunch",
     "mealTypeDinner": "Dinner",
     "mealTypeSnack": "Snack",
-    "mealTypeCount": "{type} {count}"
+    "mealTypeCount": "{type} {count}",
+    "noBooksYet": "No reading log yet",
+    "noBooksDesc": "Start tracking books you are reading"
   },
   "money": {
     "title": "Money",
@@ -1323,5 +1325,28 @@
     "break_time": "Break Time",
     "minutes": "min",
     "done": "Done!"
+  },
+  "books": {
+    "title": "Reading Log",
+    "add": "Add Book",
+    "edit": "Edit",
+    "delete": "Delete",
+    "book_title": "Title",
+    "author": "Author",
+    "total_pages": "Total Pages",
+    "current_page": "Current Page",
+    "status": "Status",
+    "status_to_read": "To Read",
+    "status_reading": "Reading",
+    "status_completed": "Completed",
+    "rating": "Rating",
+    "memo": "Notes",
+    "progress": "Progress",
+    "stats_total": "Total",
+    "stats_reading": "Reading",
+    "stats_completed": "Completed",
+    "empty": "No books added yet",
+    "started_at": "Started",
+    "completed_at": "Completed"
   }
 }
