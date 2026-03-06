@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { useTranslations } from 'next-intl'
-import { BookOpen, Search, SmilePlus, BarChart2, Users } from 'lucide-react'
+import { BookOpen, Search, SmilePlus, BarChart2, Users, StickyNote } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
 
 // 사적 기록 모듈 홈
@@ -44,6 +44,13 @@ export default function PrivatePage() {
       title: t('relations.title'),
       description: t('menu.relations.description'),
       color: 'text-green-500',
+    },
+    {
+      href: '/private/memos',
+      icon: StickyNote,
+      title: t('memos.title'),
+      description: t('menu.memos.description'),
+      color: 'text-orange-500',
     },
   ]
 
