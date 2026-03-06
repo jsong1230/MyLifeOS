@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button'
 import { decrypt } from '@/lib/crypto/encryption'
+import { PIN_ENC_KEY, PIN_ENC_KEY_LEGACY } from '@/lib/constants/pin-storage-keys'
 
 // 내보내기 가능한 모듈 목록
 type ExportModule =
@@ -78,51 +79,51 @@ function downloadFile(content: string, filename: string, mimeType: string) {
 }
 
 /**
- * 일기 데이터의 content_encrypted 필드 복호화
+ * 일기 데이터의 content_encrypted 필드 복호화 (v2 + 레거시 형식 모두 지원)
  * enc_key 없으면 content_encrypted 필드 그대로 유지
  */
-function decryptDiaries(
+async function decryptDiaries(
   diaries: Record<string, unknown>[],
-  encKey: string | null
-): Record<string, unknown>[] {
+  encKey: string | null,
+  legacyKey: string | undefined,
+): Promise<Record<string, unknown>[]> {
   if (!encKey) return diaries
-  return diaries.map((entry) => {
+  return Promise.all(diaries.map(async (entry) => {
     if (typeof entry.content_encrypted !== 'string') return entry
     try {
-      const decrypted = decrypt(entry.content_encrypted, encKey)
-      // content_encrypted 제거 후 content 로 교체
+      const decrypted = await decrypt(entry.content_encrypted, encKey, legacyKey)
       const { content_encrypted, ...rest } = entry
-      void content_encrypted // 미사용 변수 경고 억제
+      void content_encrypted
       return { ...rest, content: decrypted }
     } catch {
-      // 복호화 실패 시 원본 유지
       return entry
     }
-  })
+  }))
 }
 
 /**
- * 인간관계 메모의 memo_encrypted 필드 복호화
+ * 인간관계 메모의 memo_encrypted 필드 복호화 (v2 + 레거시 형식 모두 지원)
  * enc_key 없으면 memo_encrypted 필드 그대로 유지
  */
-function decryptRelations(
+async function decryptRelations(
   relations: Record<string, unknown>[],
-  encKey: string | null
-): Record<string, unknown>[] {
+  encKey: string | null,
+  legacyKey: string | undefined,
+): Promise<Record<string, unknown>[]> {
   if (!encKey) return relations
-  return relations.map((entry) => {
+  return Promise.all(relations.map(async (entry) => {
     if (typeof entry.memo_encrypted !== 'string' || !entry.memo_encrypted) {
       return entry
     }
     try {
-      const decrypted = decrypt(entry.memo_encrypted, encKey)
+      const decrypted = await decrypt(entry.memo_encrypted, encKey, legacyKey)
       const { memo_encrypted, ...rest } = entry
-      void memo_encrypted // 미사용 변수 경고 억제
+      void memo_encrypted
       return { ...rest, memo: decrypted }
     } catch {
       return entry
     }
-  })
+  }))
 }
 
 /**
@@ -162,9 +163,9 @@ export function DataExport() {
     try {
       // sessionStorage에서 암호화 키 조회 (PIN 인증 후 저장된 키)
       const encKey =
-        typeof window !== 'undefined'
-          ? sessionStorage.getItem('enc_key')
-          : null
+        typeof window !== 'undefined' ? sessionStorage.getItem(PIN_ENC_KEY) : null
+      const legacyKey =
+        typeof window !== 'undefined' ? (sessionStorage.getItem(PIN_ENC_KEY_LEGACY) ?? undefined) : undefined
 
       const res = await fetch(`/api/export?module=${module}`)
       const json = (await res.json()) as {
@@ -191,9 +192,9 @@ export function DataExport() {
 
           // 암호화 필드 복호화 처리
           if (key === 'diaries') {
-            processedData = decryptDiaries(moduleData, encKey)
+            processedData = await decryptDiaries(moduleData, encKey, legacyKey)
           } else if (key === 'relations') {
-            processedData = decryptRelations(moduleData, encKey)
+            processedData = await decryptRelations(moduleData, encKey, legacyKey)
           }
 
           const moduleFilename =
@@ -219,9 +220,9 @@ export function DataExport() {
 
         // 암호화 필드 복호화 처리
         if (module === 'diaries') {
-          data = decryptDiaries(data, encKey)
+          data = await decryptDiaries(data, encKey, legacyKey)
         } else if (module === 'relations') {
-          data = decryptRelations(data, encKey)
+          data = await decryptRelations(data, encKey, legacyKey)
         }
 
         const filename = `${MODULE_FILENAME[module]}_${timestamp}.${format}`

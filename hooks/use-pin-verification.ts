@@ -1,8 +1,9 @@
 'use client'
 
 import { useState, useCallback } from 'react'
-import { deriveKey } from '@/lib/crypto/encryption'
-import { PIN_ENC_SALT } from '@/lib/constants/pin-storage-keys'
+import { deriveKey, legacyDeriveKey } from '@/lib/crypto/encryption'
+import { PIN_ENC_SALT, PIN_ENC_KEY_LEGACY } from '@/lib/constants/pin-storage-keys'
+import { cleanupLegacyKeyIfMigrated } from '@/lib/crypto/legacy-cleanup'
 
 interface PinVerifyApiResponse {
   success: boolean
@@ -32,7 +33,9 @@ interface UsePinVerificationReturn {
 /**
  * PIN 검증 공통 훅.
  * - /api/users/pin/verify 호출
- * - 성공: localStorage에서 pin_enc_salt 조회(없으면 생성) → PBKDF2 키 파생 → onSuccess
+ * - 성공: salt로 신규 키(Web Crypto, base64)와 레거시 키(crypto-js, hex) 동시 파생
+ *   - enc_key: 신규 데이터 암호화/v2 형식 복호화
+ *   - enc_key_legacy: 기존 crypto-js 암호화 데이터 복호화용 (lazy migration 완료 후 자동 삭제)
  * - 잠금: onLocked
  * - 실패: onFailure
  */
@@ -70,8 +73,18 @@ export function usePinVerification({
             salt = crypto.randomUUID()
             localStorage.setItem(PIN_ENC_SALT, salt)
           }
-          const key = deriveKey(pin, salt)
-          onSuccess(key)
+
+          // 신규 키(Web Crypto) 파생 — 새 데이터 암호화 및 v2 형식 복호화
+          const newKey = await deriveKey(pin, salt)
+
+          // 레거시 키(crypto-js) 파생 — 기존 crypto-js 암호화 데이터 복호화용
+          const legacyKey = legacyDeriveKey(pin, salt)
+          sessionStorage.setItem(PIN_ENC_KEY_LEGACY, legacyKey)
+
+          onSuccess(newKey)
+
+          // 백그라운드: 모든 데이터가 v2 포맷이면 레거시 키 자동 정리
+          void cleanupLegacyKeyIfMigrated()
           return
         }
 

@@ -2,6 +2,7 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { encrypt, decrypt } from '@/lib/crypto/encryption'
+import { PIN_ENC_KEY, PIN_ENC_KEY_LEGACY } from '@/lib/constants/pin-storage-keys'
 import type {
   DiaryEntry,
   DiaryEntryDecrypted,
@@ -30,11 +31,16 @@ interface UpdateDiaryClientInput {
 
 // sessionStorage에서 암호화 키를 가져온다. 없으면 에러를 던진다.
 function getEncKey(): string {
-  const key = sessionStorage.getItem('enc_key')
+  const key = sessionStorage.getItem(PIN_ENC_KEY)
   if (!key) {
     throw new Error('암호화 키가 없습니다. PIN을 다시 입력해주세요')
   }
   return key
+}
+
+// sessionStorage에서 레거시 키를 가져온다 (구버전 데이터 복호화용).
+function getLegacyEncKey(): string | undefined {
+  return sessionStorage.getItem(PIN_ENC_KEY_LEGACY) ?? undefined
 }
 
 // 특정 날짜 일기 조회 훅
@@ -49,9 +55,9 @@ export function useDiary(date: string) {
       // 데이터 없으면 null 반환
       if (!json.data) return null
 
-      // 복호화 처리
+      // 복호화 처리 (v2 + 레거시 형식 모두 지원)
       const key = getEncKey()
-      const decrypted = decrypt(json.data.content_encrypted, key)
+      const decrypted = await decrypt(json.data.content_encrypted, key, getLegacyEncKey())
 
       return {
         id: json.data.id,
@@ -90,11 +96,9 @@ export function useCreateDiary() {
 
   return useMutation<DiaryEntry, Error, CreateDiaryClientInput>({
     mutationFn: async (input) => {
-      // 암호화 키 조회
+      // 암호화 키 조회 → Web Crypto AES-GCM으로 암호화
       const key = getEncKey()
-
-      // 클라이언트 사이드 AES-256 암호화
-      const content_encrypted = encrypt(input.content, key)
+      const content_encrypted = await encrypt(input.content, key)
 
       const res = await fetch('/api/diaries', {
         method: 'POST',
@@ -110,7 +114,6 @@ export function useCreateDiary() {
       return json.data
     },
     onSuccess: (data) => {
-      // 해당 날짜 및 목록 캐시 무효화
       void queryClient.invalidateQueries({ queryKey: ['diary', data.date] })
       void queryClient.invalidateQueries({ queryKey: ['diaries', 'list'] })
     },
@@ -125,10 +128,10 @@ export function useUpdateDiary() {
     mutationFn: async ({ id, input }) => {
       const updateBody: { content_encrypted?: string; emotion_tags?: EmotionType[] } = {}
 
-      // 내용이 있으면 암호화
+      // 내용이 있으면 v2 형식으로 재암호화
       if (input.content !== undefined) {
         const key = getEncKey()
-        updateBody.content_encrypted = encrypt(input.content, key)
+        updateBody.content_encrypted = await encrypt(input.content, key)
       }
 
       if (input.emotion_tags !== undefined) {

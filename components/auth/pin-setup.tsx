@@ -50,11 +50,11 @@ export function PinSetup({ onComplete }: PinSetupProps) {
         return
       }
 
-      // PBKDF2 키 파생: 클라이언트에서 생성한 고유 salt 사용
+      // Web Crypto PBKDF2 키 파생: 클라이언트에서 생성한 고유 salt 사용
       // localStorage에 영속 저장 — 이후 검증 시 일관된 키 파생 보장
       const salt = crypto.randomUUID()
       localStorage.setItem(PIN_ENC_SALT, salt)
-      const key = deriveKey(firstPin, salt)
+      const key = await deriveKey(firstPin, salt)
 
       setIsPinSet(true)
       setPinVerified(true, key)

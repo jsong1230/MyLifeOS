@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useCallback } from 'react'
+import dynamic from 'next/dynamic'
 import { ChevronLeft, ChevronRight, Sparkles, RefreshCw } from 'lucide-react'
 import { useLocale, useTranslations } from 'next-intl'
 import { formatDateToString } from '@/lib/date-utils'
@@ -12,9 +13,17 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
-import { GoalsTab } from '@/components/goals/goals-tab'
-import { InvestmentsTab } from '@/components/investments/investments-tab'
 import type { AiInsight } from '@/app/api/ai/insights/route'
+
+// 목표/투자 탭은 초기 화면에 노출되지 않으므로 lazy load — 초기 JS 번들 분리
+const GoalsTab = dynamic(
+  () => import('@/components/goals/goals-tab').then((m) => ({ default: m.GoalsTab })),
+  { loading: () => <Skeleton className="h-64 w-full" /> }
+)
+const InvestmentsTab = dynamic(
+  () => import('@/components/investments/investments-tab').then((m) => ({ default: m.InvestmentsTab })),
+  { loading: () => <Skeleton className="h-64 w-full" /> }
+)
 
 // 오늘 날짜 기준으로 이번 주 월요일(주 시작) 반환 (YYYY-MM-DD)
 function getCurrentWeekStart(): string {

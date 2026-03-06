@@ -238,6 +238,7 @@
     "pendingCount": "{count} tasks remaining",
     "noTodosYet": "No tasks yet",
     "addTodoDesc": "Add tasks to manage your day",
+    "loadError": "Failed to load dashboard",
     "thisMonth": "This month",
     "noTransactionsYet": "No expense records this month",
     "addTransactionDesc": "Log expenses to manage your budget",
@@ -1131,6 +1132,7 @@
     "dataExportDescription": "Download module or full data as CSV/JSON",
     "backButton": "← Back",
     "saved": "Saved",
+    "loadError": "Failed to load settings",
     "export": {
       "todos": "Todos",
       "routines": "Routines",

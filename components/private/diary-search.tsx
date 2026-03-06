@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo, useEffect } from 'react'
+import { useState, useMemo, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import { Search, Loader2 } from 'lucide-react'
@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { decrypt } from '@/lib/crypto/encryption'
+import { PIN_ENC_KEY, PIN_ENC_KEY_LEGACY } from '@/lib/constants/pin-storage-keys'
 import { useDiarySearch } from '@/hooks/use-diary-search'
 import {
   EMOTION_ICONS,
@@ -175,10 +176,14 @@ export function DiarySearch() {
 
   const { data: rawDiaries, isLoading, error } = useDiarySearch(12)
 
-  // sessionStorage에서 암호화 키 확인
-  const encKey = typeof window !== 'undefined'
-    ? sessionStorage.getItem('enc_key')
-    : null
+  // sessionStorage에서 암호화 키 확인 (렌더마다 ref로 안정적으로 접근)
+  const encKeyRef = useRef<string | null>(null)
+  const legacyKeyRef = useRef<string | undefined>(undefined)
+  if (typeof window !== 'undefined') {
+    encKeyRef.current = sessionStorage.getItem(PIN_ENC_KEY)
+    legacyKeyRef.current = sessionStorage.getItem(PIN_ENC_KEY_LEGACY) ?? undefined
+  }
+  const encKey = encKeyRef.current
 
   // 검색어 debounce 300ms
   useEffect(() => {
@@ -186,17 +191,27 @@ export function DiarySearch() {
     return () => clearTimeout(timer)
   }, [keyword])
 
-  // 복호화 결과 캐싱 - rawDiaries·encKey 변경 시만 재실행
-  const decryptedDiaries = useMemo(() => {
-    if (!rawDiaries || !encKey) return []
-    return rawDiaries.map((diary) => {
-      try {
-        const content = decrypt(diary.content_encrypted, encKey)
-        return { ...diary, decryptedContent: content }
-      } catch {
-        return { ...diary, decryptedContent: null }
-      }
-    })
+  // 복호화 결과 캐싱 - rawDiaries·encKey 변경 시 비동기 복호화
+  type DecryptedDiary = (typeof rawDiaries extends (infer T)[] | undefined ? T : never) & { decryptedContent: string | null }
+  const [decryptedDiaries, setDecryptedDiaries] = useState<DecryptedDiary[]>([])
+
+  useEffect(() => {
+    if (!rawDiaries || !encKey) {
+      setDecryptedDiaries([])
+      return
+    }
+    const key = encKey
+    const legacyKey = legacyKeyRef.current
+    void Promise.all(
+      rawDiaries.map(async (diary) => {
+        try {
+          const content = await decrypt(diary.content_encrypted, key, legacyKey)
+          return { ...diary, decryptedContent: content }
+        } catch {
+          return { ...diary, decryptedContent: null }
+        }
+      })
+    ).then(setDecryptedDiaries)
   }, [rawDiaries, encKey])
 
   // 검색/필터링 - 이미 복호화된 캐시 사용

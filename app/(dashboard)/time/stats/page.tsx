@@ -1,25 +1,23 @@
 'use client'
 
 import { useState } from 'react'
+import dynamic from 'next/dynamic'
 import { useLocale, useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  Cell,
-} from 'recharts'
+import { Skeleton } from '@/components/ui/skeleton'
 import {
   useTodoWeeklyStats,
   useTodoMonthlyStats,
   useRoutineWeeklyStats,
   useRoutineMonthlyStats,
 } from '@/hooks/use-completion-stats'
+
+// recharts를 lazy load — 루틴 바 차트는 스크롤 없이는 보이지 않으므로 분리
+const RoutineBarChart = dynamic(
+  () => import('@/components/time/routine-bar-chart').then((m) => ({ default: m.RoutineBarChart })),
+  { ssr: false, loading: () => <Skeleton className="h-[180px] w-full" /> }
+)
 
 // ──────────────────────────────────────────────
 // 날짜 유틸
@@ -237,37 +235,10 @@ export default function StatsPage() {
                 <CardTitle className="text-sm font-medium">{t('routineByRate')}</CardTitle>
               </CardHeader>
               <CardContent>
-                <ResponsiveContainer width="100%" height={180}>
-                  <BarChart
-                    data={routineChartData}
-                    margin={{ top: 4, right: 8, bottom: 0, left: -16 }}
-                  >
-                    <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                    <XAxis dataKey="name" tick={{ fontSize: 11 }} tickLine={false} axisLine={false} />
-                    <YAxis
-                      domain={[0, 100]}
-                      tickFormatter={(v) => `${v as number}%`}
-                      tick={{ fontSize: 11 }}
-                      tickLine={false}
-                      axisLine={false}
-                    />
-                    <Tooltip formatter={(v) => [`${v as number}%`, achievementRateLabel]} />
-                    <Bar dataKey={achievementRateLabel} radius={[4, 4, 0, 0]}>
-                      {routineChartData.map((entry, idx) => (
-                        <Cell
-                          key={idx}
-                          fill={
-                            (entry[achievementRateLabel] as number) >= 80
-                              ? '#22c55e'
-                              : (entry[achievementRateLabel] as number) >= 50
-                                ? '#f59e0b'
-                                : '#ef4444'
-                          }
-                        />
-                      ))}
-                    </Bar>
-                  </BarChart>
-                </ResponsiveContainer>
+                <RoutineBarChart
+                  data={routineChartData}
+                  dataKey={achievementRateLabel}
+                />
               </CardContent>
             </Card>
           )}

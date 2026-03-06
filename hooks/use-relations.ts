@@ -2,22 +2,29 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { encrypt, decrypt } from '@/lib/crypto/encryption'
+import { PIN_ENC_KEY, PIN_ENC_KEY_LEGACY } from '@/lib/constants/pin-storage-keys'
 import type { Relation, RelationDecrypted, CreateRelationInput, UpdateRelationInput } from '@/types/relation'
 
 // sessionStorage에서 암호화 키를 가져오는 헬퍼
 function getEncKey(): string | null {
   if (typeof window === 'undefined') return null
-  return sessionStorage.getItem('enc_key')
+  return sessionStorage.getItem(PIN_ENC_KEY)
+}
+
+// sessionStorage에서 레거시 키를 가져오는 헬퍼 (구버전 데이터 복호화용)
+function getLegacyEncKey(): string | undefined {
+  if (typeof window === 'undefined') return undefined
+  return sessionStorage.getItem(PIN_ENC_KEY_LEGACY) ?? undefined
 }
 
 // Relation 데이터를 복호화하는 헬퍼
-function decryptRelation(relation: Relation, encKey: string): RelationDecrypted {
+async function decryptRelation(relation: Relation, encKey: string): Promise<RelationDecrypted> {
   const { memo_encrypted, ...rest } = relation
   if (!memo_encrypted) {
     return { ...rest, memo: null }
   }
   try {
-    const memo = decrypt(memo_encrypted, encKey)
+    const memo = await decrypt(memo_encrypted, encKey, getLegacyEncKey())
     return { ...rest, memo: memo || null }
   } catch {
     // 복호화 실패 시 null 반환
@@ -43,7 +50,7 @@ export function useRelations() {
         }))
       }
 
-      return json.data.map((relation) => decryptRelation(relation, encKey))
+      return Promise.all(json.data.map((relation) => decryptRelation(relation, encKey)))
     },
   })
 }
@@ -56,11 +63,11 @@ export function useCreateRelation() {
     mutationFn: async (input) => {
       const encKey = getEncKey()
 
-      // memo가 있으면 암호화, 없으면 null
+      // memo가 있으면 v2 형식으로 암호화, 없으면 null
       let memo_encrypted: string | null = null
       if (input.memo && input.memo.trim() !== '') {
         if (!encKey) throw new Error('암호화 키가 없습니다. PIN 잠금을 해제해주세요.')
-        memo_encrypted = encrypt(input.memo, encKey)
+        memo_encrypted = await encrypt(input.memo, encKey)
       }
 
       const body = {
@@ -80,7 +87,6 @@ export function useCreateRelation() {
       return json.data
     },
     onSuccess: () => {
-      // 인간관계 목록 캐시 무효화
       void queryClient.invalidateQueries({ queryKey: ['relations'] })
     },
   })
@@ -94,7 +100,6 @@ export function useUpdateRelation() {
     mutationFn: async ({ id, input }) => {
       const encKey = getEncKey()
 
-      // memo 필드 처리: null이면 메모 삭제, 문자열이면 암호화, undefined면 변경 없음
       const body: Record<string, unknown> = {}
 
       if (input.name !== undefined) body.name = input.name
@@ -103,14 +108,12 @@ export function useUpdateRelation() {
 
       if ('memo' in input) {
         if (input.memo === null || input.memo === undefined) {
-          // 메모 삭제
           body.memo_encrypted = null
         } else if (input.memo.trim() === '') {
-          // 빈 문자열 → 삭제
           body.memo_encrypted = null
         } else {
           if (!encKey) throw new Error('암호화 키가 없습니다. PIN 잠금을 해제해주세요.')
-          body.memo_encrypted = encrypt(input.memo, encKey)
+          body.memo_encrypted = await encrypt(input.memo, encKey)
         }
       }
 
@@ -124,7 +127,6 @@ export function useUpdateRelation() {
       return json.data
     },
     onSuccess: () => {
-      // 인간관계 목록 캐시 무효화
       void queryClient.invalidateQueries({ queryKey: ['relations'] })
     },
   })
@@ -141,7 +143,6 @@ export function useDeleteRelation() {
       if (!json.success) throw new Error(json.error ?? '인간관계 삭제 실패')
     },
     onSuccess: () => {
-      // 인간관계 목록 캐시 무효화
       void queryClient.invalidateQueries({ queryKey: ['relations'] })
     },
   })

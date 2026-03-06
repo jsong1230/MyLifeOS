@@ -238,6 +238,7 @@
     "pendingCount": "남은 할일 {count}개",
     "noTodosYet": "할일이 아직 없어요",
     "addTodoDesc": "할일을 추가하고 하루를 관리해보세요",
+    "loadError": "대시보드를 불러올 수 없습니다",
     "thisMonth": "이번 달",
     "noTransactionsYet": "이번 달 지출 기록이 없어요",
     "addTransactionDesc": "지출을 기록하고 예산을 관리해보세요",
@@ -1131,6 +1132,7 @@
     "dataExportDescription": "모듈별 또는 전체 데이터를 CSV/JSON 형식으로 다운로드합니다",
     "backButton": "← 뒤로",
     "saved": "저장되었습니다",
+    "loadError": "설정을 불러올 수 없습니다",
     "export": {
       "todos": "할일",
       "routines": "루틴",

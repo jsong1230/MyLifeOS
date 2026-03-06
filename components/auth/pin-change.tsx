@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { PinPad } from '@/components/auth/pin-pad'
 import { usePinStore } from '@/store/pin.store'
 import { deriveKey } from '@/lib/crypto/encryption'
+import { PIN_ENC_SALT } from '@/lib/constants/pin-storage-keys'
 import type { PinChangeProps, PinStep } from '@/types/pin'
 
 /**
@@ -66,11 +67,10 @@ export function PinChange({ onComplete, onCancel }: PinChangeProps) {
         return
       }
 
-      // 새 salt 생성 후 sessionStorage에 저장, PBKDF2 키 파생
-      // (API 응답에서 salt를 받지 않아 서버 측 bcrypt salt 노출 방지)
+      // 새 salt 생성 후 localStorage에 영속 저장, Web Crypto PBKDF2 키 파생
       const newSalt = crypto.randomUUID()
-      sessionStorage.setItem('pin_enc_salt', newSalt)
-      const newKey = deriveKey(newPin, newSalt)
+      localStorage.setItem(PIN_ENC_SALT, newSalt)
+      const newKey = await deriveKey(newPin, newSalt)
       setPinVerified(true, newKey)
       onComplete()
     } catch {
