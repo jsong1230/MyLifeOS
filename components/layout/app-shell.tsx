@@ -1,10 +1,13 @@
 'use client'
 
+import { useState } from 'react'
 import { Header } from '@/components/layout/header'
 import { BottomNav } from '@/components/layout/bottom-nav'
 import { Sidebar } from '@/components/layout/sidebar'
 import { FAB } from '@/components/layout/fab'
 import { useSettings } from '@/hooks/use-settings'
+import { useOnboarding } from '@/hooks/use-onboarding'
+import { OnboardingModal } from '@/components/onboarding/onboarding-modal'
 
 interface AppShellProps {
   children: React.ReactNode
@@ -14,6 +17,9 @@ interface AppShellProps {
 export function AppShell({ children }: AppShellProps) {
   // 레이아웃 마운트 시 settings(닉네임 포함) 즉시 로드 → Zustand store 동기화
   useSettings()
+  const { shouldShow } = useOnboarding()
+  const [onboardingOpen, setOnboardingOpen] = useState(true)
+
   return (
     <div className="flex min-h-screen">
       {/* 데스크탑 사이드바 */}
@@ -39,6 +45,14 @@ export function AppShell({ children }: AppShellProps) {
 
       {/* FAB */}
       <FAB />
+
+      {/* 신규 사용자 온보딩 모달 */}
+      {shouldShow && onboardingOpen && (
+        <OnboardingModal
+          open
+          onComplete={() => setOnboardingOpen(false)}
+        />
+      )}
     </div>
   )
 }

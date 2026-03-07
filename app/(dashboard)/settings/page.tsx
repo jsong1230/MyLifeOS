@@ -21,6 +21,7 @@ import { PinChange } from '@/components/auth/pin-change'
 import { PinForm } from '@/components/private/pin-form'
 import { ThemeToggle } from '@/components/common/theme-toggle'
 import { DataExport } from '@/components/settings/data-export'
+import { ICalExport } from '@/components/settings/ical-export'
 import { PushNotificationSettings } from '@/components/settings/push-notification-settings'
 import { NicknameForm } from '@/components/settings/nickname-form'
 import { CurrencySelect } from '@/components/common/currency-select'
@@ -266,6 +267,17 @@ export default function SettingsPage() {
         </CardHeader>
         <CardContent>
           <DataExport />
+        </CardContent>
+      </Card>
+
+      {/* 캘린더 연동 섹션 */}
+      <Card className="mb-4">
+        <CardHeader>
+          <CardTitle>{t('ical_title')}</CardTitle>
+          <CardDescription>{t('ical_description')}</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <ICalExport />
         </CardContent>
       </Card>
 

@@ -40,7 +40,7 @@ export async function PATCH(request: NextRequest) {
     return apiError('VALIDATION_ERROR')
   }
 
-  const { locale, default_currency, nickname } = body
+  const { locale, default_currency, nickname, onboarding_completed } = body
 
   // 유효성 검사
   if (locale && !['ko', 'en'].includes(locale)) {
@@ -52,11 +52,15 @@ export async function PATCH(request: NextRequest) {
   if (nickname !== undefined && nickname !== null && (typeof nickname !== 'string' || nickname.length > 50)) {
     return apiError('VALIDATION_ERROR')
   }
+  if (onboarding_completed !== undefined && typeof onboarding_completed !== 'boolean') {
+    return apiError('VALIDATION_ERROR')
+  }
 
   const updateData: UpdateSettingsInput = {}
   if (locale) updateData.locale = locale
   if (default_currency) updateData.default_currency = default_currency
   if ('nickname' in body) updateData.nickname = nickname ?? null
+  if (onboarding_completed !== undefined) updateData.onboarding_completed = onboarding_completed
 
   const { data, error } = await supabase
     .from('user_settings')

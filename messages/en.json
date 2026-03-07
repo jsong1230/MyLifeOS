@@ -262,7 +262,15 @@
     "mealTypeSnack": "Snack",
     "mealTypeCount": "{type} {count}",
     "noBooksYet": "No reading log yet",
-    "noBooksDesc": "Start tracking books you are reading"
+    "noBooksDesc": "Start tracking books you are reading",
+    "edit": "Edit Widgets",
+    "save_layout": "Save",
+    "reset_layout": "Reset",
+    "widget_time": "Time",
+    "widget_money": "Money",
+    "widget_health": "Health",
+    "widget_private": "Private",
+    "widget_books": "Books"
   },
   "money": {
     "title": "Money",
@@ -1224,7 +1232,12 @@
     "deleting": "Processing...",
     "userGuideTitle": "User Guide",
     "userGuideDescription": "App usage guide and FAQ",
-    "userGuideLink": "Open User Guide →"
+    "userGuideLink": "Open User Guide →",
+    "ical_title": "Calendar Export",
+    "ical_copy_url": "Copy Subscription URL",
+    "ical_copied": "Copied!",
+    "ical_description": "Subscribe via URL in Google Calendar, Apple Calendar, etc.",
+    "ical_includes": "Includes todos, routines, and time blocks"
   },
   "currency": {
     "KRW": "Korean Won",
@@ -1475,5 +1488,30 @@
     "budget_over": "Over Budget",
     "active_lists": "Active Lists",
     "go_to_shopping": "View Shopping Lists"
+  },
+  "onboarding": {
+    "welcome_title": "Welcome to My Life OS!",
+    "welcome_desc": "Manage time, money, health & private records in one place",
+    "start": "Get Started",
+    "pin_title": "Set Up PIN Lock",
+    "pin_desc": "Protect your app with a PIN on re-entry",
+    "pin_go": "Set Up PIN",
+    "skip": "Skip",
+    "currency_title": "Choose Default Currency",
+    "save_next": "Save & Next",
+    "done_title": "All Set!",
+    "add_first_todo": "Add First Todo",
+    "go_dashboard": "Go to Dashboard",
+    "step_of": "{step}/{total}"
+  },
+  "notifications": {
+    "title": "Notifications",
+    "mark_all_read": "Mark All Read",
+    "empty": "No notifications",
+    "just_now": "Just now",
+    "minutes_ago": "{n}m ago",
+    "hours_ago": "{n}h ago",
+    "view_all": "View All",
+    "unread_badge": "{count} unread"
   }
 }

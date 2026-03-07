@@ -8,8 +8,9 @@ export interface UserSettings {
   locale: LocaleCode
   default_currency: CurrencyCode
   nickname?: string | null  // 사용자 설정 표시 이름 (Google OAuth 재로그인에 영향받지 않음)
+  onboarding_completed?: boolean
   created_at: string
   updated_at: string
 }
 
-export type UpdateSettingsInput = Partial<Pick<UserSettings, 'locale' | 'default_currency' | 'nickname'>>
+export type UpdateSettingsInput = Partial<Pick<UserSettings, 'locale' | 'default_currency' | 'nickname' | 'onboarding_completed'>>

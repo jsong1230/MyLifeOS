@@ -6,6 +6,7 @@ import { useTranslations } from 'next-intl'
 import { Settings } from 'lucide-react'
 import { useAuthStore } from '@/store/auth.store'
 import { useSettingsStore } from '@/store/settings.store'
+import { NotificationBell } from './notification-bell'
 
 // 상단 헤더 — 경로별 제목 + 사용자 아바타 + 설정 링크
 export function Header() {
@@ -50,6 +51,8 @@ export function Header() {
             <span className="text-xs font-medium text-primary">{initial}</span>
           )}
         </div>
+        {/* 알림 벨 */}
+        <NotificationBell />
         {/* 설정 링크 */}
         <Link href="/settings" aria-label={t('nav.settings')}>
           <Settings className="w-5 h-5 text-muted-foreground hover:text-foreground transition-colors" />
