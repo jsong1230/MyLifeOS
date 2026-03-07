@@ -1,6 +1,7 @@
 'use client'
 
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
+import { useSearchParams } from 'next/navigation'
 import dynamic from 'next/dynamic'
 import { ChevronLeft, ChevronRight, Sparkles, RefreshCw } from 'lucide-react'
 import { useLocale, useTranslations } from 'next-intl'
@@ -100,7 +101,14 @@ export default function ReportsPage() {
   const locale = useLocale()
   const t = useTranslations()
   const ti = useTranslations('insights')
-  const [activeTab, setActiveTab] = useState<TabType>('weekly')
+  const searchParams = useSearchParams()
+  const [activeTab, setActiveTab] = useState<TabType>(() => {
+    const tab = searchParams.get('tab')
+    if (tab === 'ai' || tab === 'weekly' || tab === 'monthly' || tab === 'goals' || tab === 'investments') {
+      return tab as TabType
+    }
+    return 'weekly'
+  })
 
   // AI 인사이트
   const { data: savedInsights, isLoading: insightsLoading } = useAiInsights()

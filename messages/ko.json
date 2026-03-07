@@ -215,7 +215,8 @@
     "enterPinTitle": "PIN 입력",
     "enterPinSubtitle": "PIN을 입력하여 잠금을 해제하세요",
     "wrongPin": "PIN이 올바르지 않습니다 ({attempts}/5)",
-    "wrongPinLockWarning": "PIN이 올바르지 않습니다 ({attempts}/5). 5회 실패 시 10분간 잠깁니다"
+    "wrongPinLockWarning": "PIN이 올바르지 않습니다 ({attempts}/5). 5회 실패 시 10분간 잠깁니다",
+    "encryptionWarning": "PIN으로 암호화된 데이터(일기, 관계 메모, 퀵 메모)는 PIN을 분실하면 복구할 수 없습니다. PIN을 안전한 곳에 보관하세요."
   },
   "dashboard": {
     "greetingMorning": "좋은 아침이에요",
@@ -270,7 +271,8 @@
     "widget_money": "금전 관리",
     "widget_health": "건강",
     "widget_private": "사적 기록",
-    "widget_books": "독서"
+    "widget_books": "독서",
+    "widget_insights": "AI 인사이트"
   },
   "money": {
     "title": "금전 관리",

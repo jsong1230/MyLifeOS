@@ -144,11 +144,12 @@ export function DashboardEditor({
   }
 
   const widgetLabels: Record<WidgetKey, string> = {
-    time:    t('widget_time'),
-    money:   t('widget_money'),
-    health:  t('widget_health'),
-    private: t('widget_private'),
-    books:   t('widget_books'),
+    insights: t('widget_insights'),
+    time:     t('widget_time'),
+    money:    t('widget_money'),
+    health:   t('widget_health'),
+    private:  t('widget_private'),
+    books:    t('widget_books'),
   }
 
   return (

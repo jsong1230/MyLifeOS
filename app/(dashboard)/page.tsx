@@ -9,6 +9,7 @@ import { MoneySummaryCard } from '@/components/dashboard/money-summary-card'
 import { HealthSummaryCard } from '@/components/dashboard/health-summary-card'
 import { PrivateSummaryCard } from '@/components/dashboard/private-summary-card'
 import { BookSummaryCard } from '@/components/dashboard/book-summary-card'
+import { AiInsightSummaryCard } from '@/components/dashboard/ai-insight-summary-card'
 import { DashboardEditor } from '@/components/dashboard/dashboard-editor'
 import { useDashboardLayout, useUpdateDashboardLayout } from '@/hooks/use-dashboard-layout'
 import { DEFAULT_LAYOUT } from '@/types/dashboard-layout'
@@ -16,11 +17,12 @@ import type { WidgetConfig, WidgetKey } from '@/types/dashboard-layout'
 import { Button } from '@/components/ui/button'
 
 const WIDGET_COMPONENTS: Record<WidgetKey, React.ComponentType> = {
-  time:    TimeSummaryCard,
-  money:   MoneySummaryCard,
-  health:  HealthSummaryCard,
-  private: PrivateSummaryCard,
-  books:   BookSummaryCard,
+  insights: AiInsightSummaryCard,
+  time:     TimeSummaryCard,
+  money:    MoneySummaryCard,
+  health:   HealthSummaryCard,
+  private:  PrivateSummaryCard,
+  books:    BookSummaryCard,
 }
 
 // 메인 대시보드 — 위젯 커스터마이징 지원

@@ -7,9 +7,15 @@ const API_CACHE = 'mylifeos-api-v1'
 // stale-while-revalidate 대상 API 경로와 각 TTL(초)
 const API_SWR_ROUTES = [
   { pattern: /^\/api\/time\/todos(\?|$)/, ttl: 3600 },
+  { pattern: /^\/api\/time\/routines(\?|$)/, ttl: 3600 },
   { pattern: /^\/api\/health\/water(\?|$)/, ttl: 3600 },
   { pattern: /^\/api\/health\/meals(\?|$)/, ttl: 1800 },
+  { pattern: /^\/api\/health\/body-logs(\?|$)/, ttl: 3600 },
+  { pattern: /^\/api\/health\/exercise-logs(\?|$)/, ttl: 3600 },
   { pattern: /^\/api\/money\/transactions(\?|$)/, ttl: 1800 },
+  { pattern: /^\/api\/money\/budgets(\?|$)/, ttl: 3600 },
+  { pattern: /^\/api\/money\/assets(\?|$)/, ttl: 3600 },
+  { pattern: /^\/api\/ai\/insights(\?|$)/, ttl: 86400 },
 ]
 
 // ─── install / activate ──────────────────────────────────────────────────────

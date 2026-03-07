@@ -321,6 +321,11 @@ export default function SettingsPage() {
           <CardDescription>{t('securityDescription')}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-3">
+          <div className="rounded-md border border-amber-200 bg-amber-50 dark:border-amber-800 dark:bg-amber-950 p-3">
+            <p className="text-xs text-amber-800 dark:text-amber-200 leading-relaxed">
+              ⚠️ {tPin('encryptionWarning')}
+            </p>
+          </div>
           {pinSet === null && (
             <div className="h-5 w-24 bg-muted animate-pulse rounded" />
           )}
