@@ -1233,6 +1233,30 @@
     "userGuideTitle": "User Guide",
     "userGuideDescription": "App usage guide and FAQ",
     "userGuideLink": "Open User Guide →",
+    "dataManagement": "Data Management",
+    "dataManagementDescription": "Backup all your data or restore from a previous backup",
+    "backup": {
+      "backupTitle": "Backup Download",
+      "backupDownload": "Download Backup",
+      "backing": "Backing up...",
+      "backupFailed": "Backup failed",
+      "backupError": "An error occurred during backup",
+      "includePrivate": "Include private data (diaries, relation notes, quick memos)",
+      "includePrivateHint": "Private data is backed up as encrypted ciphertext. The same PIN is required to decrypt it after restore.",
+      "restoreTitle": "Restore from Backup",
+      "restoreUpload": "Select Backup File",
+      "restoring": "Restoring...",
+      "restoreFailed": "Restore failed",
+      "restoreError": "An error occurred during restore",
+      "restoreHint": "Select a previously downloaded JSON backup file to restore your data.",
+      "restoreSuccess": "Restore complete",
+      "restoreSummary": "{inserted} added, {skipped} skipped out of {total} total rows",
+      "strategySkip": "Skip",
+      "strategySkipHint": "(keep existing on conflict)",
+      "strategyOverwrite": "Overwrite",
+      "strategyOverwriteHint": "(update existing on conflict)",
+      "invalidFileType": "Only JSON files are supported"
+    },
     "ical_title": "Calendar Export",
     "ical_copy_url": "Copy Subscription URL",
     "ical_copied": "Copied!",
@@ -1513,5 +1537,11 @@
     "hours_ago": "{n}h ago",
     "view_all": "View All",
     "unread_badge": "{count} unread"
+  },
+  "offline": {
+    "banner": "You are offline. Some features are limited.",
+    "pendingCount": "({count} pending)",
+    "savedOffline": "Saved offline",
+    "syncPending": "Will sync automatically when back online."
   }
 }

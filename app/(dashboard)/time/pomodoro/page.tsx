@@ -1,9 +1,15 @@
 'use client'
 
+import dynamic from 'next/dynamic'
 import { useTranslations } from 'next-intl'
 import { getToday } from '@/lib/date-utils'
 import { PomodoroTimer } from '@/components/time/pomodoro-timer'
-import { PomodoroStats } from '@/components/time/pomodoro-stats'
+import { Skeleton } from '@/components/ui/skeleton'
+
+const PomodoroStats = dynamic(
+  () => import('@/components/time/pomodoro-stats').then((m) => ({ default: m.PomodoroStats })),
+  { ssr: false, loading: () => <Skeleton className="h-64 rounded-xl" /> }
+)
 
 // 포모도로 타이머 페이지
 export default function PomodoroPage() {

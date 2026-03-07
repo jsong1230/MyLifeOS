@@ -1,37 +1,18 @@
 'use client'
 
 import { useState } from 'react'
-import dynamic from 'next/dynamic'
 import { useTranslations } from 'next-intl'
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+} from 'recharts'
 import { usePomodoroStats } from '@/hooks/use-pomodoro-stats'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-
-// Recharts SSR 방지 dynamic import
-const BarChart = dynamic(
-  () => import('recharts').then((m) => m.BarChart),
-  { ssr: false }
-)
-const Bar = dynamic(
-  () => import('recharts').then((m) => m.Bar),
-  { ssr: false }
-)
-const XAxis = dynamic(
-  () => import('recharts').then((m) => m.XAxis),
-  { ssr: false }
-)
-const YAxis = dynamic(
-  () => import('recharts').then((m) => m.YAxis),
-  { ssr: false }
-)
-const Tooltip = dynamic(
-  () => import('recharts').then((m) => m.Tooltip),
-  { ssr: false }
-)
-const ResponsiveContainer = dynamic(
-  () => import('recharts').then((m) => m.ResponsiveContainer),
-  { ssr: false }
-)
 
 /**
  * 포모도로 통계 컴포넌트

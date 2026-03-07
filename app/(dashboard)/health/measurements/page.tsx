@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import dynamic from 'next/dynamic'
 import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
@@ -13,9 +14,16 @@ import {
 } from '@/components/ui/dialog'
 import { MeasurementForm } from '@/components/health/measurement-form'
 import { MeasurementList } from '@/components/health/measurement-list'
-import { MeasurementChart } from '@/components/health/measurement-chart'
 import { useMeasurements } from '@/hooks/use-measurements'
 import type { MeasurementType } from '@/types/health_measurement'
+
+const MeasurementChart = dynamic(
+  () => import('@/components/health/measurement-chart').then((m) => ({ default: m.MeasurementChart })),
+  {
+    ssr: false,
+    loading: () => <div className="h-[220px] bg-muted rounded-xl animate-pulse" />,
+  }
+)
 
 const TABS: MeasurementType[] = ['blood_pressure', 'blood_sugar', 'body_temp']
 

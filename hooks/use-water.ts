@@ -2,6 +2,8 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { getToday } from '@/lib/date-utils'
+import { enqueueRequest } from '@/lib/offline-queue'
+import { useOfflineQueue } from '@/hooks/use-offline-queue'
 import type { WaterLog, CreateWaterInput } from '@/types/health'
 
 // GET 응답 타입
@@ -27,12 +29,19 @@ export function useWater(date?: string) {
   })
 }
 
-// 수분 섭취 기록 추가 훅
+// 수분 섭취 기록 추가 훅 (오프라인 큐 지원)
 export function useAddWater() {
   const queryClient = useQueryClient()
+  const { isOnline, refreshCount } = useOfflineQueue()
 
-  return useMutation<WaterLog, Error, CreateWaterInput>({
+  return useMutation<WaterLog | null, Error, CreateWaterInput, { offlineQueued?: boolean }>({
     mutationFn: async (input) => {
+      // 오프라인 상태: IndexedDB 큐에 저장 후 null 반환
+      if (!isOnline) {
+        await enqueueRequest('POST', '/api/health/water', input)
+        return null
+      }
+
       const res = await fetch('/api/health/water', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -42,7 +51,16 @@ export function useAddWater() {
       if (!json.success) throw new Error(json.error ?? '수분 기록 추가 실패')
       return json.data
     },
-    onSuccess: () => {
+    onMutate: () => {
+      // 오프라인 여부를 context로 전달하기 위한 플래그
+      return { offlineQueued: !isOnline }
+    },
+    onSuccess: (_data, _vars, context) => {
+      if (context?.offlineQueued) {
+        // 큐 카운트 갱신 (배너 업데이트)
+        refreshCount()
+        return
+      }
       // 수분 목록 캐시 전체 무효화
       void queryClient.invalidateQueries({ queryKey: ['water'] })
     },

@@ -1233,6 +1233,30 @@
     "userGuideTitle": "사용자 가이드",
     "userGuideDescription": "앱 사용 방법 및 자주 묻는 질문",
     "userGuideLink": "사용자 가이드 열기 →",
+    "dataManagement": "데이터 관리",
+    "dataManagementDescription": "전체 데이터를 백업하거나 이전 백업에서 복원합니다",
+    "backup": {
+      "backupTitle": "백업 다운로드",
+      "backupDownload": "백업 다운로드",
+      "backing": "백업 중...",
+      "backupFailed": "백업에 실패했습니다",
+      "backupError": "백업 중 오류가 발생했습니다",
+      "includePrivate": "Private 데이터 포함 (일기, 인간관계 메모, 퀵 메모)",
+      "includePrivateHint": "Private 데이터는 암호화된 원문 그대로 백업됩니다. 복호화하려면 동일한 PIN이 필요합니다.",
+      "restoreTitle": "백업 복원",
+      "restoreUpload": "백업 파일 선택",
+      "restoring": "복원 중...",
+      "restoreFailed": "복원에 실패했습니다",
+      "restoreError": "복원 중 오류가 발생했습니다",
+      "restoreHint": "이전에 다운로드한 JSON 백업 파일을 선택하여 데이터를 복원합니다.",
+      "restoreSuccess": "복원 완료",
+      "restoreSummary": "전체 {total}개 중 {inserted}개 추가, {skipped}개 건너뜀",
+      "strategySkip": "건너뜀",
+      "strategySkipHint": "(중복 ID 유지)",
+      "strategyOverwrite": "덮어쓰기",
+      "strategyOverwriteHint": "(중복 ID 업데이트)",
+      "invalidFileType": "JSON 파일만 지원합니다"
+    },
     "ical_title": "캘린더 구독",
     "ical_copy_url": "구독 URL 복사",
     "ical_copied": "복사됨",
@@ -1513,5 +1537,11 @@
     "hours_ago": "{n}시간 전",
     "view_all": "전체 보기",
     "unread_badge": "{count}개 읽지 않은 알림"
+  },
+  "offline": {
+    "banner": "오프라인 상태입니다. 일부 기능이 제한됩니다.",
+    "pendingCount": "({count}개 대기 중)",
+    "savedOffline": "오프라인 저장됨",
+    "syncPending": "온라인 복귀 시 자동으로 동기화됩니다."
   }
 }
