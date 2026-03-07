@@ -160,6 +160,17 @@
   - migration 023~028 원격 push 완료 (2026-03-06)
   - foods 테이블 345건 시딩 확인 완료
   - improvement-backlog.md 25개 항목 전체 완료
+- ✅ 완료: 인덱스 최적화 + PIN 복구 경고 + 오프라인 강화 + AI 인사이트 홈 노출 (2026-03-08)
+  - migration 033: goals/investment_transactions/routine_logs 복합 인덱스 수정
+  - settings 보안 섹션 PIN 암호화 복구 불가 경고 배너 추가 (ko/en)
+  - sw.js SWR 캐시 경로 4→10개 확장 (routines, body-logs, exercise-logs, budgets, assets, ai/insights)
+  - AiInsightsPreview 위젯 (홈 최상단, 인사이트 3개 카드 + refresh)
+  - reports/?tab=ai URL 파라미터 처리
+- ✅ 완료: 페르소나 B 리포커싱 — 7개 기능 제거 + AI 인사이트 우선 노출 (2026-03-08)
+  - 제거: F-36 투자, F-45 장보기, F-39 포모도로, F-41 약 복용, F-42 독서, F-27 인간관계 메모, F-40 퀵 메모
+  - 기준: "AI 인사이트의 원료가 되는가?" — NO이면 제거
+  - components/analytics/ai-insights-preview.tsx 신규 (인사이트 3개 미리보기)
+  - Supabase redirect URL에 localhost:3000/3004 추가 (Management API)
 - ⏭️ 다음: 추가 기능 개발 (사용자 요청 기반)
 
 ## 중요 결정사항
