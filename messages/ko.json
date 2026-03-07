@@ -94,7 +94,12 @@
     "addTodo": "할일 추가",
     "addExpense": "지출 입력",
     "addMeal": "식사 기록",
-    "addDiary": "일기 쓰기"
+    "addDiary": "일기 쓰기",
+    "water_quick_add": "물 추가 (+200ml)",
+    "water_added": "물 200ml 추가됨",
+    "medication_check": "약 복용 체크",
+    "medication_all_taken": "모두 복용 완료",
+    "medication_none": "오늘 복용할 약이 없습니다"
   },
   "auth": {
     "login": "로그인",
@@ -921,6 +926,19 @@
       "ml": "ml",
       "no_records": "오늘 수분 기록이 없습니다",
       "today_label": "오늘"
+    },
+    "measurements": {
+      "title": "혈압/혈당 기록",
+      "blood_pressure": "혈압",
+      "blood_sugar": "혈당",
+      "body_temp": "체온",
+      "systolic": "수축기",
+      "diastolic": "이완기",
+      "add": "기록 추가",
+      "no_records": "기록이 없습니다",
+      "measured_at": "측정 시각",
+      "note": "메모",
+      "mmhg": "mmHg"
     }
   },
   "private": {
@@ -1325,7 +1343,23 @@
     "focus_time": "집중 시간",
     "break_time": "휴식 시간",
     "minutes": "분",
-    "done": "완료!"
+    "done": "완료!",
+    "stats_title": "집중 통계",
+    "total_sessions": "총 세션",
+    "total_focus_time": "총 집중 시간",
+    "hours_unit": "시간",
+    "days_7": "7일",
+    "days_30": "30일",
+    "weekdays": [
+      "월",
+      "화",
+      "수",
+      "목",
+      "금",
+      "토",
+      "일"
+    ],
+    "avg_sessions_per_day": "일평균 세션"
   },
   "medications": {
     "title": "복약 관리",

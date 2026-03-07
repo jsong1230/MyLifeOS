@@ -3,6 +3,7 @@
 import { useTranslations } from 'next-intl'
 import { getToday } from '@/lib/date-utils'
 import { PomodoroTimer } from '@/components/time/pomodoro-timer'
+import { PomodoroStats } from '@/components/time/pomodoro-stats'
 
 // 포모도로 타이머 페이지
 export default function PomodoroPage() {
@@ -19,6 +20,12 @@ export default function PomodoroPage() {
 
       {/* 포모도로 타이머 컴포넌트 */}
       <PomodoroTimer />
+
+      {/* 구분선 */}
+      <hr className="my-6 border-border" />
+
+      {/* 포모도로 통계 */}
+      <PomodoroStats />
     </div>
   )
 }

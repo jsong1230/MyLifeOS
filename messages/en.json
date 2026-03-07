@@ -94,7 +94,12 @@
     "addTodo": "Add task",
     "addExpense": "Add expense",
     "addMeal": "Log meal",
-    "addDiary": "Write diary"
+    "addDiary": "Write diary",
+    "water_quick_add": "Add Water (+200ml)",
+    "water_added": "200ml water added",
+    "medication_check": "Medication Check",
+    "medication_all_taken": "All medications taken",
+    "medication_none": "No medications today"
   },
   "auth": {
     "login": "Log in",
@@ -921,6 +926,19 @@
       "ml": "ml",
       "no_records": "No water intake records today",
       "today_label": "Today"
+    },
+    "measurements": {
+      "title": "Measurements",
+      "blood_pressure": "Blood Pressure",
+      "blood_sugar": "Blood Sugar",
+      "body_temp": "Body Temperature",
+      "systolic": "Systolic",
+      "diastolic": "Diastolic",
+      "add": "Add Record",
+      "no_records": "No records",
+      "measured_at": "Measured At",
+      "note": "Note",
+      "mmhg": "mmHg"
     }
   },
   "private": {
@@ -1325,7 +1343,23 @@
     "focus_time": "Focus Time",
     "break_time": "Break Time",
     "minutes": "min",
-    "done": "Done!"
+    "done": "Done!",
+    "stats_title": "Focus Stats",
+    "total_sessions": "Total Sessions",
+    "total_focus_time": "Total Focus Time",
+    "hours_unit": "h",
+    "days_7": "7d",
+    "days_30": "30d",
+    "weekdays": [
+      "Mon",
+      "Tue",
+      "Wed",
+      "Thu",
+      "Fri",
+      "Sat",
+      "Sun"
+    ],
+    "avg_sessions_per_day": "Avg Sessions/Day"
   },
   "medications": {
     "title": "Medication Tracker",

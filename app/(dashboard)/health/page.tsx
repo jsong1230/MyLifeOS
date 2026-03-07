@@ -293,6 +293,20 @@ export default function HealthPage() {
           )}
           <DetailLink href="/health/medications" label={t('medications.title')} />
         </div>
+
+        {/* AC-06: 혈압/혈당 기록 링크 카드 */}
+        <div className="flex flex-col">
+          <div className="bg-card border rounded-xl p-6 shadow-sm space-y-2">
+            <p className="text-base font-semibold flex items-center gap-2">
+              <span className="text-lg">🩺</span>
+              {t('health.measurements.title')}
+            </p>
+            <p className="text-sm text-muted-foreground">
+              {t('health.measurements.blood_pressure')} / {t('health.measurements.blood_sugar')} / {t('health.measurements.body_temp')}
+            </p>
+          </div>
+          <DetailLink href="/health/measurements" label={t('health.measurements.title')} />
+        </div>
       </div>
     </div>
   )
