@@ -70,7 +70,8 @@
     "nextMonth": "Next month",
     "loadFailed": "Failed to load data",
     "thisMonth": "This month",
-    "tryAgainLater": "Please try again later."
+    "tryAgainLater": "Please try again later.",
+    "other": "Other"
   },
   "nav": {
     "home": "Home",
@@ -1390,8 +1391,29 @@
     "by_weekday": "Avg. Spending by Day",
     "top_categories": "Top 5 Categories",
     "monthly_comparison": "vs Last Month",
-    "months": ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"],
-    "weekdays": ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"],
+    "months": [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec"
+    ],
+    "weekdays": [
+      "Mon",
+      "Tue",
+      "Wed",
+      "Thu",
+      "Fri",
+      "Sat",
+      "Sun"
+    ],
     "increase": "increase",
     "decrease": "decrease",
     "no_data": "No data available"

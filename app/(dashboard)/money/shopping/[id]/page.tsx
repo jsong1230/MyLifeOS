@@ -51,7 +51,7 @@ export default function ShoppingDetailPage({ params }: PageProps) {
     if (!groupByCategory) return null
     const map: Record<string, ShoppingItem[]> = {}
     for (const item of items) {
-      const key = item.category ?? '기타'
+      const key = item.category ?? tc('other')
       if (!map[key]) map[key] = []
       map[key].push(item)
     }

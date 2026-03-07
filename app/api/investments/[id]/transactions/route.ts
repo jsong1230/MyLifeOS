@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from 'next/server'
 import { apiError } from '@/lib/api-errors'
 import { createClient } from '@/lib/supabase/server'
+import { getToday } from '@/lib/date-utils'
 import type { InvestmentTransaction, CreateTradeInput } from '@/types/investment'
 
 // POST /api/investments/[id]/transactions → 매수/매도 거래 추가
@@ -77,7 +78,7 @@ export async function POST(
       price: tradePrice,
       shares: tradeShares,
       fee: fee,
-      date: body.date ?? new Date().toISOString().slice(0, 10),
+      date: body.date ?? getToday(),
       note: body.note ?? null,
     })
     .select('*')

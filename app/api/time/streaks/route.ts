@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { apiError } from '@/lib/api-errors'
 import { createClient } from '@/lib/supabase/server'
-import { getToday } from '@/lib/date-utils'
+import { getToday, formatDateToString } from '@/lib/date-utils'
 
 type RoutineLog = {
   routine_id: string
@@ -107,7 +107,7 @@ export async function GET() {
     // 최근 200일간 routine_logs 조회 (스트릭 계산에 충분한 범위)
     const sinceDate = new Date()
     sinceDate.setDate(sinceDate.getDate() - 200)
-    const sinceDateStr = sinceDate.toISOString().split('T')[0]
+    const sinceDateStr = formatDateToString(sinceDate)
 
     const { data: logs, error: logsError } = await supabase
       .from('routine_logs')
