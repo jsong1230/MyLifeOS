@@ -4,7 +4,7 @@ import { useState } from 'react'
 import dynamic from 'next/dynamic'
 import Link from 'next/link'
 import { useLocale, useTranslations } from 'next-intl'
-import { ChevronLeft, ChevronRight, BarChart2, ShoppingCart } from 'lucide-react'
+import { ChevronLeft, ChevronRight, BarChart2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
@@ -14,7 +14,6 @@ import { useBudgets } from '@/hooks/use-budgets'
 import { useMonthlyStats } from '@/hooks/use-assets'
 import { useSettings } from '@/hooks/use-settings'
 import { useSettingsStore } from '@/store/settings.store'
-import { useShoppingLists } from '@/hooks/use-shopping'
 import { cn } from '@/lib/utils'
 
 // YYYY-MM 문자열에서 { year, month } 파싱
@@ -72,14 +71,9 @@ export default function MoneyPage() {
   const locale = useLocale()
   const t = useTranslations('money.overview')
   const tStats = useTranslations('moneyStats')
-  const tShopping = useTranslations('shopping')
   useSettings() // Zustand defaultCurrency 동기화
   const currency = useSettingsStore((s) => s.defaultCurrency)
   const [currentMonth, setCurrentMonth] = useState<string>(getCurrentMonth)
-
-  const { data: shoppingLists = [] } = useShoppingLists()
-  const activeShoppingLists = shoppingLists.filter((l) => !l.is_completed)
-  const latestList = activeShoppingLists[0]
 
   const {
     data: transactions,
@@ -215,38 +209,6 @@ export default function MoneyPage() {
           </span>
         </div>
       )}
-
-      {/* 장보기 목록 카드 — F-45 */}
-      <Separator />
-      <Card>
-        <CardHeader className="pb-2">
-          <CardTitle className="text-base flex items-center gap-2">
-            <ShoppingCart className="h-4 w-4" />
-            {tShopping('title')}
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex items-center justify-between">
-            <div className="text-sm text-muted-foreground">
-              {activeShoppingLists.length > 0 ? (
-                <span>
-                  {tShopping('active_lists')}: <span className="font-medium text-foreground">{activeShoppingLists.length}</span>
-                  {latestList && (
-                    <span className="ml-2 text-muted-foreground/70">· {latestList.name}</span>
-                  )}
-                </span>
-              ) : (
-                tShopping('empty_lists')
-              )}
-            </div>
-            <Button variant="outline" size="sm" asChild>
-              <Link href="/money/shopping">
-                {tShopping('go_to_shopping')}
-              </Link>
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
 
       {/* 월별 수입/지출 추이 차트 — F-22 */}
       <Separator />

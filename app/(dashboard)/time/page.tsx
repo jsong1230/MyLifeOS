@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import Link from 'next/link'
-import { Plus, Timer, Flame } from 'lucide-react'
+import { Plus, Flame } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import {
@@ -32,7 +32,6 @@ import {
   useDeleteTodo,
   useReorderTodos,
 } from '@/hooks/use-todos'
-import { usePomodoroCompletedCount } from '@/hooks/use-pomodoro'
 import { useStreaks } from '@/hooks/use-streaks'
 import type { Todo, CreateTodoInput, UpdateTodoInput, ReorderTodoInput } from '@/types/todo'
 
@@ -41,11 +40,8 @@ export default function TimePage() {
   const searchParams = useSearchParams()
   const t = useTranslations('time.todos')
   const tc = useTranslations('common')
-  const tp = useTranslations('pomodoro')
   const ts = useTranslations('streaks')
 
-  // 오늘 완료된 포모도로 세션 수
-  const { data: pomodoroCount = 0 } = usePomodoroCompletedCount()
   // 스트릭 데이터
   const { data: streaksData } = useStreaks()
 
@@ -178,22 +174,6 @@ export default function TimePage() {
               ) : (
                 <span>{ts('no_streak')}</span>
               )}
-            </div>
-          </CardContent>
-        </Card>
-      </Link>
-
-      {/* 포모도로 타이머 카드 */}
-      <Link href="/time/pomodoro" className="block mb-4">
-        <Card className="hover:bg-muted/50 transition-colors cursor-pointer">
-          <CardContent className="flex items-center justify-between py-3 px-4">
-            <div className="flex items-center gap-2">
-              <Timer className="size-4 text-primary" />
-              <span className="text-sm font-medium">{tp('title')}</span>
-            </div>
-            <div className="flex items-center gap-1 text-sm text-muted-foreground">
-              <span>🍅</span>
-              <span>{pomodoroCount} {tp('sessions')}</span>
             </div>
           </CardContent>
         </Card>

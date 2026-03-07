@@ -21,11 +21,6 @@ const GoalsTab = dynamic(
   () => import('@/components/goals/goals-tab').then((m) => ({ default: m.GoalsTab })),
   { loading: () => <Skeleton className="h-64 w-full" /> }
 )
-const InvestmentsTab = dynamic(
-  () => import('@/components/investments/investments-tab').then((m) => ({ default: m.InvestmentsTab })),
-  { loading: () => <Skeleton className="h-64 w-full" /> }
-)
-
 // 오늘 날짜 기준으로 이번 주 월요일(주 시작) 반환 (YYYY-MM-DD)
 function getCurrentWeekStart(): string {
   const today = new Date()
@@ -61,7 +56,7 @@ function formatMonthLabel(year: number, month: number, locale: string): string {
 }
 
 // 탭 타입
-type TabType = 'weekly' | 'monthly' | 'goals' | 'investments' | 'ai'
+type TabType = 'weekly' | 'monthly' | 'goals' | 'ai'
 
 function InsightCard({ insight, t }: { insight: AiInsight; t: ReturnType<typeof useTranslations<'insights'>> }) {
   const bgColorMap: Record<AiInsight['type'], string> = {
@@ -104,7 +99,7 @@ export default function ReportsPage() {
   const searchParams = useSearchParams()
   const [activeTab, setActiveTab] = useState<TabType>(() => {
     const tab = searchParams.get('tab')
-    if (tab === 'ai' || tab === 'weekly' || tab === 'monthly' || tab === 'goals' || tab === 'investments') {
+    if (tab === 'ai' || tab === 'weekly' || tab === 'monthly' || tab === 'goals') {
       return tab as TabType
     }
     return 'weekly'
@@ -164,7 +159,7 @@ export default function ReportsPage() {
 
       {/* ── 탭 전환 ── */}
       <div className="flex bg-muted rounded-lg p-1 mb-6">
-        {(['weekly', 'monthly', 'goals', 'investments', 'ai'] as const).map((tab) => (
+        {(['weekly', 'monthly', 'goals', 'ai'] as const).map((tab) => (
           <button
             key={tab}
             type="button"
@@ -183,8 +178,6 @@ export default function ReportsPage() {
               ? t('reports.monthlyTab')
               : tab === 'goals'
               ? t('nav.goals')
-              : tab === 'investments'
-              ? t('money.investments.title')
               : ti('title')}
           </button>
         ))}
@@ -270,9 +263,6 @@ export default function ReportsPage() {
 
       {/* ── 목표 탭 ── */}
       {activeTab === 'goals' && <GoalsTab />}
-
-      {/* ── 투자 탭 ── */}
-      {activeTab === 'investments' && <InvestmentsTab />}
 
       {/* ── AI 인사이트 탭 ── */}
       {activeTab === 'ai' && (

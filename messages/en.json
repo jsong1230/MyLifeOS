@@ -1368,7 +1368,13 @@
       "positive": "Positive",
       "warning": "Warning",
       "suggestion": "Suggestion"
-    }
+    },
+    "type_positive": "Positive",
+    "type_warning": "Warning",
+    "type_suggestion": "Suggestion",
+    "noInsights": "No insights yet",
+    "noInsightsHint": "Keep logging for a week and AI will analyze your patterns",
+    "refresh": "Refresh"
   },
   "pomodoro": {
     "title": "Pomodoro Timer",

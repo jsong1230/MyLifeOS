@@ -1,4 +1,4 @@
-export type WidgetKey = 'time' | 'money' | 'health' | 'private' | 'books' | 'insights'
+export type WidgetKey = 'time' | 'money' | 'health' | 'private' | 'insights'
 
 export interface WidgetConfig {
   key: WidgetKey
@@ -12,5 +12,4 @@ export const DEFAULT_LAYOUT: WidgetConfig[] = [
   { key: 'money',    visible: true, order: 2 },
   { key: 'health',   visible: true, order: 3 },
   { key: 'private',  visible: true, order: 4 },
-  { key: 'books',    visible: true, order: 5 },
 ]

@@ -149,7 +149,6 @@ export function DashboardEditor({
     money:    t('widget_money'),
     health:   t('widget_health'),
     private:  t('widget_private'),
-    books:    t('widget_books'),
   }
 
   return (

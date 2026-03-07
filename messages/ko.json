@@ -1368,7 +1368,13 @@
       "positive": "긍정",
       "warning": "주의",
       "suggestion": "제안"
-    }
+    },
+    "type_positive": "긍정",
+    "type_warning": "주의",
+    "type_suggestion": "제안",
+    "noInsights": "아직 인사이트가 없습니다",
+    "noInsightsHint": "일주일간 기록하면 AI가 분석해드립니다",
+    "refresh": "다시 분석"
   },
   "pomodoro": {
     "title": "포모도로 타이머",
