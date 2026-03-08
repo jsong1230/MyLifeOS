@@ -12,7 +12,7 @@ import {
 import { Button } from '@/components/ui/button'
 import { useQueryClient } from '@tanstack/react-query'
 
-const TOTAL_STEPS = 4
+const TOTAL_STEPS = 3
 const CURRENCIES = ['KRW', 'USD', 'CAD'] as const
 type Currency = (typeof CURRENCIES)[number]
 
@@ -44,7 +44,7 @@ export function OnboardingModal({ open, onComplete }: OnboardingModalProps) {
     } finally {
       setSaving(false)
     }
-    setStep(4)
+    setStep(3)
   }
 
   async function handleComplete(redirectTo?: string) {
@@ -119,41 +119,8 @@ export function OnboardingModal({ open, onComplete }: OnboardingModalProps) {
           </>
         )}
 
-        {/* 단계 2 — PIN 설정 안내 */}
+        {/* 단계 2 — 기본 통화 설정 */}
         {step === 2 && (
-          <>
-            <DialogHeader>
-              <DialogTitle className="text-center text-xl">
-                {t('pin_title')}
-              </DialogTitle>
-            </DialogHeader>
-            <p className="text-center text-sm text-muted-foreground mt-2">
-              {t('pin_desc')}
-            </p>
-            <div className="mt-4 flex flex-col gap-2">
-              <Button
-                variant="default"
-                className="w-full"
-                onClick={() => {
-                  onComplete()
-                  router.push('/settings')
-                }}
-              >
-                {t('pin_go')}
-              </Button>
-              <Button
-                variant="ghost"
-                className="w-full"
-                onClick={() => setStep(3)}
-              >
-                {t('skip')}
-              </Button>
-            </div>
-          </>
-        )}
-
-        {/* 단계 3 — 기본 통화 설정 */}
-        {step === 3 && (
           <>
             <DialogHeader>
               <DialogTitle className="text-center text-xl">
@@ -195,8 +162,8 @@ export function OnboardingModal({ open, onComplete }: OnboardingModalProps) {
           </>
         )}
 
-        {/* 단계 4 — 시작 완료 */}
-        {step === 4 && (
+        {/* 단계 3 — 시작 완료 */}
+        {step === 3 && (
           <>
             <DialogHeader>
               <DialogTitle className="text-center text-xl">
