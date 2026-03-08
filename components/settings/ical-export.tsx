@@ -18,7 +18,7 @@ import {
 
 interface CalendarTokenResponse {
   success: boolean
-  data?: { token: string; url: string }
+  data?: { token: string }
 }
 
 /**
@@ -40,8 +40,8 @@ export function ICalExport() {
       try {
         const res = await fetch('/api/users/calendar-token')
         const json: CalendarTokenResponse = await res.json()
-        if (res.ok && json.success && json.data?.url) {
-          setSubscriptionUrl(json.data.url)
+        if (res.ok && json.success && json.data?.token) {
+          setSubscriptionUrl(`${window.location.origin}/api/time/calendar/ical?token=${json.data.token}`)
         } else {
           setError(true)
         }
@@ -76,8 +76,8 @@ export function ICalExport() {
     try {
       const res = await fetch('/api/users/calendar-token', { method: 'POST' })
       const json: CalendarTokenResponse = await res.json()
-      if (res.ok && json.success && json.data?.url) {
-        setSubscriptionUrl(json.data.url)
+      if (res.ok && json.success && json.data?.token) {
+        setSubscriptionUrl(`${window.location.origin}/api/time/calendar/ical?token=${json.data.token}`)
         setError(false)
       }
     } catch {

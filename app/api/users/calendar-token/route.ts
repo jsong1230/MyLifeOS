@@ -32,8 +32,8 @@ export async function GET() {
       if (upsertError) return apiError('SERVER_ERROR')
     }
 
-    const url = `${process.env.NEXT_PUBLIC_APP_URL}/api/time/calendar/ical?token=${token}`
-    return NextResponse.json({ success: true, data: { token, url } })
+    // URL은 클라이언트에서 window.location.origin으로 조립 (서버 env var 불필요)
+    return NextResponse.json({ success: true, data: { token } })
   } catch {
     return apiError('SERVER_ERROR')
   }
@@ -55,8 +55,8 @@ export async function POST() {
       .upsert({ user_id: user.id, calendar_token: token }, { onConflict: 'user_id' })
     if (upsertError) return apiError('SERVER_ERROR')
 
-    const url = `${process.env.NEXT_PUBLIC_APP_URL}/api/time/calendar/ical?token=${token}`
-    return NextResponse.json({ success: true, data: { token, url } })
+    // URL은 클라이언트에서 window.location.origin으로 조립 (서버 env var 불필요)
+    return NextResponse.json({ success: true, data: { token } })
   } catch {
     return apiError('SERVER_ERROR')
   }

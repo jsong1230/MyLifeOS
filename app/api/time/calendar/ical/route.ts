@@ -1,6 +1,6 @@
 import { type NextRequest, NextResponse } from 'next/server'
 import { apiError } from '@/lib/api-errors'
-import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { getToday } from '@/lib/date-utils'
 
 /**
@@ -58,7 +58,8 @@ export async function GET(request: NextRequest) {
     const token = request.nextUrl.searchParams.get('token')
     if (!token) return apiError('AUTH_REQUIRED')
 
-    const supabase = await createClient()
+    // admin 클라이언트: RLS 우회 (세션 없는 외부 클라이언트가 토큰으로 접근하므로)
+    const supabase = createAdminClient()
 
     // 토큰으로 user_id 역조회
     const { data: settings, error: tokenError } = await supabase
