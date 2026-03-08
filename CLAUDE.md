@@ -171,6 +171,17 @@
   - 기준: "AI 인사이트의 원료가 되는가?" — NO이면 제거
   - components/analytics/ai-insights-preview.tsx 신규 (인사이트 3개 미리보기)
   - Supabase redirect URL에 localhost:3000/3004 추가 (Management API)
+- ✅ 완료: 페르소나 B 리포커싱 — 7개 기능 제거 + AI 인사이트 홈 우선 노출 (2026-03-08)
+  - 삭제: 투자 트래킹, 장보기 목록, 포모도로, 약 복용, 독서 기록, 관계 메모, 퀵 메모
+  - AI 인사이트 위젯 홈 대시보드 최상단 배치 (AiInsightsPreview 컴포넌트)
+  - 분석 탭 InvestmentsTab 제거, ?tab=ai URL 파라미터 딥링크 지원
+  - FAB에서 MedicationCheckDialog 제거
+- ✅ 완료: 버그 수정 3건 + UX 개선 (2026-03-08)
+  - 인덱스 최적화: migration 033 (goals/investment_transactions/routine_logs 복합 인덱스)
+  - 오프라인 SWR 캐시 경로 4→10개 확장 (sw.js)
+  - PIN 경고 배너 추가 (settings 페이지)
+  - 알림 설정 번역 키 중복 버그 수정: 'notifications' → 'notificationCenter' 분리
+  - 온보딩 PIN 단계 제거 (4단계 → 3단계: 환영→통화→완료)
 - ⏭️ 다음: 추가 기능 개발 (사용자 요청 기반)
 
 ## 중요 결정사항
