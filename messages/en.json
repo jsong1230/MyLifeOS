@@ -216,7 +216,7 @@
     "enterPinSubtitle": "Enter your PIN to unlock",
     "wrongPin": "Incorrect PIN ({attempts}/5)",
     "wrongPinLockWarning": "Incorrect PIN ({attempts}/5). Will lock for 10 min after 5 failures",
-    "encryptionWarning": "Data encrypted with your PIN (diary, relationship memos, quick memos) cannot be recovered if the PIN is lost. Store your PIN somewhere safe."
+    "encryptionWarning": "Data encrypted with your PIN (diary) cannot be recovered if the PIN is lost. Store your PIN somewhere safe."
   },
   "dashboard": {
     "greetingMorning": "Good morning",
@@ -1536,7 +1536,7 @@
     "go_dashboard": "Go to Dashboard",
     "step_of": "{step}/{total}"
   },
-  "notifications": {
+  "notificationCenter": {
     "title": "Notifications",
     "mark_all_read": "Mark All Read",
     "empty": "No notifications",

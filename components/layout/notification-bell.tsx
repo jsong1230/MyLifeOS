@@ -70,7 +70,7 @@ function NotificationItem({
 }
 
 export function NotificationBell() {
-  const t = useTranslations('notifications')
+  const t = useTranslations('notificationCenter')
   const [open, setOpen] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
 

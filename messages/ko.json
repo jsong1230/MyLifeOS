@@ -216,7 +216,7 @@
     "enterPinSubtitle": "PIN을 입력하여 잠금을 해제하세요",
     "wrongPin": "PIN이 올바르지 않습니다 ({attempts}/5)",
     "wrongPinLockWarning": "PIN이 올바르지 않습니다 ({attempts}/5). 5회 실패 시 10분간 잠깁니다",
-    "encryptionWarning": "PIN으로 암호화된 데이터(일기, 관계 메모, 퀵 메모)는 PIN을 분실하면 복구할 수 없습니다. PIN을 안전한 곳에 보관하세요."
+    "encryptionWarning": "PIN으로 암호화된 데이터(일기)는 PIN을 분실하면 복구할 수 없습니다. PIN을 안전한 곳에 보관하세요."
   },
   "dashboard": {
     "greetingMorning": "좋은 아침이에요",
@@ -1536,7 +1536,7 @@
     "go_dashboard": "대시보드로 이동",
     "step_of": "{step}/{total}"
   },
-  "notifications": {
+  "notificationCenter": {
     "title": "알림",
     "mark_all_read": "모두 읽음",
     "empty": "알림이 없습니다",
