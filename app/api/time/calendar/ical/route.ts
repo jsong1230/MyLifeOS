@@ -1,7 +1,7 @@
-import { NextResponse } from 'next/server'
+import { type NextRequest, NextResponse } from 'next/server'
 import { apiError } from '@/lib/api-errors'
 import { createClient } from '@/lib/supabase/server'
-import { getToday, formatDateToString } from '@/lib/date-utils'
+import { getToday } from '@/lib/date-utils'
 
 /**
  * iCal 텍스트에 필요한 문자열 이스케이프 처리
@@ -49,15 +49,26 @@ function toIcalDateTime(dateStr: string, timeStr: string): string {
 }
 
 /**
- * GET /api/time/calendar/ical
+ * GET /api/time/calendar/ical?token=<calendar_token>
  * 사용자의 할일, 루틴, 타임블록을 iCal 형식(.ics)으로 반환
+ * Google Calendar 등 외부 클라이언트는 세션 없이 token 파라미터로 인증
  */
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
+    const token = request.nextUrl.searchParams.get('token')
+    if (!token) return apiError('AUTH_REQUIRED')
+
     const supabase = await createClient()
-    const { data: { user } } = await supabase.auth.getUser()
-    const userId = user?.id
-    if (!userId) return apiError('AUTH_REQUIRED')
+
+    // 토큰으로 user_id 역조회
+    const { data: settings, error: tokenError } = await supabase
+      .from('user_settings')
+      .select('user_id')
+      .eq('calendar_token', token)
+      .single()
+
+    if (tokenError || !settings) return apiError('AUTH_REQUIRED')
+    const userId = settings.user_id
 
     const today = getToday()
     const dtstamp = getDtstamp()

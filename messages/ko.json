@@ -1260,10 +1260,15 @@
       "invalidFileType": "JSON 파일만 지원합니다"
     },
     "ical_title": "캘린더 구독",
-    "ical_copy_url": "구독 URL 복사",
+    "ical_copy_url": "복사",
     "ical_copied": "복사됨",
     "ical_description": "Google Calendar, Apple Calendar 등에서 URL로 구독 가능합니다",
-    "ical_includes": "할일, 루틴, 타임블록 포함"
+    "ical_includes": "할일, 루틴, 타임블록 포함",
+    "ical_token_loading": "URL 불러오는 중...",
+    "ical_token_error": "URL 불러오기 실패. 페이지를 새로고침 해주세요.",
+    "ical_regenerate": "URL 재발급",
+    "ical_regenerate_confirm_title": "URL을 재발급할까요?",
+    "ical_regenerate_confirm_desc": "기존 구독 URL은 즉시 만료됩니다. Google Calendar 등에서 새 URL로 다시 구독해야 합니다."
   },
   "currency": {
     "KRW": "한국 원",

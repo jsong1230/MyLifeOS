@@ -1260,10 +1260,15 @@
       "invalidFileType": "Only JSON files are supported"
     },
     "ical_title": "Calendar Export",
-    "ical_copy_url": "Copy Subscription URL",
+    "ical_copy_url": "Copy",
     "ical_copied": "Copied!",
     "ical_description": "Subscribe via URL in Google Calendar, Apple Calendar, etc.",
-    "ical_includes": "Includes todos, routines, and time blocks"
+    "ical_includes": "Includes todos, routines, and time blocks",
+    "ical_token_loading": "Loading URL...",
+    "ical_token_error": "Failed to load URL. Please refresh the page.",
+    "ical_regenerate": "Regenerate URL",
+    "ical_regenerate_confirm_title": "Regenerate URL?",
+    "ical_regenerate_confirm_desc": "The current subscription URL will be invalidated immediately. You'll need to re-subscribe in Google Calendar with the new URL."
   },
   "currency": {
     "KRW": "Korean Won",
