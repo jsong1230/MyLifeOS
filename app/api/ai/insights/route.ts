@@ -1,4 +1,3 @@
-import Anthropic from '@anthropic-ai/sdk'
 import { createClient } from '@/lib/supabase/server'
 import { apiError } from '@/lib/api-errors'
 import { formatDateToString } from '@/lib/date-utils'
@@ -43,8 +42,8 @@ export async function GET() {
 
 // POST /api/ai/insights — 지난 30일 사용자 데이터를 Claude AI로 분석
 export async function POST(request: NextRequest) {
-  if (!process.env.ANTHROPIC_API_KEY) {
-    return apiError('SERVER_ERROR', { reason: 'ANTHROPIC_API_KEY is not configured' })
+  if (!process.env.OPENROUTER_API_KEY) {
+    return apiError('SERVER_ERROR', { reason: 'OPENROUTER_API_KEY is not configured' })
   }
 
   const supabase = await createClient()
@@ -192,18 +191,22 @@ locale이 'en'이면 영어로 응답하세요.
 
 현재 locale: ${locale}`
 
-  const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
-
   let parsedResponse: { insights: AiInsight[]; summary: string }
   try {
-    const message = await anthropic.messages.create({
-      model: 'claude-haiku-4-5-20251001',
-      max_tokens: 1024,
-      messages: [{ role: 'user', content: prompt }],
+    const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'anthropic/claude-haiku-4-5',
+        max_tokens: 1024,
+        messages: [{ role: 'user', content: prompt }],
+      }),
     })
-
-    const textContent = message.content.find((c) => c.type === 'text')
-    const rawText = textContent?.type === 'text' ? textContent.text : ''
+    const json = await res.json()
+    const rawText: string = json.choices?.[0]?.message?.content ?? ''
 
     // JSON 블록 추출 (```json ... ``` 감싸진 경우도 처리)
     const jsonMatch = rawText.match(/```json\s*([\s\S]*?)```/) ??

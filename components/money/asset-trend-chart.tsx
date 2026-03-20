@@ -80,8 +80,8 @@ export function AssetTrendChart({ data, currency = 'KRW' }: AssetTrendChartProps
               width={42}
             />
             <Tooltip
-              formatter={(value: number | undefined) => [
-                value != null ? formatCurrency(value, currency) : '-',
+              formatter={(value: unknown) => [
+                typeof value === 'number' ? formatCurrency(value, currency) : '-',
                 t('totalAssets'),
               ]}
               labelFormatter={(label) => `${label}`}

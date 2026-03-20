@@ -182,6 +182,15 @@
   - PIN 경고 배너 추가 (settings 페이지)
   - 알림 설정 번역 키 중복 버그 수정: 'notifications' → 'notificationCenter' 분리
   - 온보딩 PIN 단계 제거 (4단계 → 3단계: 환영→통화→완료)
+- ✅ 완료: iCal 캘린더 구독 토큰 인증 구현 + 버그 수정 3건 (2026-03-08)
+  - migration 034: user_settings.calendar_token 컬럼 + UNIQUE 부분 인덱스
+  - GET/POST /api/users/calendar-token (토큰 조회/자동발급/재발급)
+  - /api/time/calendar/ical: 세션 인증 → ?token= 파라미터 인증 교체
+  - ICalExport 컴포넌트: URL 표시 + 복사 + 재발급 AlertDialog
+  - 버그 1: iCal 엔드포인트 RLS 차단 → createAdminClient() 교체
+  - 버그 2: 서버 NEXT_PUBLIC_APP_URL 의존 → 클라이언트 window.location.origin 조립
+  - 버그 3: 미들웨어가 /api/time/calendar/ical 를 /login 리다이렉트 → PUBLIC_API_PATHS 예외 추가
+  - Google Calendar 구독 정상 동작 확인 (동기화 주기: 최대 24시간, Google 서버 결정)
 - ⏭️ 다음: 추가 기능 개발 (사용자 요청 기반)
 
 ## 중요 결정사항

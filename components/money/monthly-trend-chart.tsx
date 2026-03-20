@@ -87,9 +87,9 @@ export function MonthlyTrendChart({ data }: MonthlyTrendChartProps) {
               width={42}
             />
             <Tooltip
-              formatter={(value: number | undefined, name: string | undefined) => [
-                value != null ? formatCurrency(value, defaultCurrency as CurrencyCode) : '-',
-                name ?? '',
+              formatter={(value: unknown, name: unknown) => [
+                typeof value === 'number' ? formatCurrency(value, defaultCurrency as CurrencyCode) : '-',
+                typeof name === 'string' ? name : '',
               ]}
             />
             <Legend

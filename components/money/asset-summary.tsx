@@ -86,8 +86,8 @@ export function AssetSummary({ assets }: AssetSummaryProps) {
                   ))}
                 </Pie>
                 <Tooltip
-                  formatter={(value: number | undefined) => [
-                    value != null ? formatCurrency(value, currency) : '-',
+                  formatter={(value: unknown) => [
+                    typeof value === 'number' ? formatCurrency(value, currency) : '-',
                     '',
                   ]}
                 />

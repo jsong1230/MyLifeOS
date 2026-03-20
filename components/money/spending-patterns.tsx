@@ -77,8 +77,8 @@ export function SpendingPatterns({ data }: SpendingPatternsProps) {
                           }
                         />
                         <Tooltip
-                          formatter={(value: number | undefined) => [
-                            value !== undefined
+                          formatter={(value: unknown) => [
+                            typeof value === 'number'
                               ? formatCurrency(value, currency as CurrencyCode)
                               : '-',
                             t('by_weekday'),
